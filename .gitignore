@@ -1,0 +1,6 @@
+source/*.o
+source/spa/*.o
+source/fmc.exe
+source/fmc
+source/libfmc.a
+source/libfm.a
