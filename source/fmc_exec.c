@@ -339,14 +339,14 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
         }
     }
     action_index = model->ccmiss_action_index[index];
-    if ( model->ccnode[index].keysParams.keyParams[i]
-                           .ccNextEngineParams.nextEngine == e_FM_PCD_KG ) {
+    if ( model->ccnode[index].keysParams.ccNextEngineParamsForMiss
+                           .nextEngine == e_FM_PCD_KG ) {
         model->ccnode[index].keysParams.ccNextEngineParamsForMiss
             .params.kgParams.h_DirectScheme =
                                          model->scheme_handle[action_index];
     }
-    else if ( model->ccnode[index].keysParams.keyParams[i]
-                           .ccNextEngineParams.nextEngine == e_FM_PCD_CC ) {
+    else if ( model->ccnode[index].keysParams.ccNextEngineParamsForMiss
+                           .nextEngine == e_FM_PCD_CC ) {
         model->ccnode[index].keysParams.ccNextEngineParamsForMiss
             .params.ccParams.h_CcNode = model->ccnode_handle[action_index];
     }
