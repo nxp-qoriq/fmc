@@ -1,6 +1,6 @@
 #==========================================================================
 #
-#  Copyright 2009, 2010 Freescale Semiconductor, Inc., All Rights Reserved. 
+#  Copyright 2009-2012 Freescale Semiconductor, Inc., All Rights Reserved. 
 #
 #  This file contains copyrighted material. Use of this file is restricted
 #  by the provisions of a Freescale Software License Agreement, which has
@@ -18,7 +18,7 @@ FMD_USPACE_LIB_PATH    ?= /usr/lib
 LIBXML2_HEADER_PATH    ?= /usr/include/libxml2
 TCLAP_HEADER_PATH      ?= /usr/include
 
-PKG_NAME = fmc-0.9.10
+PKG_NAME = fmc-0.9.11
 PKG_RELEASE = 1
 
 ifeq ($(SUB_PLATFORM),p1023)

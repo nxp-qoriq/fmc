@@ -4,3 +4,6 @@ source/fmc.exe
 source/fmc
 source/libfmc.a
 source/libfm.a
+source/ctags.tmp
+source/tags
+source/tags.idx
