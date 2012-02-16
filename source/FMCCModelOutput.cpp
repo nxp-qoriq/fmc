@@ -498,56 +498,67 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.mpls=,
                         extractIt->fieldType );
+                    break;
                 case HEADER_TYPE_IPv4:
                     EMIT7_2STR(
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.ipv4=,
                         extractIt->fieldType );
+                    break;
                 case HEADER_TYPE_IPv6:
                     EMIT7_2STR(
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.ipv6=,
                         extractIt->fieldType );
+                    break;
                 case HEADER_TYPE_TCP:
                     EMIT7_2STR(
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.tcp=,
                         extractIt->fieldType );
+                    break;
                 case HEADER_TYPE_UDP:
                     EMIT7_2STR(
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.udp=,
                         extractIt->fieldType );
+                    break;
                 case HEADER_TYPE_SCTP:
                     EMIT7_2STR(
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.sctp=,
                         extractIt->fieldType );
+                    break;
                 case HEADER_TYPE_DCCP:
                     EMIT7_2STR(
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.dccp=,
                         extractIt->fieldType );
+                    break;
                 case HEADER_TYPE_MINENCAP:
                     EMIT7_2STR(
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.minencap=,
                         extractIt->fieldType );
+                    break;
                 case HEADER_TYPE_IPSEC_AH:
                     EMIT7_2STR(
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.ipsecAh=,
                         extractIt->fieldType );
+                    break;
                 case HEADER_TYPE_IPSEC_ESP:
                     EMIT7_2STR(
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.ipsecEsp=,
                         extractIt->fieldType );
+                    break;
                 case HEADER_TYPE_GRE:
                     EMIT7_2STR(
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.gre=,
                         extractIt->fieldType );
+                    break;
                 default:
                     break;
             }
