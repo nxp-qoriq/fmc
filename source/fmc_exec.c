@@ -192,12 +192,12 @@ fmc_exec_engine_end( fmc_model* model, unsigned int index )
     /* Close opened devices */
     if ( model->fman[index].pcd_handle != 0 ) {
 #ifndef NETCOMM_SW
-        FM_PCD_Close( model->fman[index].pcd_handle );
+        /* FM_PCD_Close( model->fman[index].pcd_handle ); */
 #endif
     }
     if ( model->fman[index].handle != 0 ) {
 #ifndef NETCOMM_SW
-        FM_Close( model->fman[index].handle );
+        /* FM_Close( model->fman[index].handle ); */
 #endif
     }
     
@@ -281,7 +281,7 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     err = FM_PORT_Enable( pport->handle );
     if ( err ) { return 7; }
 #ifndef NETCOMM_SW
-    FM_PORT_Close( pport->handle );
+    /* FM_PORT_Close( pport->handle ); */
 #endif
     return 0;
 }
