@@ -127,7 +127,7 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
                                      portIt->type, portIt->number );
             }
 
-            Port& port = createPort( engine, *portIt, pTaskDef );
+            Port& port      = createPort( engine, *portIt, pTaskDef );
             
             applier.add( ApplyOrder::Entry( ApplyOrder::PortEnd, port.getIndex() ) );
 
@@ -216,9 +216,9 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
     Engine& engine = all_engines[FMBlock::assignIndex( all_engines )];
 
-    engine.name   = xmlEngine.name;
-    engine.number = std::strtoul( xmlEngine.name.c_str() + 2, 0, 0 );
-
+    engine.name     = xmlEngine.name;
+    engine.number   = std::strtoul( xmlEngine.name.c_str() + 2, 0, 0 );
+    engine.pcd_name = "pcd:" + engine.name;
     
     std::map< std::string, CFragmentation >::const_iterator fragit;
     for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {

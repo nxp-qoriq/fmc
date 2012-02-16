@@ -41,11 +41,12 @@ typedef struct fmc_fman_t {
     unsigned int        port_count;
     unsigned int        ports[FMC_PORTS_PER_FMAN];
     t_Handle            handle;
-    t_Handle            handle_pcd;
+    char                pcd_name[FMC_NAME_LEN];
+    t_Handle            pcd_handle;
     
     unsigned int        frag_count;
     t_FmPcdManipParams  frag[FMC_MANIP_MAX];
-    t_Handle            handle_frag[FMC_MANIP_MAX];
+    t_Handle            frag_handle[FMC_MANIP_MAX];
 } fmc_fman;
 
 
@@ -58,8 +59,8 @@ typedef struct fmc_port_t {
     t_FmPortPcdKgParams     kgParam;
     t_FmPortPcdCcParams     ccParam;
     t_Handle                handle;
-    t_Handle                handle_env_id;
-    t_Handle                handle_cctree;
+    t_Handle                env_id_handle;
+    t_Handle                cctree_handle;
 
     unsigned int            schemes_count;             ///< Number of used schemes
     unsigned int            schemes[FMC_SCHEMES_NUM];  ///< Schemes used by this port

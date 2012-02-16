@@ -171,8 +171,13 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
                                    unsigned int index,
                                    std::ostream& oss, size_t indent )
 {
-    EMIT4( fman[, index, ].number =,     model.all_engines[index].number )
-    EMIT4( fman[, index, ].port_count =, model.all_engines[index].ports.size() )
+    EMIT4( fman[, index, ].number     =, model.all_engines[index].number );
+
+    strncpy( cmodel->fman[index].pcd_name, model.all_engines[index].pcd_name.c_str(), FMC_NAME_LEN - 1 );
+    cmodel->fman[index].pcd_name[FMC_NAME_LEN - 1] = 0;
+    oss << ind( indent ) << ".fman[" << index << "].pcd_name = \"" << model.all_engines[index].pcd_name << "\"," << std::endl;
+
+    EMIT4( fman[, index, ].port_count =, model.all_engines[index].ports.size() );
     for ( unsigned int i = 0; i < cmodel->fman[index].port_count; ++i ) {
         EMIT6( fman[, index, ].ports[, i, ] =, model.all_engines[index].ports[i] )
     }

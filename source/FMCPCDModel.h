@@ -294,6 +294,7 @@ class Engine : public FMBlock
 public:
     std::string  name;                  ///< Engine's name
     unsigned int number;                ///< Engine's number
+    std::string  pcd_name;              ///< PCD name == 'policy' name
 
     std::vector< unsigned int > ports;  ///< Ports of the engine
     

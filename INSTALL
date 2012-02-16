@@ -15,6 +15,9 @@ Build steps for FMC:
        - TCLAP_HEADER_PATH      - path to TCLAP include files
 
    - Issue 'make' command
+   
+   - For host side compilation (the mode in which FMC doesn't use
+     direct libfm API calls), use 'make FMCHOSTMODE=1' command
 
 Install steps for FMC:
    - After successful compilation, put 'fmc' application to
