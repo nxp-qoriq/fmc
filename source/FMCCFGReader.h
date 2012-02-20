@@ -22,7 +22,6 @@ class CCFGReader {
 public:
     void setTaskData( CTaskDef* pTaskData );
     void parseCfgData( std::string filename );
-    void parsePolicer( CPolicer* policer, xmlNodePtr pNode );
     void parseEngine( xmlNodePtr pNode );
 
 protected:

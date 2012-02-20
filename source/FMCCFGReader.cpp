@@ -98,20 +98,8 @@ CCFGReader::parseCfgData( std::string filename )
     // Parse children nodes
     cur = cur->xmlChildrenNode;
     while ( 0 != cur ) {
-        // policer
-        if ( !xmlStrcmp( cur->name, (const xmlChar*)"policer" ) ) {
-            std::map< std::string, CPolicer >::iterator p = 
-                task->policers.find( getXMLAttr( cur, "name" ) );
-            if ( task->policers.end() != p ) {
-                parsePolicer( &(p->second), cur );
-            }
-            else {
-                CGenericError::printWarning(WARN_UNEXPECTED_NODE,
-                    std::string("policer's name :") + getXMLAttr(cur, "name"));
-            }
-        }
         // config
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"config" ) ) {
+        if ( !xmlStrcmp( cur->name, (const xmlChar*)"config" ) ) {
             xmlNodePtr engineNode = cur->xmlChildrenNode;
             while ( engineNode ) {
                 if ( !xmlStrcmp( engineNode->name, (const xmlChar*)"engine")) {
@@ -133,83 +121,6 @@ CCFGReader::parseCfgData( std::string filename )
 
     xmlFreeDoc( doc );
     xmlCleanupParser();
-}
-
-
-void
-CCFGReader::parsePolicer( CPolicer* policer, xmlNodePtr pNode )
-{
-    // Make sure we process the right node
-    if ( xmlStrcmp( pNode->name, (const xmlChar*)"policer" ) ) {
-        throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
-    }
-
-    // Parse children nodes
-    xmlNodePtr cur = pNode->xmlChildrenNode;
-    while ( 0 != cur ) {
-        // policer_algorithm
-        if ( !xmlStrcmp( cur->name, (const xmlChar*)"policer_algorithm" ) ) {
-            std::string text = getXMLElement( cur );
-
-            if ( stripBlanks( text ) == "rfc2698" ) {
-                policer->algorithm = 1;
-            }
-            else if ( stripBlanks( text ) == "rfc4115" ) {
-                policer->algorithm = 2;
-            }
-            else {
-                policer->algorithm = 0;
-            }
-        }
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"color_mode" ) ) {
-            std::string text = getXMLElement( cur );
-
-            if ( stripBlanks( text ) == "color_aware" ) {
-                policer->color_mode = 1;
-            }
-            else {
-                policer->color_mode = 0;
-            }
-        }
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"unit" ) ) {
-            std::string text = getXMLElement( cur );
-
-            if ( stripBlanks( text ) == "packet" ) {
-                policer->unit = 1;
-            }
-            else {
-                policer->unit = 0;
-            }
-        }
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"can_drop" ) ) {
-            std::string text = getXMLElement( cur );
-            //policer->can_drop = std::strtol( text.c_str(), 0, 0 );
-        }
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"CIR" ) ) {
-            std::string text = getXMLElement( cur );
-            policer->CIR = std::strtol( text.c_str(), 0, 0 );
-        }
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"EIR" ) ) {
-            std::string text = getXMLElement( cur );
-            policer->EIR = std::strtol( text.c_str(), 0, 0 );
-        }
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"CBS" ) ) {
-            std::string text = getXMLElement( cur );
-            policer->CBS = std::strtol( text.c_str(), 0, 0 );
-        }
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"EBS" ) ) {
-            std::string text = getXMLElement( cur );
-            policer->EBS = std::strtol( text.c_str(), 0, 0 );
-        }
-        // comment
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
-        }
-        // other
-        else 
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
-
-        cur = cur->next;
-    }
 }
 
 
