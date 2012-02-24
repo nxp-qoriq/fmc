@@ -37,40 +37,43 @@ extern "C"
 #define FMC_MANIP_MAX             8
 
 typedef struct fmc_fman_t {
-    unsigned int        number;
-    unsigned int        port_count;
-    unsigned int        ports[FMC_PORTS_PER_FMAN];
-    t_Handle            handle;
-    char                pcd_name[FMC_NAME_LEN];
-    t_Handle            pcd_handle;
+    unsigned int       number;
+    unsigned int       port_count;
+    unsigned int       ports[FMC_PORTS_PER_FMAN];
+    t_Handle           handle;
+    char               pcd_name[FMC_NAME_LEN];
+    t_Handle           pcd_handle;
     
-    unsigned int        frag_count;
-    t_FmPcdManipParams  frag[FMC_MANIP_MAX];
-    t_Handle            frag_handle[FMC_MANIP_MAX];
+    unsigned int       frag_count;
+    t_FmPcdManipParams frag[FMC_MANIP_MAX];
+    t_Handle           frag_handle[FMC_MANIP_MAX];
 } fmc_fman;
 
 
 typedef struct fmc_port_t {
-    e_FmPortType            type;                      ///< Port type
-    unsigned int            number;                    ///< Port number
-    t_FmPcdNetEnvParams     distinctionUnits;  ///< Port's network env
-    t_FmPortPcdParams       pcdParam;
-    t_FmPortPcdPrsParams    prsParam;
-    t_FmPortPcdKgParams     kgParam;
-    t_FmPortPcdCcParams     ccParam;
-    t_Handle                handle;
-    t_Handle                env_id_handle;
-    t_Handle                cctree_handle;
+    e_FmPortType         type;                      ///< Port type
+    unsigned int         number;                    ///< Port number
+    t_FmPcdNetEnvParams  distinctionUnits;          ///< Port's network env
+    t_FmPortPcdParams    pcdParam;
+    t_FmPortPcdPrsParams prsParam;
+    t_FmPortPcdKgParams  kgParam;
+    t_FmPortPcdCcParams  ccParam;
+    t_Handle             handle;
+    t_Handle             env_id_handle;
+    t_Handle             cctree_handle;
 
-    unsigned int            schemes_count;             ///< Number of used schemes
-    unsigned int            schemes[FMC_SCHEMES_NUM];  ///< Schemes used by this port
+    unsigned int         schemes_count;             ///< Number of used schemes
+    unsigned int         schemes[FMC_SCHEMES_NUM];  ///< Schemes used by this port
 
-    unsigned int            ccnodes_count;             ///< Number of used CC nodes
-    unsigned int            ccnodes[FMC_CC_NODES_NUM]; ///< Class. nodes used by this port
+    unsigned int         ccnodes_count;             ///< Number of used CC nodes
+    unsigned int         ccnodes[FMC_CC_NODES_NUM]; ///< Class. nodes used by this port
 
-    unsigned int            reasm_flag;
-    t_FmPcdManipParams      reasm;
-    t_Handle                reasm_handle;
+    unsigned int         ccroot_count;
+    unsigned int         ccroot[FMC_CC_NODES_NUM];
+
+    unsigned int         reasm_flag;
+    t_FmPcdManipParams   reasm;
+    t_Handle             reasm_handle;
 } fmc_port;
 
 
@@ -107,16 +110,16 @@ typedef struct fmc_model_t {
     unsigned int             scheme_count;     ///< Number of used KeyGen schemes
     char                     scheme_name  [FMC_SCHEMES_NUM][FMC_NAME_LEN];
     t_Handle                 scheme_handle[FMC_SCHEMES_NUM];
-    t_FmPcdKgSchemeParams    scheme[FMC_SCHEMES_NUM];
+    t_FmPcdKgSchemeParams    scheme       [FMC_SCHEMES_NUM];
 
     unsigned int             ccnode_count;       ///< Number of used CC nodes
-    char                     ccnode_name  [FMC_CC_NODES_NUM][FMC_NAME_LEN];
-    t_Handle                 ccnode_handle[FMC_CC_NODES_NUM];
-    t_FmPcdCcNodeParams      ccnode       [FMC_CC_NODES_NUM];
-    uint8_t                  cckeydata    [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS]
-                                          [FM_PCD_MAX_SIZE_OF_KEY];
-    unsigned char            ccmask       [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS]
-                                          [FM_PCD_MAX_SIZE_OF_KEY];
+    char                     ccnode_name         [FMC_CC_NODES_NUM][FMC_NAME_LEN];
+    t_Handle                 ccnode_handle       [FMC_CC_NODES_NUM];
+    t_FmPcdCcNodeParams      ccnode              [FMC_CC_NODES_NUM];
+    uint8_t                  cckeydata           [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS]
+                                                 [FM_PCD_MAX_SIZE_OF_KEY];
+    unsigned char            ccmask              [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS]
+                                                 [FM_PCD_MAX_SIZE_OF_KEY];
     unsigned int             ccentry_action_index[FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned char            ccentry_frag        [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned int             ccmiss_action_index [FMC_CC_NODES_NUM];
@@ -144,6 +147,8 @@ int fmc_compile(
 );
 
 int fmc_execute( fmc_model* model );
+
+int fmc_clean( fmc_model* model );
 
 const char* fmc_get_error();
 

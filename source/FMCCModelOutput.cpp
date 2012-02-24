@@ -214,13 +214,20 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
 {
     EMIT4STR( port[, index, ].type =, model.all_ports[index].type );
     EMIT4( port[, index, ].number = ,  model.all_ports[index].number );
+    
     EMIT4( port[, index, ].schemes_count =, model.all_ports[index].schemes.size() );
     for ( unsigned int i = 0; i < cmodel->port[index].schemes_count; ++i ) {
         EMIT6( port[, index, ].schemes[, i, ] =, model.all_ports[index].schemes[i] );
     }
+
     EMIT4( port[, index, ].ccnodes_count =, model.all_ports[index].ccnodes.size() );
     for ( unsigned int i = 0; i < cmodel->port[index].ccnodes_count; ++i ) {
         EMIT6( port[, index, ].ccnodes[, i, ] =, model.all_ports[index].ccnodes[i] );
+    }
+    
+    EMIT4( port[, index, ].ccroot_count =, model.all_ports[index].cctrees.size() );
+    for ( unsigned int i = 0; i < cmodel->port[index].ccroot_count; ++i ) {
+        EMIT6( port[, index, ].ccroot[, i, ] =, model.all_ports[index].cctrees[i] );
     }
 
     // Distinction units

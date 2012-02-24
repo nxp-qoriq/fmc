@@ -374,19 +374,19 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
 {
     t_FmPcdCcTreeParams ccTreeParams = { 0 };
     unsigned int i;
-    ccTreeParams.numOfGrps = model->port[port].ccnodes_count;
+    ccTreeParams.numOfGrps = model->port[port].ccroot_count;
     ccTreeParams.h_NetEnv  = model->port[port].env_id_handle;
     if ( model->port[port].reasm_flag ) {
         ccTreeParams.h_IpReassemblyManip = model->port[port].reasm_handle;
     }
 
-    for ( i = 0; i < model->port[port].ccnodes_count; ++i ) {
+    for ( i = 0; i < model->port[port].ccroot_count; ++i ) {
         ccTreeParams.ccGrpParams[i].numOfDistinctionUnits = 0;
         ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
             nextEngine = e_FM_PCD_CC;
         ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
             params.ccParams.h_CcNode =
-                model->ccnode_handle[model->port[port].ccnodes[i]];
+                model->ccnode_handle[model->port[port].ccroot[i]];
     }
 
     model->port[port].cctree_handle =
