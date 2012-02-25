@@ -107,7 +107,7 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
 
     // Output format version
     EMIT2( format_version =, 0x101 );
-    
+
     // Output Soft Parser
     EMIT2( sp_enable =, model.spEnable );
     if ( cmodel->sp_enable ) {
@@ -214,7 +214,7 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
 {
     EMIT4STR( port[, index, ].type =, model.all_ports[index].type );
     EMIT4( port[, index, ].number = ,  model.all_ports[index].number );
-    
+
     EMIT4( port[, index, ].schemes_count =, model.all_ports[index].schemes.size() );
     for ( unsigned int i = 0; i < cmodel->port[index].schemes_count; ++i ) {
         EMIT6( port[, index, ].schemes[, i, ] =, model.all_ports[index].schemes[i] );
@@ -224,7 +224,7 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
     for ( unsigned int i = 0; i < cmodel->port[index].ccnodes_count; ++i ) {
         EMIT6( port[, index, ].ccnodes[, i, ] =, model.all_ports[index].ccnodes[i] );
     }
-    
+
     EMIT4( port[, index, ].ccroot_count =, model.all_ports[index].cctrees.size() );
     for ( unsigned int i = 0; i < cmodel->port[index].ccroot_count; ++i ) {
         EMIT6( port[, index, ].ccroot[, i, ] =, model.all_ports[index].cctrees[i] );
@@ -272,7 +272,7 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 1,].hdrs[0].hdr = HEADER_TYPE_IPv6 );
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 1,].hdrs[0].opt.ipv6Opt = IPV6_FRAG_1 );
     }
-    
+
     // Fill PCD params
     if ( ( !model.all_ports[index].cctrees.empty() || model.all_ports[index].reasm.size() )
          && !model.all_ports[index].schemes.empty() && !model.all_policers.empty() ) {
@@ -497,7 +497,7 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
                         scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                         ], .extractByHdr.extractByHdrType.fullField.llcSnap =,
                         extractIt->fieldType );
-                         
+
                     break;
                 case HEADER_TYPE_PPPoE:
                     EMIT7_2STR(
@@ -579,10 +579,10 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
             EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                       ], .extractByHdr.extractByHdrType.fromHdr.size =,
                       extractIt->size );
-                       
+
             EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
                       ], .extractByHdr.extractByHdrType.fromHdr.offset =, extractIt->offset );
-                       
+
         }
 
         indent -= 4;

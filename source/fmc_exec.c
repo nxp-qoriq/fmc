@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009-2012, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009-2012, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -75,13 +75,13 @@ fmc_execute( fmc_model* model )
                 ret = fmc_exec_policer( model, current_engine, model->ao[i].index );
                 break;
         }
-        
+
         // Exit the loop in case of failure
         if ( ret != 0 ) {
             break;
         }
     }
-    
+
     return ret;
 }
 
@@ -120,7 +120,7 @@ t_Handle fmc_get_handle(
     found = 0;
     for ( port = 0; port < model->fman[engine].port_count; port++ ) {
         unsigned int port_index = model->fman[engine].ports[port];
-        if ( model->port[port_index].type   == port_type && 
+        if ( model->port[port_index].type   == port_type &&
              model->port[port_index].number == port_number ) {
             found = 1;
             break;
@@ -147,7 +147,7 @@ static int
 fmc_exec_engine_start( fmc_model* model, unsigned int index )
 {
     unsigned int i;
-    
+
     t_FmPcdParams fmPcdParams = {0};
 
     /* Open FMan device */
@@ -159,18 +159,18 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index )
     if ( model->fman[index].handle == 0 ) {
         return 1;
     }
-    
+
     /* Open FMan device */
     fmPcdParams.h_Fm = model->fman[index].handle;
 #ifndef NETCOMM_SW
     model->fman[index].pcd_handle = FM_PCD_Open( &fmPcdParams );
 #else
-    model->fman[index].handle_pcd = SYS_GetHandle(e_SYS_SUBMODULE_FM_PCD, model->fman[index].number ); 
+    model->fman[index].handle_pcd = SYS_GetHandle(e_SYS_SUBMODULE_FM_PCD, model->fman[index].number );
 #endif
     if ( model->fman[index].pcd_handle == 0 ) {
         return 2;
     }
-    
+
     if ( model->sp_enable ) {
         FM_PCD_PrsLoadSw( model->fman[index].pcd_handle, &(model->sp) );
     }
@@ -180,7 +180,7 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index )
         model->fman[index].frag_handle[i] =
             FM_PCD_ManipSetNode( model->fman[index].pcd_handle, &model->fman[index].frag[i] );
     }
-    
+
     return 0;
 }
 
@@ -200,7 +200,7 @@ fmc_exec_engine_end( fmc_model* model, unsigned int index )
         /* FM_Close( model->fman[index].handle ); */
 #endif
     }
-    
+
     return 0;
 }
 
@@ -211,14 +211,14 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port,
                                        unsigned int* prelative_scheme_index )
 {
     t_FmPortParams  fmPortParam      = {0};
-    
+
     fmc_fman* pengine = &model->fman[engine];
     fmc_port* pport   = &model->port[port];
 
     fmPortParam.h_Fm     = pengine->handle;
     fmPortParam.portId   = pport->number;
     fmPortParam.portType = pport->type;
-    
+
 #ifndef NETCOMM_SW
     model->port[port].handle = FM_PORT_Open( &fmPortParam );
 #else
@@ -237,13 +237,13 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port,
     if ( pport->env_id_handle == 0 ) {
         return 4;
     }
-    
+
     if ( pport->reasm_flag != 0 ) {
         *prelative_scheme_index += 2;
         pport->reasm_handle =
             FM_PCD_ManipSetNode( pengine->pcd_handle, &pport->reasm );
     }
-    
+
     return 0;
 }
 
@@ -255,7 +255,7 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     t_Error err;
     fmc_port* pport = &model->port[port];
     unsigned int i;
-    
+
     pport->pcdParam.h_NetEnv    = pport->env_id_handle;
     pport->pcdParam.p_PrsParams = &pport->prsParam;
 
@@ -320,7 +320,7 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
 {
     unsigned int i;
     unsigned int action_index;
-    
+
     for ( i = 0; i < model->ccnode[index].keysParams.numOfKeys; ++i ) {
         action_index = model->ccentry_action_index[index][i];
         if ( model->ccnode[index].keysParams.keyParams[i]
@@ -337,7 +337,7 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
         }
 
         if ( model->ccentry_frag[index][i] != 0 ) {
-            model->ccnode[index].keysParams.keyParams[i].ccNextEngineParams.h_Manip = 
+            model->ccnode[index].keysParams.keyParams[i].ccNextEngineParams.h_Manip =
                 model->fman[engine].frag_handle[ model->ccentry_frag[index][i] - 1 ];
         }
     }
@@ -353,12 +353,12 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
         model->ccnode[index].keysParams.ccNextEngineParamsForMiss
             .params.ccParams.h_CcNode = model->ccnode_handle[action_index];
     }
-    
-    
-    model->ccnode_handle[index] = 
+
+
+    model->ccnode_handle[index] =
         FM_PCD_CcSetNode( model->fman[engine].pcd_handle,
                           &(model->ccnode[index]) );
-                          
+
     if ( model->ccnode_handle[index] == 0 ) {
         return 6;
     }
@@ -395,7 +395,7 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
     if ( model->port[port].cctree_handle == 0 ) {
         return 7;
     }
-    
+
     return 0;
 }
 
@@ -406,7 +406,7 @@ fmc_exec_policer( fmc_model* model, unsigned int engine,
                   unsigned int index )
 {
     unsigned int action_index;
-    
+
     // Fill next engine handles
     action_index = model->policer_action_index[index][0];
     switch ( model->policer[index].nextEngineOnGreen ) {
@@ -441,13 +441,13 @@ fmc_exec_policer( fmc_model* model, unsigned int engine,
                 model->scheme_handle[action_index];
             break;
     }
-    
+
     model->policer_handle[index] =
         FM_PCD_PlcrSetProfile( model->fman[engine].pcd_handle,
                                &(model->policer[index]) );
     if ( model->policer_handle[index] == 0 ) {
         return 8;
     }
-    
+
     return 0;
 }
