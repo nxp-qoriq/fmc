@@ -601,8 +601,8 @@ class CTaskDef
     std::map< std::string, CClassification > classifications;
     std::map< std::string, CPolicer >        policers;
     std::map< std::string, CPolicy >         policies;
-	std::map< std::string, CFragmentation >	 fragmentations;
-	std::map< std::string, CReassembly >	 reassemblies;
+	std::map< std::string, CFragmentation >  fragmentations;
+	std::map< std::string, CReassembly >     reassemblies;
 
     std::map< std::string, CEngine > engines;
 
