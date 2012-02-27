@@ -211,6 +211,8 @@ public:
     std::vector< unsigned int > indices;
 
     CCNextEngine nextEngineOnMiss;
+
+    std::string   port_signature;
 };
 
 

@@ -281,10 +281,10 @@ int fmc_compile(
 
             task.checkSemantics();
 
-            std::ofstream ofs( ".\\dumpActions.txt" );
-            CDumpActions da( ofs, task );
-            da.printActions();
-            error_text = "Error: temporary termination";
+//            std::ofstream ofs( ".\\dumpActions.txt" );
+//            CDumpActions da( ofs, task );
+//            da.printActions();
+//            error_text = "Error: temporary termination";
             //return 10;
 
             CFMCModel model;
