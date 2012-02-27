@@ -738,6 +738,7 @@ CFMCModel::FindAndAddCCNodeByName( const CTaskDef* pTaskDef, std::string name,
 
     if ( isRoot ) {
         port.cctrees.push_back( index );
+        return port.cctrees.size() - 1;
     }
 
     return index;
