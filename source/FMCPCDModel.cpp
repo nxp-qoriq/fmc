@@ -498,7 +498,9 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 
     port.ccnodes.push_back( ccNode.getIndex() );
 
-    ccNode.name = xmlCCNode.name;
+    ccNode.name           = xmlCCNode.name;
+  	ccNode.port_signature = port.signature;
+
 
     if (xmlCCNode.key.header)
     {
@@ -714,15 +716,31 @@ CFMCModel::FindAndAddCCNodeByName( const CTaskDef* pTaskDef, std::string name,
     if ( nodeIt == pTaskDef->classifications.end() ) {
         throw CGenericError( ERR_CC_NOT_FOUND, name, from );
     }
-    CCNode& ccnode = createCCNode( pTaskDef, port, nodeIt->second );
+    
+    // Check whether this node was already created
+	bool         found = false;
+	unsigned int index;
+	for ( unsigned int i = 0; i < all_ccnodes.size(); ++i ) {
+		if ( ( all_ccnodes[i].name == name ) && 
+             ( all_ccnodes[i].port_signature == port.signature ) ) {
+            found = true;
+			index = all_ccnodes[i].getIndex();
+
+			applier.move( ApplyOrder::Entry( ApplyOrder::CCNode,
+				                             index ) );
+		}
+	}
+
+    if ( !found ) {
+        CCNode& ccnode = createCCNode( pTaskDef, port, nodeIt->second );
+        index = ccnode.getIndex();
+    }
 
     if ( isRoot ) {
-        port.cctrees.push_back( ccnode.getIndex() );
-        return port.cctrees.size() - 1;
+        port.cctrees.push_back( index );
     }
-    else {
-        return ccnode.getIndex();
-    }
+
+    return index;
 }
 
 
@@ -807,7 +825,7 @@ CFMCModel::FindAndAddSchemeByName( const CTaskDef* pTaskDef, std::string name,
 			index = all_schemes[i].getIndex();
 
 			applier.move( ApplyOrder::Entry( ApplyOrder::Scheme,
-				                             all_schemes[i].getIndex() ) );
+				                             index ) );
 		}
 	}
 
