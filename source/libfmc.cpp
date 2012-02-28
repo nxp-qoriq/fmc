@@ -326,7 +326,7 @@ int fmc_compile(
 #ifdef __cplusplus
 extern "C"
 #endif
-const char* fmc_get_error()
+const char* fmc_get_error( void )
 {
     return error_text.c_str();
 }

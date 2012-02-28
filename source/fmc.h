@@ -150,7 +150,7 @@ int fmc_execute( fmc_model* model );
 
 int fmc_clean( fmc_model* model );
 
-const char* fmc_get_error();
+const char* fmc_get_error( void );
 
 t_Handle fmc_get_handle(
             fmc_model*   model,
