@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009-2012, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -102,7 +102,7 @@ bool
 CFMCModel::createModel( CTaskDef* pTaskDef )
 {
     assert( pTaskDef );
-    
+
     // For all engines
     std::map< std::string, CEngine >::iterator engIt;
     for ( engIt = pTaskDef->engines.begin();
@@ -120,7 +120,7 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
               ++portIt ) {
 
             // Find the policy
-            std::map< std::string, CPolicy >::iterator policyIt = 
+            std::map< std::string, CPolicy >::iterator policyIt =
                 pTaskDef->policies.find( portIt->policy );
             if ( policyIt == pTaskDef->policies.end() ) {
                 throw CGenericError( ERR_POLICY_NOT_FOUND, portIt->policy,
@@ -128,11 +128,11 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
             }
 
             Port& port      = createPort( engine, *portIt, pTaskDef );
-            
+
             applier.add( ApplyOrder::Entry( ApplyOrder::PortEnd, port.getIndex() ) );
 
             unsigned int applier_pos = applier.size();
-            
+
             // For all distributions in this policy
             std::vector< std::string >::reverse_iterator distRefIt;
             uint8_t scheme_index = 0;
@@ -159,13 +159,13 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
                 }
             }
 
-			for (unsigned int schIndex = 0; schIndex < all_schemes.size(); schIndex++)
-			{
-				if (all_schemes[schIndex].scheme_index_per_port == -1)
-				{
-					all_schemes[schIndex].scheme_index_per_port = scheme_index++;
-				}
-			}
+            for (unsigned int schIndex = 0; schIndex < all_schemes.size(); schIndex++)
+            {
+                if (all_schemes[schIndex].scheme_index_per_port == -1)
+                {
+                    all_schemes[schIndex].scheme_index_per_port = scheme_index++;
+                }
+            }
 
             if ( !port.cctrees.empty() || port.reasm.size() ) {
                 applier.addDelayed( ApplyOrder::Entry( ApplyOrder::CCTree, port.getIndex() ) );
@@ -178,9 +178,9 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
             for ( protoIt  = port.protocols.begin(), i = 0;
                   protoIt != port.protocols.end();
                   ++protoIt, ++i ) {
-                protoIt->second.first         = i;
-                protoIt->second.second.hdr    = getNetCommHeaderType( protoIt->first.name );
-				protoIt->second.second.opt	  = protoIt->first.opt;
+                protoIt->second.first      = i;
+                protoIt->second.second.hdr = getNetCommHeaderType( protoIt->first.name );
+                protoIt->second.second.opt = protoIt->first.opt;
                 if ( protoIt->second.second.hdr == HEADER_TYPE_NONE ) {
                     std::string shim_protocol = pTaskDef->getShimNoFromCustom( protoIt->first.name );
                     if ( !shim_protocol.empty() ) { // Shim header is empty if custom protocol is not found
@@ -219,7 +219,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
     engine.name     = xmlEngine.name;
     engine.number   = std::strtoul( xmlEngine.name.c_str() + 2, 0, 0 );
     engine.pcd_name = "pcd:" + engine.name;
-    
+
     std::map< std::string, CFragmentation >::const_iterator fragit;
     for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {
         t_FmPcdManipParams frag;
@@ -232,7 +232,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
         engine.frags.push_back( frag );
     }
-    
+
     return engine;
 }
 
@@ -252,9 +252,9 @@ CFMCModel::createPort( Engine& engine, const CPort& xmlPort, const CTaskDef* pTa
     port.typeStr   = getPortTypeStr( port.type );
     port.number    = xmlPort.number;
     port.portid    = xmlPort.portid;
-	std::ostringstream oss;
-	oss << engine.name << port.typeStr << port.number;
-	port.signature = oss.str();
+    std::ostringstream oss;
+    oss << engine.name << port.typeStr << port.number;
+    port.signature = oss.str();
 
     std::map< std::string, CReassembly >::const_iterator it;
     for ( it = pTaskDef->reassemblies.begin(); it != pTaskDef->reassemblies.end(); ++it ) {
@@ -307,8 +307,8 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
     scheme.hashShift             = xmlDist.keyShift;
     scheme.symmetricHash         = xmlDist.symmetricHash;
     scheme.isDirect              = isDirect ? 1 : 0;
-	scheme.scheme_index_per_port = -1;
-	scheme.port_signature        = port.signature;
+    scheme.scheme_index_per_port = -1;
+    scheme.port_signature        = port.signature;
 
     // For each 'key' entry
     for ( unsigned int i = 0; i < xmlDist.key.size(); ++i ) {
@@ -317,10 +317,10 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
             field.type       = e_FM_PCD_EXTRACT_BY_HDR;
             field.typeStr    = "e_FM_PCD_EXTRACT_BY_HDR";
 
-			Protocol tProt;
+            Protocol tProt;
             tProt.name =
                 xmlDist.key[i].name.substr( 0, xmlDist.key[i].name.find_last_of( "." ) );
-			tProt.opt = "";
+            tProt.opt = "";
             if ( scheme.isDirect == 0 ) {   // Only for inderect schemes
                 scheme.used_protocols.insert( tProt );
             }
@@ -452,9 +452,9 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
     // For each 'protocol' entry
     if ( scheme.isDirect == 0 ) {   // Only for inderect schemes
         for ( unsigned int i = 0; i < xmlDist.protocols.size(); ++i ) {
-			Protocol tProt;
-			tProt.name = xmlDist.protocols[i].name;
-			tProt.opt = xmlDist.protocols[i].opt;
+            Protocol tProt;
+            tProt.name = xmlDist.protocols[i].name;
+            tProt.opt = xmlDist.protocols[i].opt;
             scheme.used_protocols.insert( tProt );
         }
     }
@@ -499,7 +499,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     port.ccnodes.push_back( ccNode.getIndex() );
 
     ccNode.name           = xmlCCNode.name;
-  	ccNode.port_signature = port.signature;
+    ccNode.port_signature = port.signature;
 
 
     if (xmlCCNode.key.header)
@@ -540,7 +540,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
                     }
                 }
                 field.hdrStr = getNetCommHeaderTypeStr( field.hdr );
-               
+
                 field.hdrIndex    = getNetCommHeaderIndex( xmlCCNode.key.fields[i].header_index );
                 field.hdrIndexStr = getNetCommHeaderIndexStr( xmlCCNode.key.fields[i].header_index );
 
@@ -559,21 +559,21 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
                     ccNode.keySize += bitsize;
                 }
 
-                field.type       = e_FM_PCD_EXTRACT_BY_HDR;
-                field.typeStr    = "e_FM_PCD_EXTRACT_BY_HDR";
+                field.type    = e_FM_PCD_EXTRACT_BY_HDR;
+                field.typeStr = "e_FM_PCD_EXTRACT_BY_HDR";
                 if ( ( getNetCommFieldType( field.fieldName ) != UNKNOWN_NetCommField ) &&
                        isFullFieldForCC( field.fieldName ) ) {
-					if (xmlCCNode.key.field)
-					{
-						field.offset = xmlCCNode.key.fields[i].offset;
-						field.size = xmlCCNode.key.fields[i].size;
-						field.hdrtype    = e_FM_PCD_EXTRACT_FROM_FIELD;
-						field.hdrtypeStr = "e_FM_PCD_EXTRACT_FROM_FIELD";
-					} else
-					{
-						field.hdrtype    = e_FM_PCD_EXTRACT_FULL_FIELD;
-						field.hdrtypeStr = "e_FM_PCD_EXTRACT_FULL_FIELD";
-					}
+                    if (xmlCCNode.key.field)
+                    {
+                        field.offset     = xmlCCNode.key.fields[i].offset;
+                        field.size       = xmlCCNode.key.fields[i].size;
+                        field.hdrtype    = e_FM_PCD_EXTRACT_FROM_FIELD;
+                        field.hdrtypeStr = "e_FM_PCD_EXTRACT_FROM_FIELD";
+                    } else
+                    {
+                        field.hdrtype    = e_FM_PCD_EXTRACT_FULL_FIELD;
+                        field.hdrtypeStr = "e_FM_PCD_EXTRACT_FULL_FIELD";
+                    }
                 }
                 else {
                     field.hdrtype    = e_FM_PCD_EXTRACT_FROM_HDR;
@@ -594,7 +594,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     }
     else
     {// Non header extract
-        ccNode.extract.nhSource		= (e_FmPcdExtractFrom)xmlCCNode.key.nonHeaderEntry.source;
+        ccNode.extract.nhSource = (e_FmPcdExtractFrom)xmlCCNode.key.nonHeaderEntry.source;
         switch (ccNode.extract.nhSource)
         {
         case e_FM_PCD_EXTRACT_FROM_FRAME_START:
@@ -617,7 +617,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             break;
         }
 
-        ccNode.extract.nhAction		= (e_FmPcdAction)xmlCCNode.key.nonHeaderEntry.action;
+        ccNode.extract.nhAction        = (e_FmPcdAction)xmlCCNode.key.nonHeaderEntry.action;
 
         switch (ccNode.extract.nhAction)
         {
@@ -632,8 +632,8 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             break;
         }
 
-        ccNode.extract.nhOffset		= xmlCCNode.key.nonHeaderEntry.offset;
-        ccNode.extract.nhSize		= xmlCCNode.key.nonHeaderEntry.size;
+        ccNode.extract.nhOffset        = xmlCCNode.key.nonHeaderEntry.offset;
+        ccNode.extract.nhSize        = xmlCCNode.key.nonHeaderEntry.size;
         ccNode.extract.nhIcIndxMask = xmlCCNode.key.nonHeaderEntry.icIndxMask;
 
         ccNode.keySize = ccNode.extract.nhSize * 8;
@@ -716,20 +716,20 @@ CFMCModel::FindAndAddCCNodeByName( const CTaskDef* pTaskDef, std::string name,
     if ( nodeIt == pTaskDef->classifications.end() ) {
         throw CGenericError( ERR_CC_NOT_FOUND, name, from );
     }
-    
+
     // Check whether this node was already created
-	bool         found = false;
-	unsigned int index;
-	for ( unsigned int i = 0; i < all_ccnodes.size(); ++i ) {
-		if ( ( all_ccnodes[i].name == name ) && 
+    bool         found = false;
+    unsigned int index;
+    for ( unsigned int i = 0; i < all_ccnodes.size(); ++i ) {
+        if ( ( all_ccnodes[i].name == name ) &&
              ( all_ccnodes[i].port_signature == port.signature ) ) {
             found = true;
-			index = all_ccnodes[i].getIndex();
+            index = all_ccnodes[i].getIndex();
 
-			applier.move( ApplyOrder::Entry( ApplyOrder::CCNode,
-				                             index ) );
-		}
-	}
+            applier.move( ApplyOrder::Entry( ApplyOrder::CCNode,
+                                             index ) );
+        }
+    }
 
     if ( !found ) {
         CCNode& ccnode = createCCNode( pTaskDef, port, nodeIt->second );
@@ -753,10 +753,10 @@ void
 CFMCModel::createSoftParse( const CTaskDef* pTaskDef )
 {
     const CSoftParseResult& taskSpr = pTaskDef->spr;
-    
+
     if (!taskSpr.softParseEnabled)
         spEnable = 0;
-    else 
+    else
     {
         spEnable = 1;
         swPrs.override    = TRUE;
@@ -764,26 +764,26 @@ CFMCModel::createSoftParse( const CTaskDef* pTaskDef )
         swPrs.base        = taskSpr.base;
         swPrs.numOfLabels = taskSpr.numOfLabels;
         swPrs.p_Code      = spCode;
-        
+
         // Copy SP code
         unsigned int i, j;
         memset( spCode, 0, CODE_SIZE );
-        for ( i = 2*( taskSpr.base - ASSEMBLER_BASE ), j = 0; i < CODE_SIZE - 4; ++i, ++j ) {        
-            spCode[j] = taskSpr.p_Code[i];   
-        }   
-        
+        for ( i = 2*( taskSpr.base - ASSEMBLER_BASE ), j = 0; i < CODE_SIZE - 4; ++i, ++j ) {
+            spCode[j] = taskSpr.p_Code[i];
+        }
+
         // Copy SP parameters
         for ( i = 0; i < FM_PCD_PRS_NUM_OF_HDRS; ++i ) {
             swPrs.swPrsDataParams[i] = 0;
         }
-        
+
         // Copy SP label info
         for ( i = 0; i < swPrs.numOfLabels; ++i ) {
             swPrs.labelsTable[i].indexPerHdr =
                 taskSpr.labelsTable[i].indexPerHdr;
             swPrs.labelsTable[i].instructionOffset =
                 taskSpr.labelsTable[i].position;
-            swPrs.labelsTable[i].hdr = 
+            swPrs.labelsTable[i].hdr =
                 getNetCommHeaderType(taskSpr.labelsTable[i].prevNames[0]);
             if ( swPrs.labelsTable[i].hdr == HEADER_TYPE_NONE ) {
                 std::string shim_protocol =
@@ -814,26 +814,26 @@ CFMCModel::FindAndAddSchemeByName( const CTaskDef* pTaskDef, std::string name,
     if ( distIt == pTaskDef->distributions.end() ) {
         throw CGenericError( ERR_DISTR_NOT_FOUND, name, from );
     }
-    
+
     // Check whether this scheme was already created
-	bool         found = false;
-	unsigned int index;
-	for ( unsigned int i = 0; i < all_schemes.size(); ++i ) {
-		if ( ( all_schemes[i].name           == name )                 &&
-			 ( all_schemes[i].isDirect       == ( isDirect ? 1 : 0 ) ) &&
-			 ( all_schemes[i].port_signature == port.signature ) ) {
+    bool         found = false;
+    unsigned int index;
+    for ( unsigned int i = 0; i < all_schemes.size(); ++i ) {
+        if ( ( all_schemes[i].name           == name )                 &&
+             ( all_schemes[i].isDirect       == ( isDirect ? 1 : 0 ) ) &&
+             ( all_schemes[i].port_signature == port.signature ) ) {
             found = true;
-			index = all_schemes[i].getIndex();
+            index = all_schemes[i].getIndex();
 
-			applier.move( ApplyOrder::Entry( ApplyOrder::Scheme,
-				                             index ) );
-		}
-	}
+            applier.move( ApplyOrder::Entry( ApplyOrder::Scheme,
+                                             index ) );
+        }
+    }
 
-	if ( !found ) {
+    if ( !found ) {
         Scheme& scheme = createScheme( pTaskDef, port, distIt->second, isDirect );
-		index = scheme.getIndex();
-	}
+        index = scheme.getIndex();
+    }
 
     return index;
 }
@@ -902,11 +902,11 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
         policer.onGreenActionStr = "e_FM_PCD_DROP_FRAME";
     }
     if ( policer.nextEngineOnGreen == e_FM_PCD_KG ) {
-        policer.onGreenActionHandleIndex = 
+        policer.onGreenActionHandleIndex =
             FindAndAddSchemeByName( pTaskDef, xmlPolicer.actionNameOnGreen,
                                     xmlPolicer.name, port, true );
     } else if ( policer.nextEngineOnGreen == e_FM_PCD_PLCR ) {
-        policer.onGreenActionHandleIndex = 
+        policer.onGreenActionHandleIndex =
             FindAndAddPolicerByName( pTaskDef, xmlPolicer.actionNameOnGreen,
                                      xmlPolicer.name, port );
     }
@@ -920,11 +920,11 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
         policer.onYellowActionStr = "e_FM_PCD_DROP_FRAME";
     }
     if ( policer.nextEngineOnYellow == e_FM_PCD_KG ) {
-        policer.onYellowActionHandleIndex = 
+        policer.onYellowActionHandleIndex =
             FindAndAddSchemeByName( pTaskDef, xmlPolicer.actionNameOnYellow,
                                     xmlPolicer.name, port, true );
     } else if ( policer.nextEngineOnYellow == e_FM_PCD_PLCR ) {
-        policer.onYellowActionHandleIndex = 
+        policer.onYellowActionHandleIndex =
             FindAndAddPolicerByName( pTaskDef, xmlPolicer.actionNameOnYellow,
                                      xmlPolicer.name, port );
     }
@@ -938,11 +938,11 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
         policer.onRedActionStr = "e_FM_PCD_DROP_FRAME";
     }
     if ( policer.nextEngineOnRed == e_FM_PCD_KG ) {
-        policer.onRedActionHandleIndex = 
+        policer.onRedActionHandleIndex =
             FindAndAddSchemeByName( pTaskDef, xmlPolicer.actionNameOnRed,
                                     xmlPolicer.name, port, true );
     } else if ( policer.nextEngineOnRed == e_FM_PCD_PLCR ) {
-        policer.onRedActionHandleIndex = 
+        policer.onRedActionHandleIndex =
             FindAndAddPolicerByName( pTaskDef, xmlPolicer.actionNameOnRed,
                                      xmlPolicer.name, port );
     }
@@ -1019,7 +1019,7 @@ CFMCModel::getPortTypeStr( e_FmPortType type )
             return "e_FM_PORT_TYPE_TX";
         case e_FM_PORT_TYPE_TX_10G:
             return "e_FM_PORT_TYPE_TX_10G";
-        case e_FM_PORT_TYPE_DUMMY: 
+        case e_FM_PORT_TYPE_DUMMY:
             return "e_FM_PORT_TYPE_DUMMY";
     }
 
@@ -1144,65 +1144,65 @@ CFMCModel::getNetCommFieldType( std::string fieldname )
 {
     std::map< std::string, unsigned int > fields;
 
-    fields["ethernet.dst"] = NET_HEADER_FIELD_ETH_DA;
-    fields["ethernet.src"] = NET_HEADER_FIELD_ETH_SA;
-    fields["ethernet.type"] = NET_HEADER_FIELD_ETH_TYPE;
-    fields["vlan.pri"] = NET_HEADER_FIELD_VLAN_VPRI;
-    fields["vlan.cfi"] = NET_HEADER_FIELD_VLAN_CFI;
-    fields["vlan.vlanid"] = NET_HEADER_FIELD_VLAN_VID;
-    fields["vlan.type"] = NET_HEADER_FIELD_VLAN_TYPE;
-    fields["vlan.tci"] = NET_HEADER_FIELD_VLAN_TCI;
-    fields["llc_snap.OUI"] = NET_HEADER_FIELD_SNAP_OUI;
-    fields["llc_snap.type"] = NET_HEADER_FIELD_LLC_SNAP_TYPE;
-    fields["llc_snap.dsap"] = NET_HEADER_FIELD_LLC_DSAP;
-    fields["llc_snap.ssap"] = NET_HEADER_FIELD_LLC_SSAP;
-    fields["mpls.label"] = NET_HEADER_FIELD_MPLS_LABEL_STACK;
-    fields["ipv4.ver"] = NET_HEADER_FIELD_IPv4_VER;
-    fields["ipv4.hlen"] = NET_HEADER_FIELD_IPv4_HDR_LEN;
-    fields["ipv4.tos"] = NET_HEADER_FIELD_IPv4_TOS;
-    fields["ipv4.tlen"] = NET_HEADER_FIELD_IPv4_TOTAL_LEN;
+    fields["ethernet.dst"]        = NET_HEADER_FIELD_ETH_DA;
+    fields["ethernet.src"]        = NET_HEADER_FIELD_ETH_SA;
+    fields["ethernet.type"]       = NET_HEADER_FIELD_ETH_TYPE;
+    fields["vlan.pri"]            = NET_HEADER_FIELD_VLAN_VPRI;
+    fields["vlan.cfi"]            = NET_HEADER_FIELD_VLAN_CFI;
+    fields["vlan.vlanid"]         = NET_HEADER_FIELD_VLAN_VID;
+    fields["vlan.type"]           = NET_HEADER_FIELD_VLAN_TYPE;
+    fields["vlan.tci"]            = NET_HEADER_FIELD_VLAN_TCI;
+    fields["llc_snap.OUI"]        = NET_HEADER_FIELD_SNAP_OUI;
+    fields["llc_snap.type"]       = NET_HEADER_FIELD_LLC_SNAP_TYPE;
+    fields["llc_snap.dsap"]       = NET_HEADER_FIELD_LLC_DSAP;
+    fields["llc_snap.ssap"]       = NET_HEADER_FIELD_LLC_SSAP;
+    fields["mpls.label"]          = NET_HEADER_FIELD_MPLS_LABEL_STACK;
+    fields["ipv4.ver"]            = NET_HEADER_FIELD_IPv4_VER;
+    fields["ipv4.hlen"]           = NET_HEADER_FIELD_IPv4_HDR_LEN;
+    fields["ipv4.tos"]            = NET_HEADER_FIELD_IPv4_TOS;
+    fields["ipv4.tlen"]           = NET_HEADER_FIELD_IPv4_TOTAL_LEN;
     fields["ipv4.identification"] = NET_HEADER_FIELD_IPv4_ID;
-    fields["ipv4.df"] = NET_HEADER_FIELD_IPv4_FLAG_D;
-    fields["ipv4.mf"] = NET_HEADER_FIELD_IPv4_FLAG_M;
-    fields["ipv4.foffset"] = NET_HEADER_FIELD_IPv4_OFFSET;
-    fields["ipv4.ttl"] = NET_HEADER_FIELD_IPv4_TTL;
-    fields["ipv4.nextp"] = NET_HEADER_FIELD_IPv4_PROTO;
-    fields["ipv4.hchecksum"] = NET_HEADER_FIELD_IPv4_CKSUM;
-    fields["ipv4.src"] = NET_HEADER_FIELD_IPv4_SRC_IP;
-    fields["ipv4.dst"] = NET_HEADER_FIELD_IPv4_DST_IP;
-    fields["ipv6.nexthdr"] = NET_HEADER_FIELD_IPv6_NEXT_HDR;
-    fields["ipv6.src"] = NET_HEADER_FIELD_IPv6_SRC_IP;
-    fields["ipv6.dst"] = NET_HEADER_FIELD_IPv6_DST_IP;
-    fields["ipv6.hop"] = NET_HEADER_FIELD_IPv6_HOP_LIMIT;
-    fields["tcp.sport"] = NET_HEADER_FIELD_TCP_PORT_SRC;
-    fields["tcp.dport"] = NET_HEADER_FIELD_TCP_PORT_DST;
-    fields["tcp.seq"] = NET_HEADER_FIELD_TCP_SEQ;
-    fields["tcp.ack"] = NET_HEADER_FIELD_TCP_ACK;
-    fields["tcp.flags"] = NET_HEADER_FIELD_TCP_FLAGS;
-    fields["tcp.win"] = NET_HEADER_FIELD_TCP_WINDOW;
-    fields["tcp.crc"] = NET_HEADER_FIELD_TCP_CKSUM;
-    fields["tcp.urg"] = NET_HEADER_FIELD_TCP_URGPTR;
-    fields["udp.sport"] = NET_HEADER_FIELD_UDP_PORT_SRC;
-    fields["udp.dport"] = NET_HEADER_FIELD_UDP_PORT_DST;
-    fields["udp.len"] = NET_HEADER_FIELD_UDP_LEN;
-    fields["udp.crc"] = NET_HEADER_FIELD_UDP_CKSUM;
-    fields["gre.type"] = NET_HEADER_FIELD_GRE_TYPE;
-    fields["pppoe.ver"] = NET_HEADER_FIELD_PPPoE_VER;
-    fields["pppoe.type"] = NET_HEADER_FIELD_PPPoE_TYPE;
-    fields["pppoe.code"] = NET_HEADER_FIELD_PPPoE_CODE;
-    fields["pppoe.session_ID"] = NET_HEADER_FIELD_PPPoE_SID;
-    fields["pppoe.hlen"] = NET_HEADER_FIELD_PPPoE_LEN;
-    fields["pppoe.nextp"] = NET_HEADER_FIELD_PPP_PID;
-    fields["minencap.dst"] = NET_HEADER_FIELD_MINENCAP_DST_IP;
-    fields["sctp.sport"] = NET_HEADER_FIELD_SCTP_PORT_SRC;
-    fields["sctp.dport"] = NET_HEADER_FIELD_SCTP_PORT_DST;
-    fields["sctp.ver_tag"] = NET_HEADER_FIELD_SCTP_VER_TAG;
-    fields["sctp.crc"] = NET_HEADER_FIELD_SCTP_CKSUM;
-    fields["dccp.sport"] = NET_HEADER_FIELD_DCCP_PORT_SRC;
-    fields["dccp.dport"] = NET_HEADER_FIELD_DCCP_PORT_DST;
-    fields["ipsec_ah.nexthdr"] = NET_HEADER_FIELD_IPSEC_AH_NH;
-    fields["ipsec_ah.spi"] = NET_HEADER_FIELD_IPSEC_AH_SPI;
-    fields["ipsec_esp.spi"] = NET_HEADER_FIELD_IPSEC_ESP_SPI;
+    fields["ipv4.df"]             = NET_HEADER_FIELD_IPv4_FLAG_D;
+    fields["ipv4.mf"]             = NET_HEADER_FIELD_IPv4_FLAG_M;
+    fields["ipv4.foffset"]        = NET_HEADER_FIELD_IPv4_OFFSET;
+    fields["ipv4.ttl"]            = NET_HEADER_FIELD_IPv4_TTL;
+    fields["ipv4.nextp"]          = NET_HEADER_FIELD_IPv4_PROTO;
+    fields["ipv4.hchecksum"]      = NET_HEADER_FIELD_IPv4_CKSUM;
+    fields["ipv4.src"]            = NET_HEADER_FIELD_IPv4_SRC_IP;
+    fields["ipv4.dst"]            = NET_HEADER_FIELD_IPv4_DST_IP;
+    fields["ipv6.nexthdr"]        = NET_HEADER_FIELD_IPv6_NEXT_HDR;
+    fields["ipv6.src"]            = NET_HEADER_FIELD_IPv6_SRC_IP;
+    fields["ipv6.dst"]            = NET_HEADER_FIELD_IPv6_DST_IP;
+    fields["ipv6.hop"]            = NET_HEADER_FIELD_IPv6_HOP_LIMIT;
+    fields["tcp.sport"]           = NET_HEADER_FIELD_TCP_PORT_SRC;
+    fields["tcp.dport"]           = NET_HEADER_FIELD_TCP_PORT_DST;
+    fields["tcp.seq"]             = NET_HEADER_FIELD_TCP_SEQ;
+    fields["tcp.ack"]             = NET_HEADER_FIELD_TCP_ACK;
+    fields["tcp.flags"]           = NET_HEADER_FIELD_TCP_FLAGS;
+    fields["tcp.win"]             = NET_HEADER_FIELD_TCP_WINDOW;
+    fields["tcp.crc"]             = NET_HEADER_FIELD_TCP_CKSUM;
+    fields["tcp.urg"]             = NET_HEADER_FIELD_TCP_URGPTR;
+    fields["udp.sport"]           = NET_HEADER_FIELD_UDP_PORT_SRC;
+    fields["udp.dport"]           = NET_HEADER_FIELD_UDP_PORT_DST;
+    fields["udp.len"]             = NET_HEADER_FIELD_UDP_LEN;
+    fields["udp.crc"]             = NET_HEADER_FIELD_UDP_CKSUM;
+    fields["gre.type"]            = NET_HEADER_FIELD_GRE_TYPE;
+    fields["pppoe.ver"]           = NET_HEADER_FIELD_PPPoE_VER;
+    fields["pppoe.type"]          = NET_HEADER_FIELD_PPPoE_TYPE;
+    fields["pppoe.code"]          = NET_HEADER_FIELD_PPPoE_CODE;
+    fields["pppoe.session_ID"]    = NET_HEADER_FIELD_PPPoE_SID;
+    fields["pppoe.hlen"]          = NET_HEADER_FIELD_PPPoE_LEN;
+    fields["pppoe.nextp"]         = NET_HEADER_FIELD_PPP_PID;
+    fields["minencap.dst"]        = NET_HEADER_FIELD_MINENCAP_DST_IP;
+    fields["sctp.sport"]          = NET_HEADER_FIELD_SCTP_PORT_SRC;
+    fields["sctp.dport"]          = NET_HEADER_FIELD_SCTP_PORT_DST;
+    fields["sctp.ver_tag"]        = NET_HEADER_FIELD_SCTP_VER_TAG;
+    fields["sctp.crc"]            = NET_HEADER_FIELD_SCTP_CKSUM;
+    fields["dccp.sport"]          = NET_HEADER_FIELD_DCCP_PORT_SRC;
+    fields["dccp.dport"]          = NET_HEADER_FIELD_DCCP_PORT_DST;
+    fields["ipsec_ah.nexthdr"]    = NET_HEADER_FIELD_IPSEC_AH_NH;
+    fields["ipsec_ah.spi"]        = NET_HEADER_FIELD_IPSEC_AH_SPI;
+    fields["ipsec_esp.spi"]       = NET_HEADER_FIELD_IPSEC_ESP_SPI;
 
     if ( fields.find( fieldname ) != fields.end() ) {
         return fields[fieldname];
@@ -1220,65 +1220,65 @@ CFMCModel::getNetCommFieldTypeStr( std::string fieldname )
 {
     std::map< std::string, std::string > fields;
 
-    fields["ethernet.dst"] = "NET_HEADER_FIELD_ETH_DA";
-    fields["ethernet.src"] = "NET_HEADER_FIELD_ETH_SA";
-    fields["ethernet.type"] = "NET_HEADER_FIELD_ETH_TYPE";
-    fields["vlan.pri"] = "NET_HEADER_FIELD_VLAN_VPRI";
-    fields["vlan.cfi"] = "NET_HEADER_FIELD_VLAN_CFI";
-    fields["vlan.vlanid"] = "NET_HEADER_FIELD_VLAN_VID";
-    fields["vlan.type"] = "NET_HEADER_FIELD_VLAN_TYPE";
-    fields["vlan.tci"] = "NET_HEADER_FIELD_VLAN_TCI";
-    fields["llc_snap.OUI"] = "NET_HEADER_FIELD_SNAP_OUI";
-    fields["llc_snap.type"] = "NET_HEADER_FIELD_LLC_SNAP_TYPE";
-    fields["llc_snap.dsap"] = "NET_HEADER_FIELD_LLC_DSAP";
-    fields["llc_snap.ssap"] = "NET_HEADER_FIELD_LLC_SSAP";
-    fields["mpls.label"] = "NET_HEADER_FIELD_MPLS_LABEL_STACK";
-    fields["ipv4.ver"] = "NET_HEADER_FIELD_IPv4_VER";
-    fields["ipv4.hlen"] = "NET_HEADER_FIELD_IPv4_HDR_LEN";
-    fields["ipv4.tos"] = "NET_HEADER_FIELD_IPv4_TOS";
-    fields["ipv4.tlen"] = "NET_HEADER_FIELD_IPv4_TOTAL_LEN";
+    fields["ethernet.dst"]        = "NET_HEADER_FIELD_ETH_DA";
+    fields["ethernet.src"]        = "NET_HEADER_FIELD_ETH_SA";
+    fields["ethernet.type"]       = "NET_HEADER_FIELD_ETH_TYPE";
+    fields["vlan.pri"]            = "NET_HEADER_FIELD_VLAN_VPRI";
+    fields["vlan.cfi"]            = "NET_HEADER_FIELD_VLAN_CFI";
+    fields["vlan.vlanid"]         = "NET_HEADER_FIELD_VLAN_VID";
+    fields["vlan.type"]           = "NET_HEADER_FIELD_VLAN_TYPE";
+    fields["vlan.tci"]            = "NET_HEADER_FIELD_VLAN_TCI";
+    fields["llc_snap.OUI"]        = "NET_HEADER_FIELD_SNAP_OUI";
+    fields["llc_snap.type"]       = "NET_HEADER_FIELD_LLC_SNAP_TYPE";
+    fields["llc_snap.dsap"]       = "NET_HEADER_FIELD_LLC_DSAP";
+    fields["llc_snap.ssap"]       = "NET_HEADER_FIELD_LLC_SSAP";
+    fields["mpls.label"]          = "NET_HEADER_FIELD_MPLS_LABEL_STACK";
+    fields["ipv4.ver"]            = "NET_HEADER_FIELD_IPv4_VER";
+    fields["ipv4.hlen"]           = "NET_HEADER_FIELD_IPv4_HDR_LEN";
+    fields["ipv4.tos"]            = "NET_HEADER_FIELD_IPv4_TOS";
+    fields["ipv4.tlen"]           = "NET_HEADER_FIELD_IPv4_TOTAL_LEN";
     fields["ipv4.identification"] = "NET_HEADER_FIELD_IPv4_ID";
-    fields["ipv4.df"] = "NET_HEADER_FIELD_IPv4_FLAG_D";
-    fields["ipv4.mf"] = "NET_HEADER_FIELD_IPv4_FLAG_M";
-    fields["ipv4.foffset"] = "NET_HEADER_FIELD_IPv4_OFFSET";
-    fields["ipv4.ttl"] = "NET_HEADER_FIELD_IPv4_TTL";
-    fields["ipv4.nextp"] = "NET_HEADER_FIELD_IPv4_PROTO";
-    fields["ipv4.hchecksum"] = "NET_HEADER_FIELD_IPv4_CKSUM";
-    fields["ipv4.src"] = "NET_HEADER_FIELD_IPv4_SRC_IP";
-    fields["ipv4.dst"] = "NET_HEADER_FIELD_IPv4_DST_IP";
-    fields["ipv6.nexthdr"] = "NET_HEADER_FIELD_IPv6_NEXT_HDR";
-    fields["ipv6.src"] = "NET_HEADER_FIELD_IPv6_SRC_IP";
-    fields["ipv6.dst"] = "NET_HEADER_FIELD_IPv6_DST_IP";
-    fields["ipv6.hop"] = "NET_HEADER_FIELD_IPv6_HOP_LIMIT";
-    fields["tcp.sport"] = "NET_HEADER_FIELD_TCP_PORT_SRC";
-    fields["tcp.dport"] = "NET_HEADER_FIELD_TCP_PORT_DST";
-    fields["tcp.seq"] = "NET_HEADER_FIELD_TCP_SEQ";
-    fields["tcp.ack"] = "NET_HEADER_FIELD_TCP_ACK";
-    fields["tcp.flags"] = "NET_HEADER_FIELD_TCP_FLAGS";
-    fields["tcp.win"] = "NET_HEADER_FIELD_TCP_WINDOW";
-    fields["tcp.crc"] = "NET_HEADER_FIELD_TCP_CKSUM";
-    fields["tcp.urg"] = "NET_HEADER_FIELD_TCP_URGPTR";
-    fields["udp.sport"] = "NET_HEADER_FIELD_UDP_PORT_SRC";
-    fields["udp.dport"] = "NET_HEADER_FIELD_UDP_PORT_DST";
-    fields["udp.len"] = "NET_HEADER_FIELD_UDP_LEN";
-    fields["udp.crc"] = "NET_HEADER_FIELD_UDP_CKSUM";
-    fields["gre.type"] = "NET_HEADER_FIELD_GRE_TYPE";
-    fields["pppoe.ver"] = "NET_HEADER_FIELD_PPPoE_VER";
-    fields["pppoe.type"] = "NET_HEADER_FIELD_PPPoE_TYPE";
-    fields["pppoe.code"] = "NET_HEADER_FIELD_PPPoE_CODE";
-    fields["pppoe.session_ID"] = "NET_HEADER_FIELD_PPPoE_SID";
-    fields["pppoe.hlen"] = "NET_HEADER_FIELD_PPPoE_LEN";
-    fields["pppoe.nextp"] = "NET_HEADER_FIELD_PPP_PID";
-    fields["minencap.dst"] = "NET_HEADER_FIELD_MINENCAP_DST_IP";
-    fields["sctp.sport"] = "NET_HEADER_FIELD_SCTP_PORT_SRC";
-    fields["sctp.dport"] = "NET_HEADER_FIELD_SCTP_PORT_DST";
-    fields["sctp.ver_tag"] = "NET_HEADER_FIELD_SCTP_VER_TAG";
-    fields["sctp.crc"] = "NET_HEADER_FIELD_SCTP_CKSUM";
-    fields["dccp.sport"] = "NET_HEADER_FIELD_DCCP_PORT_SRC";
-    fields["dccp.dport"] = "NET_HEADER_FIELD_DCCP_PORT_DST";
-    fields["ipsec_ah.nexthdr"] = "NET_HEADER_FIELD_IPSEC_AH_NH";
-    fields["ipsec_ah.spi"] = "NET_HEADER_FIELD_IPSEC_AH_SPI";
-    fields["ipsec_esp.spi"] = "NET_HEADER_FIELD_IPSEC_ESP_SPI";
+    fields["ipv4.df"]             = "NET_HEADER_FIELD_IPv4_FLAG_D";
+    fields["ipv4.mf"]             = "NET_HEADER_FIELD_IPv4_FLAG_M";
+    fields["ipv4.foffset"]        = "NET_HEADER_FIELD_IPv4_OFFSET";
+    fields["ipv4.ttl"]            = "NET_HEADER_FIELD_IPv4_TTL";
+    fields["ipv4.nextp"]          = "NET_HEADER_FIELD_IPv4_PROTO";
+    fields["ipv4.hchecksum"]      = "NET_HEADER_FIELD_IPv4_CKSUM";
+    fields["ipv4.src"]            = "NET_HEADER_FIELD_IPv4_SRC_IP";
+    fields["ipv4.dst"]            = "NET_HEADER_FIELD_IPv4_DST_IP";
+    fields["ipv6.nexthdr"]        = "NET_HEADER_FIELD_IPv6_NEXT_HDR";
+    fields["ipv6.src"]            = "NET_HEADER_FIELD_IPv6_SRC_IP";
+    fields["ipv6.dst"]            = "NET_HEADER_FIELD_IPv6_DST_IP";
+    fields["ipv6.hop"]            = "NET_HEADER_FIELD_IPv6_HOP_LIMIT";
+    fields["tcp.sport"]           = "NET_HEADER_FIELD_TCP_PORT_SRC";
+    fields["tcp.dport"]           = "NET_HEADER_FIELD_TCP_PORT_DST";
+    fields["tcp.seq"]             = "NET_HEADER_FIELD_TCP_SEQ";
+    fields["tcp.ack"]             = "NET_HEADER_FIELD_TCP_ACK";
+    fields["tcp.flags"]           = "NET_HEADER_FIELD_TCP_FLAGS";
+    fields["tcp.win"]             = "NET_HEADER_FIELD_TCP_WINDOW";
+    fields["tcp.crc"]             = "NET_HEADER_FIELD_TCP_CKSUM";
+    fields["tcp.urg"]             = "NET_HEADER_FIELD_TCP_URGPTR";
+    fields["udp.sport"]           = "NET_HEADER_FIELD_UDP_PORT_SRC";
+    fields["udp.dport"]           = "NET_HEADER_FIELD_UDP_PORT_DST";
+    fields["udp.len"]             = "NET_HEADER_FIELD_UDP_LEN";
+    fields["udp.crc"]             = "NET_HEADER_FIELD_UDP_CKSUM";
+    fields["gre.type"]            = "NET_HEADER_FIELD_GRE_TYPE";
+    fields["pppoe.ver"]           = "NET_HEADER_FIELD_PPPoE_VER";
+    fields["pppoe.type"]          = "NET_HEADER_FIELD_PPPoE_TYPE";
+    fields["pppoe.code"]          = "NET_HEADER_FIELD_PPPoE_CODE";
+    fields["pppoe.session_ID"]    = "NET_HEADER_FIELD_PPPoE_SID";
+    fields["pppoe.hlen"]          = "NET_HEADER_FIELD_PPPoE_LEN";
+    fields["pppoe.nextp"]         = "NET_HEADER_FIELD_PPP_PID";
+    fields["minencap.dst"]        = "NET_HEADER_FIELD_MINENCAP_DST_IP";
+    fields["sctp.sport"]          = "NET_HEADER_FIELD_SCTP_PORT_SRC";
+    fields["sctp.dport"]          = "NET_HEADER_FIELD_SCTP_PORT_DST";
+    fields["sctp.ver_tag"]        = "NET_HEADER_FIELD_SCTP_VER_TAG";
+    fields["sctp.crc"]            = "NET_HEADER_FIELD_SCTP_CKSUM";
+    fields["dccp.sport"]          = "NET_HEADER_FIELD_DCCP_PORT_SRC";
+    fields["dccp.dport"]          = "NET_HEADER_FIELD_DCCP_PORT_DST";
+    fields["ipsec_ah.nexthdr"]    = "NET_HEADER_FIELD_IPSEC_AH_NH";
+    fields["ipsec_ah.spi"]        = "NET_HEADER_FIELD_IPSEC_AH_SPI";
+    fields["ipsec_esp.spi"]       = "NET_HEADER_FIELD_IPSEC_ESP_SPI";
 
     if ( fields.find( fieldname ) != fields.end() ) {
         return fields[fieldname];
@@ -1289,7 +1289,7 @@ CFMCModel::getNetCommFieldTypeStr( std::string fieldname )
 
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Returns true if a field can be extracted as a full field by coarse classific. 
+/// Returns true if a field can be extracted as a full field by coarse classific.
 ////////////////////////////////////////////////////////////////////////////////
 bool
 CFMCModel::isFullFieldForCC( std::string fieldName )
@@ -1328,7 +1328,7 @@ CFMCModel::isFullFieldForCC( std::string fieldName )
     const char** find_result = std::find( &supported[0],
                                           &supported[supported_len],
                                           fieldName );
-    
+
     return ( find_result != &supported[supported_len] );
 }
 
@@ -1397,7 +1397,7 @@ CFMCModel::getPlcrColor( std::string color )
     else if ( color == "override" ) {
         return e_FM_PCD_PLCR_OVERRIDE;
     }
-    
+
     // Default color
     return e_FM_PCD_PLCR_GREEN;
 }
@@ -1415,7 +1415,7 @@ CFMCModel::getPlcrColorStr( std::string color )
     else if ( color == "override" ) {
         return "e_FM_PCD_PLCR_OVERRIDE";
     }
-    
+
     // Default color
     return "e_FM_PCD_PLCR_GREEN";
 }
@@ -1478,15 +1478,15 @@ void
 ApplyOrder::move( Entry entry )
 {
     // Find existing entry
-	std::vector< Entry >::iterator entryIt = entries.begin();
-	for ( entryIt = entries.begin(); entryIt != entries.end(); ++entryIt ) {
-		if ( entryIt->index == entry.index &&
+    std::vector< Entry >::iterator entryIt = entries.begin();
+    for ( entryIt = entries.begin(); entryIt != entries.end(); ++entryIt ) {
+        if ( entryIt->index == entry.index &&
              entryIt->type  == entry.type ) {
             entries.erase( entryIt );
-			entryIt = entries.begin();
-		}
-	}
-	add( entry );
+            entryIt = entries.begin();
+        }
+    }
+    add( entry );
 }
 
 
