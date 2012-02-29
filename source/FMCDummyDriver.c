@@ -246,3 +246,11 @@ FM_PCD_ManipSetNode(t_Handle h_FmPcd, t_FmPcdManipParams *p_FmPcdManipParams)
     printf( "Calling IOCTL::FM_PCD_ManipSetNode\n" );
     return (t_Handle)++hanle_no;
 }
+
+
+t_Error
+FM_PCD_ManipDeleteNode(t_Handle h_FmPcd, t_Handle h_HdrManipNode)
+{
+    printf( "Calling IOCTL::FM_PCD_ManipDeleteNode\n" );
+    return E_OK;
+}
