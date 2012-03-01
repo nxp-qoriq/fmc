@@ -37,19 +37,17 @@ static int fmc_exec_policer     ( fmc_model* model, unsigned int engine,
 static int fmc_clean_engine_start( fmc_model* model, unsigned int index );
 static int fmc_clean_engine_end  ( fmc_model* model, unsigned int index );
 static int fmc_clean_port_start  ( fmc_model* model, unsigned int engine,
-                                  unsigned int index,
-                                  unsigned int* prelative_scheme_index );
+                                   unsigned int index );
 static int fmc_clean_port_end    ( fmc_model* model, unsigned int engine,
-                                  unsigned int index );
+                                   unsigned int index );
 static int fmc_clean_scheme      ( fmc_model* model,  unsigned int engine,
-                                  unsigned int port, unsigned int index,
-                                  unsigned int relative_scheme_index );
+                                   unsigned int port, unsigned int index );
 static int fmc_clean_ccnode      ( fmc_model* model, unsigned int engine,
-                                  unsigned int index );
+                                   unsigned int index );
 static int fmc_clean_cctree      ( fmc_model* model,  unsigned int engine,
-                                  unsigned int port );
+                                   unsigned int port );
 static int fmc_clean_policer     ( fmc_model* model, unsigned int engine,
-                                  unsigned int index );
+                                   unsigned int index );
 
 
 /* -------------------------------------------------------------------------- */
@@ -111,7 +109,6 @@ fmc_clean( fmc_model* model )
     int          ret = 0;
     unsigned int current_engine;
     unsigned int current_port;
-    unsigned int relative_scheme_index;
     unsigned int i, j;
 
     for ( j = 0; j < model->ao_count; j++ ) {
@@ -119,23 +116,24 @@ fmc_clean( fmc_model* model )
         i = model->ao_count - j - 1;
         switch ( model->ao[i].type ) {
             case FMCEngineStart:
-                current_engine        = model->ao[i].index;
-                relative_scheme_index = 0;
+                current_engine = model->ao[i].index;
                 ret = fmc_clean_engine_start( model, current_engine );
                 break;
             case FMCEngineEnd:
+                current_engine = model->ao[i].index;
                 ret = fmc_clean_engine_end( model, current_engine );
                 break;
             case FMCPortStart:
                 current_port = model->ao[i].index;
-                ret = fmc_clean_port_start( model, current_engine, current_port, &relative_scheme_index );
+                ret = fmc_clean_port_start( model, current_engine, current_port );
                 break;
             case FMCPortEnd:
+                current_port = model->ao[i].index;
                 ret = fmc_clean_port_end( model, current_engine, current_port );
                 break;
             case FMCScheme:
                 ret = fmc_clean_scheme( model, current_engine, current_port,
-                                       model->ao[i].index, relative_scheme_index++ );
+                                        model->ao[i].index );
                 break;
             case FMCCCNode:
                 ret = fmc_clean_ccnode( model, current_engine, model->ao[i].index );
@@ -561,8 +559,7 @@ fmc_clean_engine_end( fmc_model* model, unsigned int index )
 
 /* -------------------------------------------------------------------------- */
 static int
-fmc_clean_port_start( fmc_model* model, unsigned int engine, unsigned int port,
-                                       unsigned int* prelative_scheme_index )
+fmc_clean_port_start( fmc_model* model, unsigned int engine, unsigned int port )
 {
     fmc_port* pport = &model->port[port];
 
@@ -600,8 +597,7 @@ fmc_clean_port_end( fmc_model* model, unsigned int engine, unsigned int port )
 /* -------------------------------------------------------------------------- */
 static int
 fmc_clean_scheme( fmc_model* model,  unsigned int engine,
-                 unsigned int port, unsigned int index,
-                 unsigned int relative_scheme_index )
+                 unsigned int port, unsigned int index )
 {
     if ( model->scheme_handle[index] != 0 ) {
         FM_PCD_KgDeleteScheme( model->fman[engine].pcd_handle,
