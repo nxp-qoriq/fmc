@@ -999,6 +999,13 @@ CFMCCModelOutput::output_fmc_applier( const CFMCModel& model, fmc_model_t* cmode
 {
     ApplyOrder::Entry e = model.applier.getAt( index );
 
-    EMIT4( ao[, cmodel->ao_count - index - 1, ].type =,  (fmc_apply_order_e)e.type );
+    cmodel->ao[cmodel->ao_count - index - 1].type = (fmc_apply_order_e)e.type;
+    oss << ind( indent )
+        << ".ao["
+        << cmodel->ao_count - index - 1
+        << "] = "
+        << model.applier.getTypeAsStr( e.type )
+        << ","
+        << std::endl;
     EMIT4( ao[, cmodel->ao_count - index - 1, ].index =, e.index );
 }

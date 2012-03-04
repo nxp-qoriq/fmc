@@ -329,6 +329,7 @@ public:
     void insertDelayedAfter( unsigned int after ); ///< Merge regular and delayed lists
     Entry getAt( unsigned int index ) const; ///< Returns entry at the given position
     unsigned int size() const;          ///< Returns the number of entries
+    std::string getTypeAsStr( Type t ) const;
 
 private:
     std::vector< Entry > entries;       ///< The entries' storage
