@@ -152,9 +152,11 @@ public:
                                         ///< 'key'
     unsigned int indexNetEnv;           ///< NetEnv index
 
-    e_FmPcdEngine nextEngine;
-    std::string   nextEngineStr;
-    unsigned int  actionHandleIndex;
+    e_FmPcdEngine     nextEngine;
+    std::string       nextEngineStr;
+    e_FmPcdDoneAction doneAction;
+    std::string       doneActionStr;
+    unsigned int      actionHandleIndex;
 
     std::string   port_signature;
     unsigned int  scheme_index_per_port; // Scheme index for t_Fmc type
@@ -182,10 +184,12 @@ public:
     class CCNextEngine
     {
     public:
-        e_FmPcdEngine nextEngine;
-        std::string   nextEngineStr;
-        unsigned int  newFqid;
-        unsigned int  actionHandleIndex;
+        e_FmPcdEngine     nextEngine;
+        std::string       nextEngineStr;
+        unsigned int      newFqid;
+        e_FmPcdDoneAction doneAction;
+        std::string       doneActionStr;
+        unsigned int      actionHandleIndex;
     };
     class CCData
     {

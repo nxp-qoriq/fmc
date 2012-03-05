@@ -407,6 +407,9 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
     EMIT4( scheme[, index, ].baseFqid =, sch.qbase );
 
     EMIT4STR( scheme[, index, ].nextEngine =, sch.nextEngine );
+    if ( sch.nextEngine == e_FM_PCD_DONE && sch.doneAction == e_FM_PCD_DROP_FRAME ) {
+        EMIT4STR( scheme[, index, ].kgNextEngineParams.doneAction =, sch.doneAction );
+    }
     if ( sch.nextEngine == e_FM_PCD_PLCR ) {
         EMIT4( scheme[, index, ].kgNextEngineParams.plcrProfile.sharedProfile =, 1 );
         EMIT4( scheme[, index, ].kgNextEngineParams.plcrProfile.direct =,        1 );

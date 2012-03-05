@@ -460,21 +460,29 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
     }
 
     // Add next engine entry
-    scheme.nextEngine    = getEngineByType( xmlDist.action );
-    scheme.nextEngineStr = getEngineByTypeStr( xmlDist.action );
-    if ( scheme.nextEngine == e_FM_PCD_PLCR ) { // Is it a policer?
+    scheme.nextEngine        = getEngineByType( xmlDist.action );
+    scheme.nextEngineStr     = getEngineByTypeStr( xmlDist.action );
+    scheme.doneAction        = e_FM_PCD_ENQ_FRAME;
+    scheme.doneActionStr     = "e_FM_PCD_ENQ_FRAME";
+    scheme.actionHandleIndex = 0xFFFFFFFF;
+    if ( scheme.nextEngine == e_FM_PCD_DONE &&
+         xmlDist.action == "drop" ) {                   // Is it drop?
+        scheme.doneAction    = e_FM_PCD_DROP_FRAME;
+        scheme.doneActionStr = "e_FM_PCD_DROP_FRAME";
+    }
+    else if ( scheme.nextEngine == e_FM_PCD_PLCR ) {    // Is it a policer?
         // Find the policer and add it
         scheme.actionHandleIndex =
             FindAndAddPolicerByName( pTaskDef, xmlDist.actionName, xmlDist.name,
                                      port );
     }
-    else if ( scheme.nextEngine == e_FM_PCD_KG ) { // Is it a distribution?
+    else if ( scheme.nextEngine == e_FM_PCD_KG ) {      // Is it a distribution?
         // Find the distribution and add it
         scheme.actionHandleIndex =
             FindAndAddSchemeByName( pTaskDef, xmlDist.actionName, xmlDist.name,
                                     port, true );
     }
-    else if ( scheme.nextEngine == e_FM_PCD_CC ) { // Is it a coarse classification?
+    else if ( scheme.nextEngine == e_FM_PCD_CC ) {      // Is it CC node?
         // Find CC node
         scheme.actionHandleIndex =
             FindAndAddCCNodeByName( pTaskDef, xmlDist.actionName, xmlDist.name,
@@ -657,9 +665,17 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         }
 
         ccNode.nextEngines.push_back( CCNode::CCNextEngine() );
-        ccNode.nextEngines[i].nextEngine    = getEngineByType( xmlCCNode.entries[i].action );
-        ccNode.nextEngines[i].nextEngineStr = getEngineByTypeStr( xmlCCNode.entries[i].action );
-        ccNode.nextEngines[i].newFqid       = xmlCCNode.entries[i].qbase;
+        ccNode.nextEngines[i].nextEngine        = getEngineByType( xmlCCNode.entries[i].action );
+        ccNode.nextEngines[i].nextEngineStr     = getEngineByTypeStr( xmlCCNode.entries[i].action );
+        ccNode.nextEngines[i].newFqid           = xmlCCNode.entries[i].qbase;
+        ccNode.nextEngines[i].doneAction        = e_FM_PCD_ENQ_FRAME;
+        ccNode.nextEngines[i].doneActionStr     = "e_FM_PCD_ENQ_FRAME";
+        ccNode.nextEngines[i].actionHandleIndex = 0xFFFFFFFF;
+        if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_DONE &&
+             xmlCCNode.entries[i].action      == "drop" ) {
+            ccNode.nextEngines[i].doneAction    = e_FM_PCD_DROP_FRAME;
+            ccNode.nextEngines[i].doneActionStr = "e_FM_PCD_DROP_FRAME";
+        }
         if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_CC ) {
             ccNode.nextEngines[i].actionHandleIndex =
                 FindAndAddCCNodeByName( pTaskDef, xmlCCNode.entries[i].actionName,
@@ -677,9 +693,17 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         }
     }
 
-    ccNode.nextEngineOnMiss.nextEngine    = getEngineByType( xmlCCNode.actionOnMiss );
-    ccNode.nextEngineOnMiss.nextEngineStr = getEngineByTypeStr( xmlCCNode.actionOnMiss );
-    ccNode.nextEngineOnMiss.newFqid       = 0;
+    ccNode.nextEngineOnMiss.nextEngine        = getEngineByType( xmlCCNode.actionOnMiss );
+    ccNode.nextEngineOnMiss.nextEngineStr     = getEngineByTypeStr( xmlCCNode.actionOnMiss );
+    ccNode.nextEngineOnMiss.newFqid           = 0;
+    ccNode.nextEngineOnMiss.doneAction        = e_FM_PCD_ENQ_FRAME;
+    ccNode.nextEngineOnMiss.doneActionStr     = "e_FM_PCD_ENQ_FRAME";
+    ccNode.nextEngineOnMiss.actionHandleIndex = 0xFFFFFFFF;
+    if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_DONE &&
+         xmlCCNode.actionOnMiss             == "drop" ) {
+        ccNode.nextEngineOnMiss.doneAction    = e_FM_PCD_DROP_FRAME;
+        ccNode.nextEngineOnMiss.doneActionStr = "e_FM_PCD_DROP_FRAME";
+    }
     if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_CC ) {
         ccNode.nextEngineOnMiss.actionHandleIndex =
             FindAndAddCCNodeByName( pTaskDef, xmlCCNode.actionNameOnMiss,
@@ -893,10 +917,11 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
     policer.dfltColor    = getPlcrColor( xmlPolicer.dfltColor );
     policer.dfltColorStr = getPlcrColorStr( xmlPolicer.dfltColor );
 
-    policer.nextEngineOnGreen    = getEngineByType( xmlPolicer.actionOnGreen );
-    policer.nextEngineOnGreenStr = getEngineByTypeStr( xmlPolicer.actionOnGreen );
-    policer.onGreenAction        = e_FM_PCD_ENQ_FRAME;
-    policer.onGreenActionStr     = "e_FM_PCD_ENQ_FRAME";
+    policer.nextEngineOnGreen        = getEngineByType( xmlPolicer.actionOnGreen );
+    policer.nextEngineOnGreenStr     = getEngineByTypeStr( xmlPolicer.actionOnGreen );
+    policer.onGreenAction            = e_FM_PCD_ENQ_FRAME;
+    policer.onGreenActionStr         = "e_FM_PCD_ENQ_FRAME";
+    policer.onGreenActionHandleIndex = 0xFFFFFFFF;
     if ( xmlPolicer.actionOnGreen == "drop" ) {
         policer.onGreenAction    = e_FM_PCD_DROP_FRAME;
         policer.onGreenActionStr = "e_FM_PCD_DROP_FRAME";
@@ -911,10 +936,11 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
                                      xmlPolicer.name, port );
     }
 
-    policer.nextEngineOnYellow    = getEngineByType( xmlPolicer.actionOnYellow );
-    policer.nextEngineOnYellowStr = getEngineByTypeStr( xmlPolicer.actionOnYellow );
-    policer.onYellowAction        = e_FM_PCD_ENQ_FRAME;
-    policer.onYellowActionStr     = "e_FM_PCD_ENQ_FRAME";
+    policer.nextEngineOnYellow        = getEngineByType( xmlPolicer.actionOnYellow );
+    policer.nextEngineOnYellowStr     = getEngineByTypeStr( xmlPolicer.actionOnYellow );
+    policer.onYellowAction            = e_FM_PCD_ENQ_FRAME;
+    policer.onYellowActionStr         = "e_FM_PCD_ENQ_FRAME";
+    policer.onYellowActionHandleIndex = 0xFFFFFFFF;
     if ( xmlPolicer.actionOnYellow == "drop" ) {
         policer.onYellowAction    = e_FM_PCD_DROP_FRAME;
         policer.onYellowActionStr = "e_FM_PCD_DROP_FRAME";
@@ -929,10 +955,11 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
                                      xmlPolicer.name, port );
     }
 
-    policer.nextEngineOnRed    = getEngineByType( xmlPolicer.actionOnRed );
-    policer.nextEngineOnRedStr = getEngineByTypeStr( xmlPolicer.actionOnRed );
-    policer.onRedAction        = e_FM_PCD_ENQ_FRAME;
-    policer.onRedActionStr     = "e_FM_PCD_ENQ_FRAME";
+    policer.nextEngineOnRed        = getEngineByType( xmlPolicer.actionOnRed );
+    policer.nextEngineOnRedStr     = getEngineByTypeStr( xmlPolicer.actionOnRed );
+    policer.onRedAction            = e_FM_PCD_ENQ_FRAME;
+    policer.onRedActionStr         = "e_FM_PCD_ENQ_FRAME";
+    policer.onRedActionHandleIndex = 0xFFFFFFFF;
     if ( xmlPolicer.actionOnRed == "drop" ) {
         policer.onRedAction    = e_FM_PCD_DROP_FRAME;
         policer.onRedActionStr = "e_FM_PCD_DROP_FRAME";

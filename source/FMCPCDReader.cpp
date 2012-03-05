@@ -330,10 +330,10 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
                               "frame", "parser" );
 
             CCombineEntry combine;
-            combine.offsetInFqid = std::strtol( getAttr( cur, "offset" ).c_str(), 0, 0 );
-            combine.size         = std::strtol( getAttr( cur, "size" ).c_str(), 0, 0 );
-            combine.default_     = std::strtol( getAttr( cur, "default" ).c_str(), 0, 0 );
-            combine.validate     = std::strtol( getAttr( cur, "validate" ).c_str(), 0, 0 );
+            combine.offsetInFqid = std::strtol(  getAttr( cur, "offset" )        .c_str(), 0, 0 );
+            combine.size         = std::strtol(  getAttr( cur, "size" )          .c_str(), 0, 0 );
+            combine.default_     = std::strtol(  getAttr( cur, "default" )       .c_str(), 0, 0 );
+            combine.validate     = std::strtol(  getAttr( cur, "validate" )      .c_str(), 0, 0 );
             combine.offset       = std::strtoul( getAttr( cur, "extract_offset" ).c_str(), 0, 0 );
             combine.fieldref     = getAttr( cur, "fieldref" );
             combine.kind         = CCombineEntry::FIELD;
