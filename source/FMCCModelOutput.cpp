@@ -637,82 +637,6 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
     cmodel->ccnode_name[index][FMC_NAME_LEN - 1] = 0;
     oss << ind( indent ) << ".ccnode_name[" << index << "] = " << std::string( "\"" + node.name + "\"" ) << "," << std::endl;
 
-    oss << ind( indent ) << ".cckeydata[" << index << "] = {" << std::endl;
-    for ( unsigned int i = 0; i < node.keys.size(); ++i ) {
-        oss << ind( indent + 4 ) << "{";
-        for ( unsigned int j = 0; j < node.keySize; ++j ) {
-            if ( j != 0 ) {
-                oss << ",";
-            }
-            oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)node.keys[i].data[j];
-            oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
-            cmodel->cckeydata[index][i][j] = node.keys[i].data[j];
-        }
-        oss << " }," << std::endl;
-    }
-    EMIT1( "}," );
-
-    oss << ind( indent ) << ".ccmask[" << index << "] = {" << std::endl;
-    for ( unsigned int i = 0; i < node.masks.size(); ++i ) {
-        oss << ind( indent + 4 ) << "{";
-        for ( unsigned int j = 0; j < node.keySize; ++j ) {
-            if ( j != 0 ) {
-                oss << ",";
-            }
-            oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)node.masks[i].data[j];
-            oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
-            cmodel->ccmask[index][i][j] = node.masks[i].data[j];
-        }
-        oss << " }," << std::endl;
-    }
-    EMIT1( "}," );
-
-    for ( unsigned int i = 0; i < node.keys.size(); ++i ) {
-        int node_num = node.indices[i];
-        // Don't produce keys/masks in case next engine is classification and
-        // the current lookup is 'node_numed_lookup'
-        if ( ( cmodel->ccnode[index].extractCcParams.type == e_FM_PCD_EXTRACT_BY_HDR ) ||
-             ( node.nextEngines[i].nextEngine != e_FM_PCD_CC ) ) {
-            if ( node.extract.nhAction != e_FM_PCD_ACTION_INDEXED_LOOKUP ) {
-                EMIT11SP( ccnode[, index, ].keysParams.keyParams[, node_num, ].p_Key,  cmodel->cckeydata[, cmodel.cckeydata[,index,][,i,] );
-                EMIT11SP( ccnode[, index, ].keysParams.keyParams[, node_num, ].p_Mask, cmodel->ccmask[,    cmodel.ccmask   [,index,][,i,] );
-            }
-        }
-
-        if ( node.frag[i] != 0 ) {
-            EMIT6( ccentry_frag[, index, ][, node_num, ] =, node.frag[i] );
-        }
-
-        EMIT6STR( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.nextEngine =, node.nextEngines[i].nextEngine );
-        if ( node.nextEngines[i].nextEngine == e_FM_PCD_PLCR ) {
-            EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.overrideParams = 1 );
-            EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.sharedProfile = 1 );
-            EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.newRelativeProfileId =, node.nextEngines[i].actionHandleIndex );
-            EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.newFqid =, node.nextEngines[i].newFqid );
-        }
-        else if ( node.nextEngines[i].nextEngine == e_FM_PCD_KG ) {
-            if ( node.nextEngines[i].newFqid != 0 ) {
-                EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.kgParams.overrideFqid = 1 );
-            }
-            else {
-                EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.kgParams.overrideFqid = 0 );
-            }
-            EMIT6( ccentry_action_index[, index, ][, node_num, ] =, node.nextEngines[i].actionHandleIndex );
-        }
-        else if ( node.nextEngines[i].nextEngine == e_FM_PCD_CC ) {
-            EMIT6( ccentry_action_index[, index, ][, node_num, ] =, node.nextEngines[i].actionHandleIndex );
-        }
-        else if ( node.nextEngines[i].nextEngine == e_FM_PCD_DONE ) {
-            if ( node.nextEngines[i].newFqid != 0 ) {
-                EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.overrideFqid =, 1 );
-                EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.newFqid =, node.nextEngines[i].newFqid );
-            }
-            else {
-                EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.newFqid =, 0 );
-            }
-        }
-    }
-
     // Fill extract parameters
     EMIT4STR( ccnode[, index, ].extractCcParams.type =, node.extract.type );
 
@@ -938,13 +862,95 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
             EMIT4( ccmiss_action_index[, index, ] =, node.nextEngineOnMiss.actionHandleIndex );
         }
         else if ( node.nextEngineOnMiss.nextEngine == e_FM_PCD_DONE ) {
-            if ( node.nextEngineOnMiss.newFqid != 0 ) {
+            if ( node.nextEngineOnMiss.doneAction == e_FM_PCD_DROP_FRAME ) {
+                EMIT4STR( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.enqueueParams.action =, node.nextEngineOnMiss.doneAction );
+            }
+            else if ( node.nextEngineOnMiss.newFqid != 0 ) {
                 EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.enqueueParams.overrideFqid =, 1 );
                 EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.enqueueParams.newFqid =,
                         node.nextEngineOnMiss.newFqid );
             }
             else {
                 EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.enqueueParams.overrideFqid =, 0 );
+            }
+        }
+    }
+
+    oss << ind( indent ) << ".cckeydata[" << index << "] = {" << std::endl;
+    for ( unsigned int i = 0; i < node.keys.size(); ++i ) {
+        oss << ind( indent + 4 ) << "{";
+        for ( unsigned int j = 0; j < node.keySize; ++j ) {
+            if ( j != 0 ) {
+                oss << ",";
+            }
+            oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)node.keys[i].data[j];
+            oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
+            cmodel->cckeydata[index][i][j] = node.keys[i].data[j];
+        }
+        oss << " }," << std::endl;
+    }
+    EMIT1( "}," );
+
+    oss << ind( indent ) << ".ccmask[" << index << "] = {" << std::endl;
+    for ( unsigned int i = 0; i < node.masks.size(); ++i ) {
+        oss << ind( indent + 4 ) << "{";
+        for ( unsigned int j = 0; j < node.keySize; ++j ) {
+            if ( j != 0 ) {
+                oss << ",";
+            }
+            oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)node.masks[i].data[j];
+            oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
+            cmodel->ccmask[index][i][j] = node.masks[i].data[j];
+        }
+        oss << " }," << std::endl;
+    }
+    EMIT1( "}," );
+
+    for ( unsigned int i = 0; i < node.keys.size(); ++i ) {
+        int node_num = node.indices[i];
+        // Don't produce keys/masks in case next engine is classification and
+        // the current lookup is 'node_numed_lookup'
+        if ( ( cmodel->ccnode[index].extractCcParams.type == e_FM_PCD_EXTRACT_BY_HDR ) ||
+             ( node.nextEngines[i].nextEngine != e_FM_PCD_CC ) ) {
+            if ( node.extract.nhAction != e_FM_PCD_ACTION_INDEXED_LOOKUP ) {
+                EMIT11SP( ccnode[, index, ].keysParams.keyParams[, node_num, ].p_Key,  cmodel->cckeydata[, cmodel.cckeydata[,index,][,i,] );
+                EMIT11SP( ccnode[, index, ].keysParams.keyParams[, node_num, ].p_Mask, cmodel->ccmask[,    cmodel.ccmask   [,index,][,i,] );
+            }
+        }
+
+        if ( node.frag[i] != 0 ) {
+            EMIT6( ccentry_frag[, index, ][, node_num, ] =, node.frag[i] );
+        }
+
+        EMIT6STR( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.nextEngine =, node.nextEngines[i].nextEngine );
+        if ( node.nextEngines[i].nextEngine == e_FM_PCD_PLCR ) {
+            EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.overrideParams = 1 );
+            EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.sharedProfile = 1 );
+            EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.newRelativeProfileId =, node.nextEngines[i].actionHandleIndex );
+            EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.newFqid =, node.nextEngines[i].newFqid );
+        }
+        else if ( node.nextEngines[i].nextEngine == e_FM_PCD_KG ) {
+            if ( node.nextEngines[i].newFqid != 0 ) {
+                EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.kgParams.overrideFqid = 1 );
+            }
+            else {
+                EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.kgParams.overrideFqid = 0 );
+            }
+            EMIT6( ccentry_action_index[, index, ][, node_num, ] =, node.nextEngines[i].actionHandleIndex );
+        }
+        else if ( node.nextEngines[i].nextEngine == e_FM_PCD_CC ) {
+            EMIT6( ccentry_action_index[, index, ][, node_num, ] =, node.nextEngines[i].actionHandleIndex );
+        }
+        else if ( node.nextEngines[i].nextEngine == e_FM_PCD_DONE ) {
+            if ( node.nextEngines[i].doneAction == e_FM_PCD_DROP_FRAME ) {
+                EMIT6STR( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.action =, node.nextEngineOnMiss.doneAction );
+            }
+            else if ( node.nextEngines[i].newFqid != 0 ) {
+                EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.overrideFqid =, 1 );
+                EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.newFqid =, node.nextEngines[i].newFqid );
+            }
+            else {
+                EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.newFqid =, 0 );
             }
         }
     }
