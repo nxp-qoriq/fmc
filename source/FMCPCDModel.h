@@ -287,13 +287,15 @@ public:
 class Port : public FMBlock
 {
 public:
+    std::string  name;
+
     e_FmPortType type;                  ///< Port type
     std::string  typeStr;               ///< Port type in string form
     unsigned int number;                ///< Port number
 
     unsigned int portid;                ///< Port assigned ID
 
-    std::string signature;
+    std::string  signature;
 
     std::vector< unsigned int > schemes; ///<
                                         ///< Schemes used by this port

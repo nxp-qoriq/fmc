@@ -40,6 +40,7 @@ typedef struct fmc_fman_t {
     unsigned int       number;
     unsigned int       port_count;
     unsigned int       ports[FMC_PORTS_PER_FMAN];
+    char               name[FMC_NAME_LEN];
     t_Handle           handle;
     char               pcd_name[FMC_NAME_LEN];
     t_Handle           pcd_handle;
@@ -58,6 +59,7 @@ typedef struct fmc_port_t {
     t_FmPortPcdPrsParams prsParam;
     t_FmPortPcdKgParams  kgParam;
     t_FmPortPcdCcParams  ccParam;
+    char                 name[FMC_NAME_LEN];
     t_Handle             handle;
     t_Handle             env_id_handle;
     t_Handle             cctree_handle;

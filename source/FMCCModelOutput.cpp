@@ -106,7 +106,7 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
     indent += 4;
 
     // Output format version
-    EMIT2( format_version =, 0x101 );
+    EMIT2( format_version =, 0x102 );
 
     // Output Soft Parser
     EMIT2( sp_enable =, model.spEnable );
@@ -171,7 +171,12 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
                                    unsigned int index,
                                    std::ostream& oss, size_t indent )
 {
-    EMIT4( fman[, index, ].number     =, model.all_engines[index].number );
+    EMIT1( std::string( "/* FMan: " + model.all_engines[index].name + " */" ) );
+
+    strncpy( cmodel->fman[index].name, model.all_engines[index].name.c_str(), FMC_NAME_LEN - 1 );
+    cmodel->fman[index].name[FMC_NAME_LEN - 1] = 0;
+    oss << ind( indent ) << ".fman[" << index << "].name = \"" << model.all_engines[index].name << "\"," << std::endl;
+    EMIT4( fman[, index, ].number =, model.all_engines[index].number );
 
     strncpy( cmodel->fman[index].pcd_name, model.all_engines[index].pcd_name.c_str(), FMC_NAME_LEN - 1 );
     cmodel->fman[index].pcd_name[FMC_NAME_LEN - 1] = 0;
@@ -212,8 +217,14 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
                                    unsigned int index,
                                    std::ostream& oss, size_t indent )
 {
+    EMIT1( std::string( "/* FMan port: " + model.all_ports[index].name + " */" ) );
+
+    strncpy( cmodel->port[index].name, model.all_ports[index].name.c_str(), FMC_NAME_LEN - 1 );
+    cmodel->fman[index].ports[FMC_NAME_LEN - 1] = 0;
+    oss << ind( indent ) << ".port[" << index << "].name = \"" << model.all_ports[index].name << "\"," << std::endl;
+
     EMIT4STR( port[, index, ].type =, model.all_ports[index].type );
-    EMIT4( port[, index, ].number = ,  model.all_ports[index].number );
+    EMIT4( port[, index, ].number  = ,  model.all_ports[index].number );
 
     EMIT4( port[, index, ].schemes_count =, model.all_ports[index].schemes.size() );
     for ( unsigned int i = 0; i < cmodel->port[index].schemes_count; ++i ) {

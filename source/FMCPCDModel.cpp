@@ -218,7 +218,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
     engine.name     = xmlEngine.name;
     engine.number   = std::strtoul( xmlEngine.name.c_str() + 2, 0, 0 );
-    engine.pcd_name = "pcd:" + engine.name;
+    engine.pcd_name = engine.name + "/pcd";
 
     std::map< std::string, CFragmentation >::const_iterator fragit;
     for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {
@@ -250,6 +250,9 @@ CFMCModel::createPort( Engine& engine, const CPort& xmlPort, const CTaskDef* pTa
 
     port.type      = getPortType( xmlPort.type );
     port.typeStr   = getPortTypeStr( port.type );
+    std::ostringstream oss1;
+    oss1 << engine.name + "/port/" + xmlPort.type + "/" << xmlPort.number;
+    port.name      = oss1.str();
     port.number    = xmlPort.number;
     port.portid    = xmlPort.portid;
     std::ostringstream oss;
@@ -263,7 +266,6 @@ CFMCModel::createPort( Engine& engine, const CPort& xmlPort, const CTaskDef* pTa
         reasm.fragOrReasmParams.frag = 0;
         reasm.fragOrReasmParams.hdr             = HEADER_TYPE_IPv6;
         reasm.fragOrReasmParams.extBufPoolIndx  = it->second.sgBpid;
-//        reasm.fragOrReasmParams.ipReasmParams.?????????               = pTaskDef->reassemblies[i].sgLiodnOffset;
         reasm.fragOrReasmParams.ipReasmParams.maxNumFramesInProcess             = it->second.maxInProcess;
         reasm.fragOrReasmParams.ipReasmParams.liodnOffset                       = it->second.dataLiodnOffset;
         reasm.fragOrReasmParams.ipReasmParams.dataMemId                         = it->second.dataMemId;
