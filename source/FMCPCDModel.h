@@ -71,6 +71,16 @@ private:
 };
 
 
+class DefaultGroup
+{
+public:
+	e_FmPcdKgKnownFieldsDfltTypes type;
+    std::string					  typeStr;
+    
+    e_FmPcdKgExtractDfltSelect    select;
+    std::string					  selectStr;
+};
+
 class ExtractData
 {
 public:
@@ -138,8 +148,13 @@ public:
     std::vector < ExtractData > combines; ///<
                                         ///< 'extracted Or' fields
 
+	std::vector < DefaultGroup > defaults; ///< Default groups
+
     unsigned int qbase;                 ///< Queue base
     unsigned int qcount;                ///< Number of queues
+
+	uint32_t privateDflt0;				///< Scheme default register 0
+	uint32_t privateDflt1;				///< Scheme default register 1
 
     uint8_t      relativeSchemeId;      ///< Scheme index for the containing port
     unsigned int hashShift;             ///< Hash value shift

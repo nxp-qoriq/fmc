@@ -115,6 +115,22 @@ class CField
     std::vector< CField > fields;
 };
 
+typedef enum e_FmPcdExtractSource {
+    ES_FROM_FRAME_START,          /**< KG & CC: Extract from beginning of frame */
+    ES_FROM_DFLT_VALUE,           /**< KG only: Extract from a default value */
+    ES_FROM_CURR_END_OF_PARSE,    /**< KG only: Extract from the point where parsing had finished */
+    ES_FROM_KEY,                  /**< CC only: Field where saved KEY */
+    ES_FROM_HASH,                 /**< CC only: Field where saved HASH */
+    ES_FROM_PARSE_RESULT,         /**< KG & CC: Extract from the parser result */
+    ES_FROM_ENQ_FQID,             /**< KG & CC: Extract from enqueue FQID */
+    ES_FROM_FLOW_ID               /**< CC only: Field where saved Dequeue FQID */
+} e_FmPcdExtractSource;
+
+typedef enum e_FmPcdExtractAction {
+    EA_NONE,                           /**< NONE  */
+    EA_EXACT_MATCH,                    /**< Exact match on the selected extraction*/
+    EA_INDEXED_LOOKUP                  /**< Indexed lookup on the selected extraction*/
+} e_FmPcdExtractAction;
 
 class CConfirmCustomExtractor
 {
@@ -384,6 +400,15 @@ class CFieldRef
 	unsigned int size;
 };
 
+class CNonHeaderEntry
+{
+public:
+    e_FmPcdExtractSource  source;
+    e_FmPcdExtractAction  action;
+    unsigned int offset;
+    unsigned int size;
+    unsigned int icIndxMask;
+};
 
 class CAction
 {
@@ -418,6 +443,13 @@ class CProtocolRef
 	std::string opt;
 };
 
+class CDefaultGroup
+{
+  public:
+	std::string type;
+	std::string select;
+};
+
 
 class CDistribution
 {
@@ -430,10 +462,14 @@ class CDistribution
     unsigned int qcount;
     unsigned int keyShift;
     bool         symmetricHash;
+	unsigned long dflt0;
+	unsigned long dflt1;
 
     std::vector< CFieldRef >     key;
     std::vector< CCombineEntry > combines;
     std::vector< CProtocolRef >  protocols;
+	std::vector< CNonHeaderEntry > nonHeader;
+	std::vector< CDefaultGroup > defaults;
 
     std::string action;
     std::string actionName;
@@ -502,33 +538,6 @@ class CClassEntry
 	std::string  fragmentationName;
     unsigned int qbase;
     unsigned int index;
-};
-
-typedef enum e_FmPcdExtractSource {
-    ES_FROM_FRAME_START,          /**< KG & CC: Extract from beginning of frame */
-    ES_FROM_DFLT_VALUE,           /**< KG only: Extract from a default value */
-    ES_FROM_CURR_END_OF_PARSE,    /**< KG only: Extract from the point where parsing had finished */
-    ES_FROM_KEY,                  /**< CC only: Field where saved KEY */
-    ES_FROM_HASH,                 /**< CC only: Field where saved HASH */
-    ES_FROM_PARSE_RESULT,         /**< KG & CC: Extract from the parser result */
-    ES_FROM_ENQ_FQID,             /**< KG & CC: Extract from enqueue FQID */
-    ES_FROM_FLOW_ID               /**< CC only: Field where saved Dequeue FQID */
-} e_FmPcdExtractSource;
-
-typedef enum e_FmPcdExtractAction {
-    EA_NONE,                           /**< NONE  */
-    EA_EXACT_MATCH,                    /**< Exact match on the selected extraction*/
-    EA_INDEXED_LOOKUP                  /**< Indexed lookup on the selected extraction*/
-} e_FmPcdExtractAction;
-
-class CNonHeaderEntry
-{
-public:
-    e_FmPcdExtractSource  source;
-    e_FmPcdExtractAction  action;
-    unsigned int offset;
-    unsigned int size;
-    unsigned int icIndxMask;
 };
 
 class CClassKey

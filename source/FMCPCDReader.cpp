@@ -244,6 +244,8 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
 	distribution->symmetricHash = false;
     distribution->qcount        = 1;
     distribution->qbase         = 0;
+	distribution->dflt0			= 0;
+	distribution->dflt1			= 0;
 
     checkUnknownAttr( pNode, 3, "name", "comment", "description" );
 
@@ -266,6 +268,12 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
                     parseFieldRef( &fieldref, fr );
                     distribution->key.push_back( fieldref );
                 }
+
+				if ( !xmlStrcmp( fr->name, (const xmlChar*)"nonheader" ) ) {
+					CNonHeaderEntry nonHeaderEntry;
+					parseNonHeader( &nonHeaderEntry, fr );
+					distribution->nonHeader.push_back(nonHeaderEntry);
+				}
 
                 fr = fr->next;
             }
@@ -369,6 +377,26 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
             }
 
             distribution->combines.push_back( combine );
+        }
+		// defaults
+		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"defaults" ) ) {
+            checkUnknownAttr( cur, 2, "private0", "private1" );
+            distribution->dflt0     = std::strtoul( getAttr( cur, "private0" ).c_str(), 0, 0 );
+            distribution->dflt1     = std::strtoul( getAttr( cur, "private1" ).c_str(), 0, 0 );
+
+			xmlNodePtr pr = cur->xmlChildrenNode;
+            while ( 0 != pr ) {
+                if ( !xmlStrcmp( pr->name, (const xmlChar*)"default" ) ) {
+					checkUnknownAttr( pr, 2, "type", "select");
+                    CDefaultGroup dflt;
+                    dflt.type = getAttr( pr, "type" );
+					dflt.select = getAttr( pr, "select" );
+                              
+                    distribution->defaults.push_back( dflt );
+                }
+
+                pr = pr->next;
+            }
         }
         // action
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"action" ) ) {
@@ -645,6 +673,12 @@ CPCDReader::parseNonHeader( CNonHeaderEntry* nonHeaderEntry, xmlNodePtr pNode )
 	}
 	else if ( stripBlanks( source ) == "flowid" ) {
 		nonHeaderEntry->source = ES_FROM_FLOW_ID;
+	}
+	else if ( stripBlanks( source ) == "default" ) {
+		nonHeaderEntry->source = ES_FROM_DFLT_VALUE;
+	}
+	else if ( stripBlanks( source ) == "endofparse" ) {
+		nonHeaderEntry->source = ES_FROM_CURR_END_OF_PARSE;
 	}
 	else
 	{

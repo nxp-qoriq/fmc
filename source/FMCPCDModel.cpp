@@ -303,6 +303,8 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
     scheme.name                  = xmlDist.name;
     scheme.qbase                 = xmlDist.qbase;
     scheme.qcount                = xmlDist.qcount;
+	scheme.privateDflt0			 = xmlDist.dflt0;
+	scheme.privateDflt1			 = xmlDist.dflt1;
     scheme.relativeSchemeId      = port.schemes.size();
     scheme.hashShift             = xmlDist.keyShift;
     scheme.symmetricHash         = xmlDist.symmetricHash;
@@ -373,6 +375,133 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
 
         scheme.key.push_back( field );
     }
+
+	//For each 'nonheader' entry
+	for ( unsigned int i = 0; i < xmlDist.nonHeader.size(); ++i ) {
+		ExtractData nonheader;
+
+		nonheader.type    = e_FM_PCD_EXTRACT_NON_HDR;
+        nonheader.typeStr = "e_FM_PCD_EXTRACT_NON_HDR";
+
+		nonheader.nhSource = (e_FmPcdExtractFrom)xmlDist.nonHeader[i].source;
+		switch (xmlDist.nonHeader[i].source)
+		{
+			case e_FM_PCD_EXTRACT_FROM_FRAME_START:
+				nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_FRAME_START";
+				break;
+			case e_FM_PCD_EXTRACT_FROM_DFLT_VALUE:
+				nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_DFLT_VALUE";
+				break;
+			case e_FM_PCD_EXTRACT_FROM_CURR_END_OF_PARSE:
+				nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_CURR_END_OF_PARSE";
+				break;
+			case e_FM_PCD_EXTRACT_FROM_PARSE_RESULT:
+				nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_PARSE_RESULT";
+				break;
+			case e_FM_PCD_EXTRACT_FROM_ENQ_FQID:
+				nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_ENQ_FQID";
+				break;
+			default:
+				nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_DFLT_VALUE";
+		}
+
+		nonheader.nhSize = xmlDist.nonHeader[i].size;
+		nonheader.nhOffset = xmlDist.nonHeader[i].offset;
+
+		scheme.key.push_back( nonheader );
+	}
+
+	// For each default group
+
+	for ( unsigned int i = 0; i < xmlDist.defaults.size(); ++i ) {
+        DefaultGroup dflt;
+		
+		//Set the type value and field
+		if ( stripBlanks( xmlDist.defaults[i].type ) == "from_data" || stripBlanks( xmlDist.defaults[i].type ) == "FROM_DATA" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_GENERIC_FROM_DATA") {
+			dflt.type = e_FM_PCD_KG_GENERIC_FROM_DATA;
+			dflt.typeStr = "e_FM_PCD_KG_GENERIC_FROM_DATA";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "from_data_no_v" || stripBlanks( xmlDist.defaults[i].type ) == "FROM_DATA_NO_V" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_GENERIC_FROM_DATA_NO_V") {
+			dflt.type = e_FM_PCD_KG_GENERIC_FROM_DATA_NO_V;
+			dflt.typeStr = "e_FM_PCD_KG_GENERIC_FROM_DATA_NO_V";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "not_from_data" || stripBlanks( xmlDist.defaults[i].type ) == "NOT_FROM_DATA" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_GENERIC_NOT_FROM_DATA") {
+			dflt.type = e_FM_PCD_KG_GENERIC_NOT_FROM_DATA;
+			dflt.typeStr = "e_FM_PCD_KG_GENERIC_NOT_FROM_DATA";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "mac_addr" || stripBlanks( xmlDist.defaults[i].type ) == "MAC_ADDR" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_MAC_ADDR") {
+			dflt.type = e_FM_PCD_KG_MAC_ADDR;
+			dflt.typeStr = "e_FM_PCD_KG_MAC_ADDR";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "tci" || stripBlanks( xmlDist.defaults[i].type ) == "TCI" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_TCI") {
+			dflt.type = e_FM_PCD_KG_TCI;
+			dflt.typeStr = "e_FM_PCD_KG_TCI";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "enet_type" || stripBlanks( xmlDist.defaults[i].type ) == "ENET_TYPE" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_ENET_TYPE") {
+			dflt.type = e_FM_PCD_KG_ENET_TYPE;
+			dflt.typeStr = "e_FM_PCD_KG_ENET_TYPE";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "ppp_session_id" || stripBlanks( xmlDist.defaults[i].type ) == "PPP_SESSION_ID" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_PPP_SESSION_ID") {
+			dflt.type = e_FM_PCD_KG_PPP_SESSION_ID;
+			dflt.typeStr = "e_FM_PCD_KG_PPP_SESSION_ID";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "ppp_protocol_id" || stripBlanks( xmlDist.defaults[i].type ) == "PPP_PROTOCOL_ID" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_PPP_PROTOCOL_ID") {
+			dflt.type = e_FM_PCD_KG_PPP_PROTOCOL_ID;
+			dflt.typeStr = "e_FM_PCD_KG_PPP_PROTOCOL_ID";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "mpls_label" || stripBlanks( xmlDist.defaults[i].type ) == "MPLS_LABEL" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_MPLS_LABEL") {
+			dflt.type = e_FM_PCD_KG_MPLS_LABEL;
+			dflt.typeStr = "e_FM_PCD_KG_MPLS_LABEL";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "ip_addr" || stripBlanks( xmlDist.defaults[i].type ) == "IP_ADDR" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_IP_ADDR") {
+			dflt.type = e_FM_PCD_KG_IP_ADDR;
+			dflt.typeStr = "e_FM_PCD_KG_IP_ADDR";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "protocol_type" || stripBlanks( xmlDist.defaults[i].type ) == "PROTOCOL_TYPE" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_PROTOCOL_TYPE") {
+			dflt.type = e_FM_PCD_KG_PROTOCOL_TYPE;
+			dflt.typeStr = "e_FM_PCD_KG_PROTOCOL_TYPE";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "ip_tos_tc" || stripBlanks( xmlDist.defaults[i].type ) == "IP_TOS_TC" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_IP_TOS_TC") {
+			dflt.type = e_FM_PCD_KG_IP_TOS_TC;
+			dflt.typeStr = "e_FM_PCD_KG_IP_TOS_TC";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "ipv6_flow_label" || stripBlanks( xmlDist.defaults[i].type ) == "IPV6_FLOW_LABEL" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_IPV6_FLOW_LABEL") {
+			dflt.type = e_FM_PCD_KG_IPV6_FLOW_LABEL;
+			dflt.typeStr = "e_FM_PCD_KG_IPV6_FLOW_LABEL";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "ipsec_spi" || stripBlanks( xmlDist.defaults[i].type ) == "IPSEC_SPI" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_IPSEC_SPI") {
+			dflt.type = e_FM_PCD_KG_IPSEC_SPI;
+			dflt.typeStr = "e_FM_PCD_KG_IPSEC_SPI";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "l4_port" || stripBlanks( xmlDist.defaults[i].type ) == "L4_PORT" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_L4_PORT") {
+			dflt.type = e_FM_PCD_KG_L4_PORT;
+			dflt.typeStr = "e_FM_PCD_KG_L4_PORT";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].type ) == "tcp_flag" || stripBlanks( xmlDist.defaults[i].type ) == "TCP_FLAG" || stripBlanks( xmlDist.defaults[i].type ) == "e_FM_PCD_KG_TCP_FLAG") {
+			dflt.type = e_FM_PCD_KG_TCP_FLAG;
+			dflt.typeStr = "e_FM_PCD_KG_TCP_FLAG";
+		}
+
+		//Set the select value and str
+		if ( stripBlanks( xmlDist.defaults[i].select ) == "gbl0" || stripBlanks( xmlDist.defaults[i].select ) == "GBL_0" || stripBlanks( xmlDist.defaults[i].select ) == "e_FM_PCD_KG_DFLT_GBL_0") {
+			dflt.select = e_FM_PCD_KG_DFLT_GBL_0;
+			dflt.selectStr = "e_FM_PCD_KG_DFLT_GBL_0";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].select ) == "gbl1" || stripBlanks( xmlDist.defaults[i].select ) == "GBL_1" || stripBlanks( xmlDist.defaults[i].select ) == "e_FM_PCD_KG_DFLT_GBL_1") {
+			dflt.select = e_FM_PCD_KG_DFLT_GBL_1;
+			dflt.selectStr = "e_FM_PCD_KG_DFLT_GBL_1";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].select ) == "private0" || stripBlanks( xmlDist.defaults[i].select ) == "PRIVATE_0" || stripBlanks( xmlDist.defaults[i].select ) == "e_FM_PCD_KG_DFLT_PRIVATE_0") {
+			dflt.select = e_FM_PCD_KG_DFLT_PRIVATE_0;
+			dflt.selectStr = "e_FM_PCD_KG_DFLT_PRIVATE_0";
+		}
+		else if ( stripBlanks( xmlDist.defaults[i].select ) == "private1" || stripBlanks( xmlDist.defaults[i].select ) == "PRIVATE_1" || stripBlanks( xmlDist.defaults[i].select ) == "e_FM_PCD_KG_DFLT_PRIVATE_1") {
+			dflt.select = e_FM_PCD_KG_DFLT_PRIVATE_1;
+			dflt.selectStr = "e_FM_PCD_KG_DFLT_PRIVATE_1";
+		}
+
+		scheme.defaults.push_back( dflt );
+	}
 
     // For each 'combine' entry
     for ( unsigned int i = 0; i < xmlDist.combines.size(); ++i ) {
