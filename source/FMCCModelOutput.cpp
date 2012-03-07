@@ -440,18 +440,18 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
            sch.qcount );
 
     EMIT4( scheme[, index, ].keyExtractAndHashParams.numOfUsedExtracts =, sch.key.size() );
-	if (sch.privateDflt0 > 0)
-	{
-		EMIT4( scheme[, index, ].keyExtractAndHashParams.privateDflt0 =, sch.privateDflt0 );
-	}
-	if (sch.privateDflt1 > 0)
-	{
-		EMIT4( scheme[, index, ].keyExtractAndHashParams.privateDflt1 =, sch.privateDflt1 );
-	}
-	if (sch.defaults.size() > 0)
-	{
-		EMIT4( scheme[, index, ].keyExtractAndHashParams.numOfUsedDflts =, sch.defaults.size() );
-	}
+    if (sch.privateDflt0 > 0)
+    {
+        EMIT4( scheme[, index, ].keyExtractAndHashParams.privateDflt0 =, sch.privateDflt0 );
+    }
+    if (sch.privateDflt1 > 0)
+    {
+        EMIT4( scheme[, index, ].keyExtractAndHashParams.privateDflt1 =, sch.privateDflt1 );
+    }
+    if (sch.defaults.size() > 0)
+    {
+        EMIT4( scheme[, index, ].keyExtractAndHashParams.numOfUsedDflts =, sch.defaults.size() );
+    }
     // Fill extract parameters
     indent += 4;
     unsigned int i = 0;
@@ -459,194 +459,194 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
     for ( extractIt = sch.key.begin();
           extractIt != sch.key.end();
           ++extractIt, ++i ) {
-	    if (extractIt->type == e_FM_PCD_EXTRACT_BY_HDR)
-		{
-			EMIT1( std::string( "/* Extract field:" ) + extractIt->fieldName + " */" );
-			if ( extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM1 ||
-	#ifdef FM_SHIM3_SUPPORT
-				extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM2 ||
-				extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM3 ) {
-	#else  /* FM_SHIM3_SUPPORT */
-				extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM2 ) {
-	#endif /* FM_SHIM3_SUPPORT */
-				if (sch.defaults.empty())
-				{
-					EMIT3( scheme[, index, ].keyExtractAndHashParams.numOfUsedDflts = 1 );
-					EMIT3( scheme[, index, ].keyExtractAndHashParams.dflts[0].type = e_FM_PCD_KG_GENERIC_FROM_DATA_NO_V );
-					EMIT3( scheme[, index, ].keyExtractAndHashParams.dflts[0].dfltSelect = e_FM_PCD_KG_DFLT_GBL_0 );
-				}
-			}
-			EMIT6STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-									  ].type =, extractIt->type );
+        if (extractIt->type == e_FM_PCD_EXTRACT_BY_HDR)
+        {
+            EMIT1( std::string( "/* Extract field:" ) + extractIt->fieldName + " */" );
+            if ( extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM1 ||
+    #ifdef FM_SHIM3_SUPPORT
+                extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM2 ||
+                extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM3 ) {
+    #else  /* FM_SHIM3_SUPPORT */
+                extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM2 ) {
+    #endif /* FM_SHIM3_SUPPORT */
+                if (sch.defaults.empty())
+                {
+                    EMIT3( scheme[, index, ].keyExtractAndHashParams.numOfUsedDflts = 1 );
+                    EMIT3( scheme[, index, ].keyExtractAndHashParams.dflts[0].type = e_FM_PCD_KG_GENERIC_FROM_DATA_NO_V );
+                    EMIT3( scheme[, index, ].keyExtractAndHashParams.dflts[0].dfltSelect = e_FM_PCD_KG_DFLT_GBL_0 );
+                }
+            }
+            EMIT6STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                                      ].type =, extractIt->type );
 
-			// GCC does not compile designated init for unnamed units.
-			// Put them into a block
-			EMIT1( "{" );
-			indent += 4;
+            // GCC does not compile designated init for unnamed units.
+            // Put them into a block
+            EMIT1( "{" );
+            indent += 4;
 
-			EMIT7_2STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-										 ], .extractByHdr.hdr =,
-										 extractIt->hdr );
-			EMIT7_2STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-										 ], .extractByHdr.hdrIndex =,
-										 extractIt->hdrIndex );
-			if ( extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM1 ||
-	#ifdef FM_SHIM3_SUPPORT
-				 extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM2 ||
-				 extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM3 ) {
-	#else  /* FM_SHIM3_SUPPORT */
-				extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM2 ) {
-	#endif /* FM_SHIM3_SUPPORT */
-				EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-										   ],
-										   .extractByHdr.ignoreProtocolValidation =, 1 );
-			}
-			else {
-				EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-										  ],
-										  .extractByHdr.ignoreProtocolValidation =, 0 );
-			}
-			EMIT7_2STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i, ],
-										  .extractByHdr.type =, extractIt->hdrtype );
+            EMIT7_2STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                                         ], .extractByHdr.hdr =,
+                                         extractIt->hdr );
+            EMIT7_2STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                                         ], .extractByHdr.hdrIndex =,
+                                         extractIt->hdrIndex );
+            if ( extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM1 ||
+    #ifdef FM_SHIM3_SUPPORT
+                 extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM2 ||
+                 extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM3 ) {
+    #else  /* FM_SHIM3_SUPPORT */
+                extractIt->hdr == HEADER_TYPE_USER_DEFINED_SHIM2 ) {
+    #endif /* FM_SHIM3_SUPPORT */
+                EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                                           ],
+                                           .extractByHdr.ignoreProtocolValidation =, 1 );
+            }
+            else {
+                EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                                          ],
+                                          .extractByHdr.ignoreProtocolValidation =, 0 );
+            }
+            EMIT7_2STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i, ],
+                                          .extractByHdr.type =, extractIt->hdrtype );
 
-			if ( extractIt->fieldType != 0xFFFFFFFF ) {
-				switch( cmodel->scheme[index].keyExtractAndHashParams.extractArray[i].extractByHdr.hdr )
-				{
-					case HEADER_TYPE_ETH:
-						EMIT7_2STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.eth =,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_VLAN:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.vlan =,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_LLC_SNAP:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.llcSnap =,
-							extractIt->fieldType );
+            if ( extractIt->fieldType != 0xFFFFFFFF ) {
+                switch( cmodel->scheme[index].keyExtractAndHashParams.extractArray[i].extractByHdr.hdr )
+                {
+                    case HEADER_TYPE_ETH:
+                        EMIT7_2STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.eth =,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_VLAN:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.vlan =,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_LLC_SNAP:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.llcSnap =,
+                            extractIt->fieldType );
 
-						break;
-					case HEADER_TYPE_PPPoE:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.pppoe=,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_MPLS:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.mpls=,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_IPv4:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.ipv4=,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_IPv6:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.ipv6=,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_TCP:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.tcp=,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_UDP:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.udp=,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_SCTP:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.sctp=,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_DCCP:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.dccp=,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_MINENCAP:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.minencap=,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_IPSEC_AH:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.ipsecAh=,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_IPSEC_ESP:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.ipsecEsp=,
-							extractIt->fieldType );
-						break;
-					case HEADER_TYPE_GRE:
-						EMIT7_2STR(
-							scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-							], .extractByHdr.extractByHdrType.fullField.gre=,
-							extractIt->fieldType );
-						break;
-					default:
-						break;
-				}
-			}
-			else {
-				EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-						  ], .extractByHdr.extractByHdrType.fromHdr.size =,
-						  extractIt->size );
+                        break;
+                    case HEADER_TYPE_PPPoE:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.pppoe=,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_MPLS:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.mpls=,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_IPv4:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.ipv4=,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_IPv6:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.ipv6=,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_TCP:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.tcp=,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_UDP:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.udp=,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_SCTP:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.sctp=,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_DCCP:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.dccp=,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_MINENCAP:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.minencap=,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_IPSEC_AH:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.ipsecAh=,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_IPSEC_ESP:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.ipsecEsp=,
+                            extractIt->fieldType );
+                        break;
+                    case HEADER_TYPE_GRE:
+                        EMIT7_2STR(
+                            scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                            ], .extractByHdr.extractByHdrType.fullField.gre=,
+                            extractIt->fieldType );
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else {
+                EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                          ], .extractByHdr.extractByHdrType.fromHdr.size =,
+                          extractIt->size );
 
-				EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-						  ], .extractByHdr.extractByHdrType.fromHdr.offset =, extractIt->offset );
+                EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                          ], .extractByHdr.extractByHdrType.fromHdr.offset =, extractIt->offset );
 
-			}
-		}//end of e_FM_PCD_EXTRACT_BY_HDR
-		else
-		{
-			EMIT1( std::string( "/* Extract nonheader:" ) + extractIt->nhSourceStr + " */" );
-			EMIT6STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-									  ].type =, extractIt->type );
+            }
+        }//end of e_FM_PCD_EXTRACT_BY_HDR
+        else
+        {
+            EMIT1( std::string( "/* Extract nonheader:" ) + extractIt->nhSourceStr + " */" );
+            EMIT6STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                                      ].type =, extractIt->type );
 
-			// GCC does not compile designated init for unnamed units.
-			// Put them into a block
-			EMIT1( "{" );
-			indent += 4;
+            // GCC does not compile designated init for unnamed units.
+            // Put them into a block
+            EMIT1( "{" );
+            indent += 4;
 
-			EMIT7_2STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-										 ], .extractNonHdr.src =,
-										 extractIt->nhSource );
-			EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-						  ], .extractNonHdr.offset =, extractIt->nhOffset );
-			EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
-						  ], .extractNonHdr.size =,
-						  extractIt->nhSize );
-		}
+            EMIT7_2STR( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                                         ], .extractNonHdr.src =,
+                                         extractIt->nhSource );
+            EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                          ], .extractNonHdr.offset =, extractIt->nhOffset );
+            EMIT7_2( scheme[, index, ].keyExtractAndHashParams.extractArray[, i,
+                          ], .extractNonHdr.size =,
+                          extractIt->nhSize );
+        }
 
         indent -= 4;
         EMIT1( "}," );
     }
 
-	indent -= 4;
-	for ( i = 0; i < sch.defaults.size(); ++i ) {
+    indent -= 4;
+    for ( i = 0; i < sch.defaults.size(); ++i ) {
         EMIT6STR( scheme[, index, ].keyExtractAndHashParams.dflts[, i, ].type =, sch.defaults[i].type );
-		EMIT6STR( scheme[, index, ].keyExtractAndHashParams.dflts[, i, ].dfltSelect =, sch.defaults[i].select );
-	}
-	indent += 4;
+        EMIT6STR( scheme[, index, ].keyExtractAndHashParams.dflts[, i, ].dfltSelect =, sch.defaults[i].select );
+    }
+    indent += 4;
 
     indent -= 4;
     EMIT4( scheme[, index, ].numOfUsedExtractedOrs =, sch.combines.size() );

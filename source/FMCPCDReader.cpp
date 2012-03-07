@@ -32,19 +32,19 @@ std::string
 CPCDReader::getAttr( xmlNodePtr pNode, const char* attr )
 {
    char* pAttr = (char*)xmlGetProp( pNode, (const xmlChar*)attr );
-	std::string retStr;
-	retStr.clear();
+    std::string retStr;
+    retStr.clear();
 
-	if (pAttr != NULL)
-	{
-		while (*pAttr != '\0')
-		{
-			retStr.insert(retStr.end(), *pAttr);
-			pAttr++;
-		}
-	}
-	
-	return (retStr.size() != 0) ? retStr : "";
+    if (pAttr != NULL)
+    {
+        while (*pAttr != '\0')
+        {
+            retStr.insert(retStr.end(), *pAttr);
+            pAttr++;
+        }
+    }
+
+    return (retStr.size() != 0) ? retStr : "";
 
 }
 
@@ -52,20 +52,20 @@ CPCDReader::getAttr( xmlNodePtr pNode, const char* attr )
 std::string
 CPCDReader::getXMLElement( xmlNodePtr pNode )
 {
-	std::string ret;
-	ret.clear();
-	
+    std::string ret;
+    ret.clear();
+
     if ( pNode->children != 0 ) {
         if ( pNode->children->content != 0 ) {
-			char* pAttr = (char*)pNode->children->content;
-			if (pAttr != NULL)
-			{
-				while (*pAttr != '\0')
-				{
-					ret.insert(ret.end(), *pAttr);
-					pAttr++;
-				}
-			}
+            char* pAttr = (char*)pNode->children->content;
+            if (pAttr != NULL)
+            {
+                while (*pAttr != '\0')
+                {
+                    ret.insert(ret.end(), *pAttr);
+                    pAttr++;
+                }
+            }
         }
     }
 
@@ -161,7 +161,7 @@ CPCDReader::parseNetPCD( std::string filename )
             parsePolicy( &policy, cur );
             task->policies[policy.name] = policy;
         }
-		// manipulations
+        // manipulations
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"manipulations" ) ) {
             parseManipulations( cur );
         }
@@ -241,11 +241,11 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
     distribution->comment       = getAttr( pNode, "comment" );
     distribution->description   = getAttr( pNode, "description" );
     distribution->keyShift      = 0;
-	distribution->symmetricHash = false;
+    distribution->symmetricHash = false;
     distribution->qcount        = 1;
     distribution->qbase         = 0;
-	distribution->dflt0			= 0;
-	distribution->dflt1			= 0;
+    distribution->dflt0            = 0;
+    distribution->dflt1            = 0;
 
     checkUnknownAttr( pNode, 3, "name", "comment", "description" );
 
@@ -255,9 +255,9 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
         // key
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"key" ) ) {
             distribution->keyShift = std::strtol( getAttr( cur, "shift" ).c_str(), 0, 0 );
-			if ( getAttr( cur, "symmetric" ) == "true" ) {
-				distribution->symmetricHash = true;
-			}
+            if ( getAttr( cur, "symmetric" ) == "true" ) {
+                distribution->symmetricHash = true;
+            }
             checkUnknownAttr( cur, 2, "shift", "symmetric" );
 
             // Parse all fieldrefs inside the key
@@ -269,11 +269,11 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
                     distribution->key.push_back( fieldref );
                 }
 
-				if ( !xmlStrcmp( fr->name, (const xmlChar*)"nonheader" ) ) {
-					CNonHeaderEntry nonHeaderEntry;
-					parseNonHeader( &nonHeaderEntry, fr );
-					distribution->nonHeader.push_back(nonHeaderEntry);
-				}
+                if ( !xmlStrcmp( fr->name, (const xmlChar*)"nonheader" ) ) {
+                    CNonHeaderEntry nonHeaderEntry;
+                    parseNonHeader( &nonHeaderEntry, fr );
+                    distribution->nonHeader.push_back(nonHeaderEntry);
+                }
 
                 fr = fr->next;
             }
@@ -286,7 +286,7 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
                 if ( !xmlStrcmp( pr->name, (const xmlChar*)"protocolref" ) ) {
                     CProtocolRef protocolref;
                     protocolref.name = getAttr( pr, "name" );
-					protocolref.opt = getAttr( pr, "opt" );
+                    protocolref.opt = getAttr( pr, "opt" );
                     checkUnknownAttr( pr, 2, "name", "opt");
 
                     // Check that such protocol exists
@@ -378,20 +378,20 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
 
             distribution->combines.push_back( combine );
         }
-		// defaults
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"defaults" ) ) {
+        // defaults
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"defaults" ) ) {
             checkUnknownAttr( cur, 2, "private0", "private1" );
             distribution->dflt0     = std::strtoul( getAttr( cur, "private0" ).c_str(), 0, 0 );
             distribution->dflt1     = std::strtoul( getAttr( cur, "private1" ).c_str(), 0, 0 );
 
-			xmlNodePtr pr = cur->xmlChildrenNode;
+            xmlNodePtr pr = cur->xmlChildrenNode;
             while ( 0 != pr ) {
                 if ( !xmlStrcmp( pr->name, (const xmlChar*)"default" ) ) {
-					checkUnknownAttr( pr, 2, "type", "select");
+                    checkUnknownAttr( pr, 2, "type", "select");
                     CDefaultGroup dflt;
                     dflt.type = getAttr( pr, "type" );
-					dflt.select = getAttr( pr, "select" );
-                              
+                    dflt.select = getAttr( pr, "select" );
+
                     distribution->defaults.push_back( dflt );
                 }
 
@@ -425,11 +425,13 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
+    checkUnknownAttr( pNode, 4, "name", "max", "masks", "statistics" );
+
     classification->actionOnMiss     = "";
     classification->actionNameOnMiss = "";
-	classification->fragmentationNameOnMiss = "";
+    classification->fragmentationNameOnMiss = "";
     classification->qbase            = 0;
-	classification->key.field		 = false;
+    classification->key.field         = false;
 
     // Get known attributes
     classification->name = getAttr( pNode, "name" );
@@ -449,39 +451,39 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
 
             while ( 0 != fr ) {
                 if ( !xmlStrcmp( fr->name, (const xmlChar*)"fieldref" ) ) {
-					if (nonHeaderFound)
-					{
-						 throw CGenericError( ERR_NH_FIELDREF, classification->name );
-					}
+                    if (nonHeaderFound)
+                    {
+                         throw CGenericError( ERR_NH_FIELDREF, classification->name );
+                    }
 
                     CFieldRef fieldref;
                     parseFieldRef( &fieldref, fr );
                     classification->key.fields.push_back( fieldref );
-					classification->key.header = true;
-					if (fieldref.size > 0 || fieldref.offset > 0)
-						classification->key.field = true;
-					fielrefFound = true;
+                    classification->key.header = true;
+                    if (fieldref.size > 0 || fieldref.offset > 0)
+                        classification->key.field = true;
+                    fielrefFound = true;
                 }
 
-				if ( !xmlStrcmp( fr->name, (const xmlChar*)"nonheader" ) ) {
-					if (fielrefFound)
-					{
-						throw CGenericError( ERR_NH_FIELDREF, classification->name );
-					}
+                if ( !xmlStrcmp( fr->name, (const xmlChar*)"nonheader" ) ) {
+                    if (fielrefFound)
+                    {
+                        throw CGenericError( ERR_NH_FIELDREF, classification->name );
+                    }
 
-					if (nonHeaderFound)
-					{
-						throw CGenericError( ERR_NH_ONE_ENTRY, classification->name );
-					}
+                    if (nonHeaderFound)
+                    {
+                        throw CGenericError( ERR_NH_ONE_ENTRY, classification->name );
+                    }
 
-					CNonHeaderEntry nonHeaderEntry;
-					parseNonHeader( &nonHeaderEntry, fr );
-					if (nonHeaderEntry.size > MAX_SIZE_OF_KEY)
-						throw CGenericError( ERR_NH_KEY_SIZE, MAX_SIZE_OF_KEY, classification->name);
-					classification->key.nonHeaderEntry = nonHeaderEntry;
-					classification->key.header = false;
-					nonHeaderFound = true;
-				}
+                    CNonHeaderEntry nonHeaderEntry;
+                    parseNonHeader( &nonHeaderEntry, fr );
+                    if (nonHeaderEntry.size > MAX_SIZE_OF_KEY)
+                        throw CGenericError( ERR_NH_KEY_SIZE, MAX_SIZE_OF_KEY, classification->name);
+                    classification->key.nonHeaderEntry = nonHeaderEntry;
+                    classification->key.header = false;
+                    nonHeaderFound = true;
+                }
 
                 fr = fr->next;
             }
@@ -492,7 +494,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
             memset( ce.data, 0x00, sizeof( ce.data ) );
             memset( ce.mask, 0xFF, sizeof( ce.mask ) );
             ce.qbase = 0x00;
-			ce.fragmentationName = "";
+            ce.fragmentationName = "";
 
             // Calculate entry index
             if ( !getAttr( cur, "index" ).empty() ) {
@@ -509,21 +511,21 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                         throw CGenericError( ERR_INVALID_ENTRY_DATA,
                                              classification->name );
                     }
-                    
+
                     // Convert data to numeric array
-					data = data.substr( 2 );
-					int index = sizeof( ce.data );
-					while ( data.length() > 0 && index >= 1 ) {
-						std::string tmp;
-						if ( data.length() > 1 ) {
-							tmp  = "0x" + data.substr( data.length() - 2, 2 );
-							data = data.substr( 0, data.length() - 2 );
-						}
-						else {
-							tmp  = "0x" + data;
-							data = "";
-						}
-						ce.data[--index] = (char)std::strtol( tmp.c_str(), 0, 0 );
+                    data = data.substr( 2 );
+                    int index = sizeof( ce.data );
+                    while ( data.length() > 0 && index >= 1 ) {
+                        std::string tmp;
+                        if ( data.length() > 1 ) {
+                            tmp  = "0x" + data.substr( data.length() - 2, 2 );
+                            data = data.substr( 0, data.length() - 2 );
+                        }
+                        else {
+                            tmp  = "0x" + data;
+                            data = "";
+                        }
+                        ce.data[--index] = (char)std::strtol( tmp.c_str(), 0, 0 );
                     }
                 }
                 // mask
@@ -533,7 +535,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                         throw CGenericError( ERR_INVALID_ENTRY_DATA,
                                              classification->name );
                     }
-                    
+
                     // Convert data to numeric array
                     data = data.substr( 2 );
                     int index = sizeof( ce.mask );
@@ -555,7 +557,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                     // Get the 'base' attribute
                     ce.qbase = std::strtol( getAttr( pr, "base" ).c_str(), 0, 0 );
                 }
-				 else if ( !xmlStrcmp( pr->name, (const xmlChar*)"fragmentation" ) ) {
+                 else if ( !xmlStrcmp( pr->name, (const xmlChar*)"fragmentation" ) ) {
                     // Get the 'name' attribute of the fragmentation
                     ce.fragmentationName = stripBlanks( getAttr( pr, "name" ) );
                 }
@@ -583,10 +585,14 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
             classification->actionOnMiss     = stripBlanks( getAttr( cur, "type" ) );
             classification->actionNameOnMiss = stripBlanks( getAttr( cur, "name" ) );
         }
-		// fragmentation
+        // fragmentation
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"fragmentation" ) ) {
             checkUnknownAttr( cur, 1, "name" );
             classification->fragmentationNameOnMiss = getAttr( cur, "name" );
+        }
+        // may-use
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"may-use" ) ) {
+            checkUnknownAttr( cur, 0 );
         }
         // queue
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"queue" ) ) {
@@ -621,14 +627,14 @@ CPCDReader::parseFieldRef( CFieldRef* fieldref, xmlNodePtr pNode )
 
     checkUnknownAttr( pNode, 4, "name", "header_index", "offset", "size" );
 
-	fieldref->offset = 0;
-	fieldref->size = 0;
+    fieldref->offset = 0;
+    fieldref->size = 0;
 
     // Get known attributes
-    fieldref->name			= getAttr( pNode, "name" );
-    fieldref->header_index	= getAttr( pNode, "header_index" );
-	fieldref->offset		= std::strtoul( getAttr( pNode, "offset" ).c_str(), 0, 0 );
-	fieldref->size			= std::strtoul( getAttr( pNode, "size" ).c_str(), 0, 0 );
+    fieldref->name            = getAttr( pNode, "name" );
+    fieldref->header_index    = getAttr( pNode, "header_index" );
+    fieldref->offset        = std::strtoul( getAttr( pNode, "offset" ).c_str(), 0, 0 );
+    fieldref->size            = std::strtoul( getAttr( pNode, "size" ).c_str(), 0, 0 );
 
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
@@ -646,86 +652,86 @@ CPCDReader::parseFieldRef( CFieldRef* fieldref, xmlNodePtr pNode )
 void
 CPCDReader::parseNonHeader( CNonHeaderEntry* nonHeaderEntry, xmlNodePtr pNode )
 {
-	// Make sure we process the right node
-	if ( xmlStrcmp( pNode->name, (const xmlChar*)"nonheader" ) ) {
-		throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
-	}
+    // Make sure we process the right node
+    if ( xmlStrcmp( pNode->name, (const xmlChar*)"nonheader" ) ) {
+        throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
+    }
 
-	checkUnknownAttr( pNode, 5, "source", "action", "offset", "size",
-		"ic_index_mask" );
+    checkUnknownAttr( pNode, 5, "source", "action", "offset", "size",
+        "ic_index_mask" );
 
-	std::string source = getAttr( pNode, "source" );
+    std::string source = getAttr( pNode, "source" );
 
-	if ( stripBlanks( source ) == "frame_start" ) {
-		nonHeaderEntry->source = ES_FROM_FRAME_START;
-	}
-	else if ( stripBlanks( source ) == "key" ) {
-		nonHeaderEntry->source = ES_FROM_KEY;
-	}
-	else if ( stripBlanks( source ) == "hash" ) {
-		nonHeaderEntry->source = ES_FROM_HASH;
-	}
-	else if ( stripBlanks( source ) == "parser" ) {
-		nonHeaderEntry->source = ES_FROM_PARSE_RESULT;
-	}
-	else if ( stripBlanks( source ) == "fqid" ) {
-		nonHeaderEntry->source = ES_FROM_ENQ_FQID;
-	}
-	else if ( stripBlanks( source ) == "flowid" ) {
-		nonHeaderEntry->source = ES_FROM_FLOW_ID;
-	}
-	else if ( stripBlanks( source ) == "default" ) {
-		nonHeaderEntry->source = ES_FROM_DFLT_VALUE;
-	}
-	else if ( stripBlanks( source ) == "endofparse" ) {
-		nonHeaderEntry->source = ES_FROM_CURR_END_OF_PARSE;
-	}
-	else
-	{
-		throw CGenericError( ERR_NH_INVALID_SOURCE, source );
-	}
+    if ( stripBlanks( source ) == "frame_start" ) {
+        nonHeaderEntry->source = ES_FROM_FRAME_START;
+    }
+    else if ( stripBlanks( source ) == "key" ) {
+        nonHeaderEntry->source = ES_FROM_KEY;
+    }
+    else if ( stripBlanks( source ) == "hash" ) {
+        nonHeaderEntry->source = ES_FROM_HASH;
+    }
+    else if ( stripBlanks( source ) == "parser" ) {
+        nonHeaderEntry->source = ES_FROM_PARSE_RESULT;
+    }
+    else if ( stripBlanks( source ) == "fqid" ) {
+        nonHeaderEntry->source = ES_FROM_ENQ_FQID;
+    }
+    else if ( stripBlanks( source ) == "flowid" ) {
+        nonHeaderEntry->source = ES_FROM_FLOW_ID;
+    }
+    else if ( stripBlanks( source ) == "default" ) {
+        nonHeaderEntry->source = ES_FROM_DFLT_VALUE;
+    }
+    else if ( stripBlanks( source ) == "endofparse" ) {
+        nonHeaderEntry->source = ES_FROM_CURR_END_OF_PARSE;
+    }
+    else
+    {
+        throw CGenericError( ERR_NH_INVALID_SOURCE, source );
+    }
 
-	std::string action = getAttr( pNode, "action" );
+    std::string action = getAttr( pNode, "action" );
 
-	if ( stripBlanks( action ) == "indexed_lookup" ) {
-		nonHeaderEntry->action = EA_INDEXED_LOOKUP;
-		if (nonHeaderEntry->source != ES_FROM_FLOW_ID && nonHeaderEntry->source != ES_FROM_HASH)
-		{
-			throw CGenericError( ERR_NH_COND_ACTION, action, source );
-		}
-	}
-	else if ( stripBlanks( action ) == "exact_match" ) {
-		nonHeaderEntry->action = EA_EXACT_MATCH;
-		if (nonHeaderEntry->source != ES_FROM_KEY && nonHeaderEntry->source != ES_FROM_HASH)
-		{
-			throw CGenericError( ERR_NH_COND_ACTION, action, source );
-		}
-	}
-	else if ( stripBlanks( action ) == "" ) {
-		if (nonHeaderEntry->source == ES_FROM_KEY)
-		{
-			nonHeaderEntry->action = EA_EXACT_MATCH;
-		} else if (nonHeaderEntry->source == ES_FROM_FLOW_ID)
-		{
-			nonHeaderEntry->action = EA_INDEXED_LOOKUP;
-		} else if (nonHeaderEntry->source == ES_FROM_HASH)
-		{
-			throw CGenericError( ERR_NH_COND_ACTION, source );
-		} else
-		{
-			nonHeaderEntry->action = EA_NONE;
-		}
-	}
-	else
-	{
-		throw CGenericError( ERR_NH_INVALID_ACTION, action );
-	}
-	
-	nonHeaderEntry->offset			= std::strtoul( getAttr( pNode, "offset" ).c_str(), 0, 0 );
-	nonHeaderEntry->size			= std::strtoul( getAttr( pNode, "size" ).c_str(), 0, 0 );
-	nonHeaderEntry->icIndxMask      = std::strtoul( getAttr( pNode, "ic_index_mask" ).c_str(), 0, 0 );
+    if ( stripBlanks( action ) == "indexed_lookup" ) {
+        nonHeaderEntry->action = EA_INDEXED_LOOKUP;
+        if (nonHeaderEntry->source != ES_FROM_FLOW_ID && nonHeaderEntry->source != ES_FROM_HASH)
+        {
+            throw CGenericError( ERR_NH_COND_ACTION, action, source );
+        }
+    }
+    else if ( stripBlanks( action ) == "exact_match" ) {
+        nonHeaderEntry->action = EA_EXACT_MATCH;
+        if (nonHeaderEntry->source != ES_FROM_KEY && nonHeaderEntry->source != ES_FROM_HASH)
+        {
+            throw CGenericError( ERR_NH_COND_ACTION, action, source );
+        }
+    }
+    else if ( stripBlanks( action ) == "" ) {
+        if (nonHeaderEntry->source == ES_FROM_KEY)
+        {
+            nonHeaderEntry->action = EA_EXACT_MATCH;
+        } else if (nonHeaderEntry->source == ES_FROM_FLOW_ID)
+        {
+            nonHeaderEntry->action = EA_INDEXED_LOOKUP;
+        } else if (nonHeaderEntry->source == ES_FROM_HASH)
+        {
+            throw CGenericError( ERR_NH_COND_ACTION, source );
+        } else
+        {
+            nonHeaderEntry->action = EA_NONE;
+        }
+    }
+    else
+    {
+        throw CGenericError( ERR_NH_INVALID_ACTION, action );
+    }
 
-	return;
+    nonHeaderEntry->offset            = std::strtoul( getAttr( pNode, "offset" ).c_str(), 0, 0 );
+    nonHeaderEntry->size            = std::strtoul( getAttr( pNode, "size" ).c_str(), 0, 0 );
+    nonHeaderEntry->icIndxMask      = std::strtoul( getAttr( pNode, "ic_index_mask" ).c_str(), 0, 0 );
+
+    return;
 }
 
 
@@ -866,9 +872,9 @@ CPCDReader::parsePolicy( CPolicy* policy, xmlNodePtr pNode )
 
     checkUnknownAttr( pNode, 1, "name" );
 
-	//Set defaults
-	policy->name = "";
-	policy->reassemblyName = "";
+    //Set defaults
+    policy->name = "";
+    policy->reassemblyName = "";
 
     // Get known attributes
     policy->name = getAttr( pNode, "name" );
@@ -880,12 +886,12 @@ CPCDReader::parsePolicy( CPolicy* policy, xmlNodePtr pNode )
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"dist_order" ) ) {
             parseDistOrder( policy, cur );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"reassembly" ) ) {
-			if (strcmp("", policy->reassemblyName.c_str()))
-			{
-				CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
-			}
-			policy->reassemblyName = getAttr( cur, "name" );
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"reassembly" ) ) {
+            if (strcmp("", policy->reassemblyName.c_str()))
+            {
+                CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+            }
+            policy->reassemblyName = getAttr( cur, "name" );
         }
         // comment
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
@@ -944,22 +950,22 @@ CPCDReader::parseReassembly( CReassembly* reassembly, xmlNodePtr pNode )
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"reassembly" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
-	
+
     checkUnknownAttr( pNode, 1, "name" );
 
-	// Set default parameters
-	reassembly->name = "";
-	reassembly->sgBpid = 0;
-	reassembly->sgLiodnOffset = 0;
-	reassembly->maxInProcess = 0;
-	reassembly->dataLiodnOffset = 0;
-	reassembly->dataMemId = 0;
-	reassembly->ipv4minFragSize = 0;
-	reassembly->ipv6minFragSize = 256;
-	reassembly->timeOutMode = 0;
-	reassembly->fqidForTimeOutFrames = 0;
-	reassembly->numOfFramesPerHashEntry = 0;
-	reassembly->timeoutThreshold = 0;
+    // Set default parameters
+    reassembly->name = "";
+    reassembly->sgBpid = 0;
+    reassembly->sgLiodnOffset = 0;
+    reassembly->maxInProcess = 0;
+    reassembly->dataLiodnOffset = 0;
+    reassembly->dataMemId = 0;
+    reassembly->ipv4minFragSize = 0;
+    reassembly->ipv6minFragSize = 256;
+    reassembly->timeOutMode = 0;
+    reassembly->fqidForTimeOutFrames = 0;
+    reassembly->numOfFramesPerHashEntry = 0;
+    reassembly->timeoutThreshold = 0;
 
     // Get known attributes
     reassembly->name = getAttr( pNode, "name" );
@@ -968,54 +974,54 @@ CPCDReader::parseReassembly( CReassembly* reassembly, xmlNodePtr pNode )
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"sgBpid" ) ) {
-			std::string text = getXMLElement( cur );
-			reassembly->sgBpid = std::strtol( text.c_str(), 0, 0 );
+            std::string text = getXMLElement( cur );
+            reassembly->sgBpid = std::strtol( text.c_str(), 0, 0 );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"sgLiodnOffset" ) ) {
-			std::string text = getXMLElement( cur );
-			reassembly->sgLiodnOffset = std::strtol( text.c_str(), 0, 0 );
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"sgLiodnOffset" ) ) {
+            std::string text = getXMLElement( cur );
+            reassembly->sgLiodnOffset = std::strtol( text.c_str(), 0, 0 );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"maxInProcess" ) ) {
-			std::string text = getXMLElement( cur );
-			reassembly->maxInProcess = std::strtol( text.c_str(), 0, 0 );
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"maxInProcess" ) ) {
+            std::string text = getXMLElement( cur );
+            reassembly->maxInProcess = std::strtol( text.c_str(), 0, 0 );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"dataLiodnOffset" ) ) {
-			std::string text = getXMLElement( cur );
-			reassembly->dataLiodnOffset = std::strtol( text.c_str(), 0, 0 );
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"dataLiodnOffset" ) ) {
+            std::string text = getXMLElement( cur );
+            reassembly->dataLiodnOffset = std::strtol( text.c_str(), 0, 0 );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"dataMemId" ) ) {
-			std::string text = getXMLElement( cur );
-			reassembly->dataMemId = std::strtol( text.c_str(), 0, 0 );
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"dataMemId" ) ) {
+            std::string text = getXMLElement( cur );
+            reassembly->dataMemId = std::strtol( text.c_str(), 0, 0 );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"ipv4minFragSize" ) ) {
-			std::string text = getXMLElement( cur );
-			reassembly->ipv4minFragSize = std::strtol( text.c_str(), 0, 0 );
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"ipv4minFragSize" ) ) {
+            std::string text = getXMLElement( cur );
+            reassembly->ipv4minFragSize = std::strtol( text.c_str(), 0, 0 );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"ipv6minFragSize" ) ) {
-			std::string text = getXMLElement( cur );
-			reassembly->ipv6minFragSize = std::strtol( text.c_str(), 0, 0 );
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"ipv6minFragSize" ) ) {
+            std::string text = getXMLElement( cur );
+            reassembly->ipv6minFragSize = std::strtol( text.c_str(), 0, 0 );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"timeOutMode" ) ) {
-			std::string text = getXMLElement( cur );
-			if ( stripBlanks( text ) == "fragment" ) {
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"timeOutMode" ) ) {
+            std::string text = getXMLElement( cur );
+            if ( stripBlanks( text ) == "fragment" ) {
                 reassembly->timeOutMode = 1;
             }
             else {
-				//frame
+                //frame
                 reassembly->timeOutMode = 0;
             }
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"fqidForTimeOutFrames" ) ) {
-			std::string text = getXMLElement( cur );
-			reassembly->fqidForTimeOutFrames = std::strtol( text.c_str(), 0, 0 );
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"fqidForTimeOutFrames" ) ) {
+            std::string text = getXMLElement( cur );
+            reassembly->fqidForTimeOutFrames = std::strtol( text.c_str(), 0, 0 );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"numOfFramesPerHashEntry" ) ) {
-			std::string text = getXMLElement( cur );
-			reassembly->numOfFramesPerHashEntry = std::strtol( text.c_str(), 0, 0 );
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"numOfFramesPerHashEntry" ) ) {
+            std::string text = getXMLElement( cur );
+            reassembly->numOfFramesPerHashEntry = std::strtol( text.c_str(), 0, 0 );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"timeoutThreshold" ) ) {
-			std::string text = getXMLElement( cur );
-			reassembly->timeoutThreshold = std::strtol( text.c_str(), 0, 0 );
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"timeoutThreshold" ) ) {
+            std::string text = getXMLElement( cur );
+            reassembly->timeoutThreshold = std::strtol( text.c_str(), 0, 0 );
         }
         // comment
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
@@ -1036,11 +1042,11 @@ CPCDReader::parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode 
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-	 // Set default parameters
-    fragmentation->name					= "";
-    fragmentation->size					= 0;
-	fragmentation->dontFragAction		= 0;
-	fragmentation->scratchBpid			= 0;
+     // Set default parameters
+    fragmentation->name                    = "";
+    fragmentation->size                    = 0;
+    fragmentation->dontFragAction        = 0;
+    fragmentation->scratchBpid            = 0;
 
     checkUnknownAttr( pNode, 1, "name" );
 
@@ -1051,25 +1057,25 @@ CPCDReader::parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode 
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"size" ) ) {
-			std::string text = getXMLElement( cur );
-			fragmentation->size = std::strtol( text.c_str(), 0, 0 );
+            std::string text = getXMLElement( cur );
+            fragmentation->size = std::strtol( text.c_str(), 0, 0 );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"dontFragAction" ) ) {
-			std::string text = getXMLElement( cur );
-			if ( stripBlanks( text ) == "continue" ) {
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"dontFragAction" ) ) {
+            std::string text = getXMLElement( cur );
+            if ( stripBlanks( text ) == "continue" ) {
                 fragmentation->dontFragAction = 2;
             }
-			else if ( stripBlanks( text ) == "fragment" ) {
+            else if ( stripBlanks( text ) == "fragment" ) {
                 fragmentation->dontFragAction = 1;
             }
             else {
-				//discard
+                //discard
                 fragmentation->dontFragAction = 0;
             }
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"scratchBpid" ) ) {
-			std::string text = getXMLElement( cur );
-			fragmentation->scratchBpid = std::strtol( text.c_str(), 0, 0 );
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"scratchBpid" ) ) {
+            std::string text = getXMLElement( cur );
+            fragmentation->scratchBpid = std::strtol( text.c_str(), 0, 0 );
         }
         // comment
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
@@ -1096,15 +1102,15 @@ CPCDReader::parseManipulations( xmlNodePtr pNode )
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
         // action
-		if ( !xmlStrcmp( cur->name, (const xmlChar*)"fragmentation" ) ) {
-			CFragmentation fragmentation;
+        if ( !xmlStrcmp( cur->name, (const xmlChar*)"fragmentation" ) ) {
+            CFragmentation fragmentation;
             parseFragmentation( &fragmentation, cur );
-			task->fragmentations[fragmentation.name] = fragmentation;
+            task->fragmentations[fragmentation.name] = fragmentation;
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"reassembly" ) ) {
-			CReassembly reassembly;
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"reassembly" ) ) {
+            CReassembly reassembly;
             parseReassembly( &reassembly, cur );
-			task->reassemblies[reassembly.name] = reassembly;
+            task->reassemblies[reassembly.name] = reassembly;
         }
         // comment
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
