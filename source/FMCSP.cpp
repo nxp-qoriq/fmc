@@ -193,7 +193,7 @@ void CSoftParseResult::dumpHeader(std::string path) const
 
     dumpFile << "#define SOFT_PARSE_CODE                                    \\"
     << endl  << "{                                                          \\"
-    << endl  <<	"    FALSE,                              /*Override*/       \\"
+    << endl  <<	"    TRUE,                               /*Override*/       \\"
     << endl  <<	"    " << size
              <<         ",                               /*Size*/           \\"
     << endl  << "    " << "0x" << std::hex << base
@@ -245,23 +245,23 @@ std::string CSoftParseResult::externProtoName(const ProtoType type)
     std::map< ProtoType, std::string >::iterator protocolsLabelsIterator;
     std::map< ProtoType, std::string> protocolsLabels;
     
-    protocolsLabels[PT_ETH]          = "HEADER_TYPE_ETH";
-    protocolsLabels[PT_LLC_SNAP]     = "HEADER_TYPE_SNAP";
-    protocolsLabels[PT_VLAN]         = "HEADER_TYPE_VLAN";
-    protocolsLabels[PT_PPPOE_PPP]    = "HEADER_TYPE_PPPoE";
-    protocolsLabels[PT_MPLS]         = "HEADER_TYPE_MPLS";
-    protocolsLabels[PT_IPV4]         = "HEADER_TYPE_IPv4";
-    protocolsLabels[PT_IPV6]         = "HEADER_TYPE_IPv6";
-    protocolsLabels[PT_GRE]          = "HEADER_TYPE_GRE";
-    protocolsLabels[PT_MINENCAP]     = "HEADER_TYPE_MINENCAP";
-    protocolsLabels[PT_TCP]          = "HEADER_TYPE_TCP";
-    protocolsLabels[PT_UDP]          = "HEADER_TYPE_UDP";
-    protocolsLabels[PT_IPSEC_AH]     = "HEADER_TYPE_IPSEC_AH";
-    protocolsLabels[PT_IPSEC_ESP]    = "HEADER_TYPE_IPSEC_ESP";
-    protocolsLabels[PT_SCTP]         = "HEADER_TYPE_SCTP";
-    protocolsLabels[PT_DCCP]         = "HEADER_TYPE_DCCP";
-    protocolsLabels[PT_OTHER_L3]     = "HEADER_TYPE_USER_DEFINED_L3";
-    protocolsLabels[PT_OTHER_L4]     = "HEADER_TYPE_USER_DEFINED_L4";
+    protocolsLabels[PT_ETH]       = "HEADER_TYPE_ETH";
+    protocolsLabels[PT_LLC_SNAP]  = "HEADER_TYPE_SNAP";
+    protocolsLabels[PT_VLAN]      = "HEADER_TYPE_VLAN";
+    protocolsLabels[PT_PPPOE_PPP] = "HEADER_TYPE_PPPoE";
+    protocolsLabels[PT_MPLS]      = "HEADER_TYPE_MPLS";
+    protocolsLabels[PT_IPV4]      = "HEADER_TYPE_IPv4";
+    protocolsLabels[PT_IPV6]      = "HEADER_TYPE_IPv6";
+    protocolsLabels[PT_GRE]       = "HEADER_TYPE_GRE";
+    protocolsLabels[PT_MINENCAP]  = "HEADER_TYPE_MINENCAP";
+    protocolsLabels[PT_TCP]       = "HEADER_TYPE_TCP";
+    protocolsLabels[PT_UDP]       = "HEADER_TYPE_UDP";
+    protocolsLabels[PT_IPSEC_AH]  = "HEADER_TYPE_IPSEC_AH";
+    protocolsLabels[PT_IPSEC_ESP] = "HEADER_TYPE_IPSEC_ESP";
+    protocolsLabels[PT_SCTP]      = "HEADER_TYPE_SCTP";
+    protocolsLabels[PT_DCCP]      = "HEADER_TYPE_DCCP";
+    protocolsLabels[PT_OTHER_L3]  = "HEADER_TYPE_USER_DEFINED_L3";
+    protocolsLabels[PT_OTHER_L4]  = "HEADER_TYPE_USER_DEFINED_L4";
 
     protocolsLabelsIterator = protocolsLabels.find(type);
     if (protocolsLabelsIterator == protocolsLabels.end())

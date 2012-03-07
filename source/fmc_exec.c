@@ -539,6 +539,7 @@ fmc_clean_engine_start( fmc_model* model, unsigned int index )
 static int
 fmc_clean_engine_end( fmc_model* model, unsigned int index )
 {
+    FM_PCD_Disable( model->fman[index].pcd_handle );
     return 0;
 }
 
