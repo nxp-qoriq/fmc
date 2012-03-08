@@ -322,6 +322,7 @@ public:
     std::vector< unsigned int > ports;  ///< Ports of the engine
     
     std::vector< t_FmPcdManipParams > frags;
+    std::vector< std::string >        frag_names;
 };
 
 

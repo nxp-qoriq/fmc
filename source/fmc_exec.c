@@ -170,6 +170,7 @@ fmc_get_handle(
     unsigned int port    = 0;
     unsigned int found   = 0;
     unsigned int ccindex = 0;
+    unsigned int i;
 
     // Find engine index
     for ( engine = 0; engine < model->fman_count; engine++ ) {
@@ -185,6 +186,13 @@ fmc_get_handle(
     // Check whether it is a 'policy' name. Return PCD handle then
     if ( strcmp( model->fman[engine].pcd_name, name ) == 0 ) {
         return model->fman[engine].pcd_handle;
+    }
+
+    // Check fragmentation names
+    for ( i = 0; i < model->fman[engine].frag_count; i++ ) {
+        if ( strcmp( model->fman[engine].frag_name[i], name ) == 0 ) {
+            return model->fman[engine].frag_handle[i];
+        }
     }
 
     // Find port index

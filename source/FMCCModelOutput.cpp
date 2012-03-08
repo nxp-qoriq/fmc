@@ -191,6 +191,10 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 
     EMIT4( fman[, index, ].frag_count =, model.all_engines[index].frags.size() );
     for ( unsigned int i = 0; i < model.all_engines[index].frags.size(); i++ ) {
+        strncpy( cmodel->fman[index].frag_name[i], model.all_engines[index].frag_names[i].c_str(), FMC_NAME_LEN - 1 );
+        cmodel->fman[index].frag_name[i][FMC_NAME_LEN - 1] = 0;
+        oss << ind( indent ) << ".fman[" << index << "].frag_name[" << i << "] = \"" << model.all_engines[index].frag_names[i] << "\"," << std::endl;
+
         EMIT6( fman[, index, ].frag[, i,].fragOrReasm =,                      model.all_engines[index].frags[i].fragOrReasm );
         EMIT6( fman[, index, ].frag[, i,].fragOrReasmParams.frag =,           model.all_engines[index].frags[i].fragOrReasmParams.frag );
         EMIT5( fman[, index, ].frag[, i,].fragOrReasmParams.hdr = HEADER_TYPE_IPv6 );

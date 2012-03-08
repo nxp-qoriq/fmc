@@ -47,6 +47,7 @@ typedef struct fmc_fman_t {
     
     unsigned int       frag_count;
     t_FmPcdManipParams frag[FMC_MANIP_MAX];
+    char               frag_name[FMC_MANIP_MAX][FMC_NAME_LEN];
     t_Handle           frag_handle[FMC_MANIP_MAX];
 } fmc_fman;
 
