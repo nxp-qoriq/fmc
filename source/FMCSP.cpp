@@ -15,7 +15,7 @@
 #include "FMCSP.h"
 
 #ifdef _DEBUG
-const bool DEBUG_SP= 1;
+const bool DEBUG_SP= 0;
 #else
 const bool DEBUG_SP = 0;
 #endif
@@ -24,7 +24,7 @@ using namespace std;
 
 
 
-void softparser (CTaskDef *task, std::string filePath, bool keepAsm, unsigned int baseAddress)
+void softparser (CTaskDef *task, std::string filePath, unsigned int baseAddress)
 {    
     CIR 					newIR;
     CCode 					newCode;
@@ -49,14 +49,11 @@ void softparser (CTaskDef *task, std::string filePath, bool keepAsm, unsigned in
         newCode.setDumpCode(fileNoExt+".code");           
         newCode.setDumpAsm (fileNoExt+".asm");
         newCode.setDebugAsm(1);
+        task->dumpSpParsed (parsePath);   
     }
 
     /*Parse, create IR and create asm*/
-    if (DEBUG_SP)
-        task->dumpSpParsed   (parsePath);   
     newIR.createIR          (task);
-    if (keepAsm)       
-        newCode.setDumpAsm  (fileNoExt+".asm");
     newCode.createCode      (newIR);
     
     /*assemble*/

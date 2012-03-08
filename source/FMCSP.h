@@ -23,7 +23,7 @@ extern "C" {
 }
 
 
-void softparser (CTaskDef *task, std::string currentPath, bool keepAsm, unsigned int baseAddress);
+void softparser (CTaskDef *task, std::string currentPath, unsigned int baseAddress);
 unsigned int assemble   (char* asmResult, unsigned char* binary, fmsp_label_list_t **labels, bool debug, int baseAddress);
 void createExtensions (std::vector<CExtension> &extns, CCode code, fmsp_label_list_t *labels);
 

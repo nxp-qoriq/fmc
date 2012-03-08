@@ -78,8 +78,7 @@ int fmc_compile(
         if ( nameSP ) {
             pdlReader.setSoftParse(1);
             pdlReader.parseNetPDL( nameSP );
-            bool keepAsm = false;
-            softparser(&task, nameSP, keepAsm, swOffset);
+            softparser(&task, nameSP, swOffset);
         }
 
         if ( namePCD && nameCfg )
