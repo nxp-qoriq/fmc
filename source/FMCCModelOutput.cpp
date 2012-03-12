@@ -895,9 +895,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
             x |= (x >> 8); x |= (x >> 16);
             x -= (x >> 1);
         }
-        if ( x != upper_bound ) {
-            upper_bound = x << 1;
-        }
+        upper_bound = x << 1;
 
         EMIT4( ccnode[, index, ].keysParams.numOfKeys =, upper_bound );
     }
