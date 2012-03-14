@@ -515,7 +515,6 @@ class CReassembly
   public:
     std::string  name;
 	unsigned int sgBpid;
-	unsigned int sgLiodnOffset;
 	unsigned int maxInProcess;
 	unsigned int dataLiodnOffset;
 	unsigned int dataMemId;

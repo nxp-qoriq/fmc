@@ -367,8 +367,10 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
             model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.minFragSize[0] );
         EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.minFragSize[1] =,
             model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.minFragSize[1] );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.liodnOffset =,
-            model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.liodnOffset );
+        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.sgBpid =,
+            (int)model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.sgBpid );
+        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.dataLiodnOffset =,
+            model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.dataLiodnOffset );
         EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.dataMemId =,
             (int)model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.dataMemId );
 

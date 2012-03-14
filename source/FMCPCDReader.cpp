@@ -956,7 +956,6 @@ CPCDReader::parseReassembly( CReassembly* reassembly, xmlNodePtr pNode )
     // Set default parameters
     reassembly->name = "";
     reassembly->sgBpid = 0;
-    reassembly->sgLiodnOffset = 0;
     reassembly->maxInProcess = 0;
     reassembly->dataLiodnOffset = 0;
     reassembly->dataMemId = 0;
@@ -976,10 +975,6 @@ CPCDReader::parseReassembly( CReassembly* reassembly, xmlNodePtr pNode )
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"sgBpid" ) ) {
             std::string text = getXMLElement( cur );
             reassembly->sgBpid = std::strtol( text.c_str(), 0, 0 );
-        }
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"sgLiodnOffset" ) ) {
-            std::string text = getXMLElement( cur );
-            reassembly->sgLiodnOffset = std::strtol( text.c_str(), 0, 0 );
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"maxInProcess" ) ) {
             std::string text = getXMLElement( cur );

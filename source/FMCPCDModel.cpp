@@ -268,7 +268,8 @@ CFMCModel::createPort( Engine& engine, const CPort& xmlPort, const CTaskDef* pTa
         reasm.fragOrReasmParams.hdr             = HEADER_TYPE_IPv6;
         reasm.fragOrReasmParams.extBufPoolIndx  = it->second.sgBpid;
         reasm.fragOrReasmParams.ipReasmParams.maxNumFramesInProcess             = it->second.maxInProcess;
-        reasm.fragOrReasmParams.ipReasmParams.liodnOffset                       = it->second.dataLiodnOffset;
+        reasm.fragOrReasmParams.ipReasmParams.sgBpid                            = it->second.sgBpid;
+        reasm.fragOrReasmParams.ipReasmParams.dataLiodnOffset                   = it->second.dataLiodnOffset;
         reasm.fragOrReasmParams.ipReasmParams.dataMemId                         = it->second.dataMemId;
         reasm.fragOrReasmParams.ipReasmParams.minFragSize[0]                    = it->second.ipv4minFragSize;
         reasm.fragOrReasmParams.ipReasmParams.minFragSize[1]                    = it->second.ipv6minFragSize;
