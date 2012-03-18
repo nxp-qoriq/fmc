@@ -189,6 +189,47 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 
     OUT_EMPTY;
 
+    EMIT4( fman[, index, ].reasm_count =, model.all_engines[index].reasm.size() );
+    for ( unsigned int i = 0; i < model.all_engines[index].reasm.size(); i++ ) {
+        strncpy( cmodel->fman[index].reasm_name[i], model.all_engines[index].reasm_names[i].c_str(), FMC_NAME_LEN - 1 );
+        cmodel->fman[index].reasm_name[i][FMC_NAME_LEN - 1] = 0;
+        oss << ind( indent ) << ".fman[" << index << "].reasm_name[" << i << "] = \"" << model.all_engines[index].reasm_names[i] << "\"," << std::endl;
+
+        EMIT6( fman[, index, ].reasm[, i, ].fragOrReasmParams.frag =,           model.all_engines[index].reasm[i].fragOrReasmParams.frag );
+        EMIT6( fman[, index, ].reasm[, i, ].fragOrReasmParams.extBufPoolIndx =, (int)model.all_engines[index].reasm[i].fragOrReasmParams.extBufPoolIndx );
+        EMIT5( fman[, index, ].reasm[, i, ].fragOrReasmParams.hdr = HEADER_TYPE_IPv6 );
+        EMIT1( "{" );
+        indent += 4;
+
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.maxNumFramesInProcess =,
+            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.maxNumFramesInProcess );
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.timeOutMode =,
+            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.timeOutMode );
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.numOfFramesPerHashEntry =,
+            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.numOfFramesPerHashEntry );
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.timeoutThresholdForReassmProcess =,
+            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.timeoutThresholdForReassmProcess );
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.fqidForTimeOutFrames =,
+            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.fqidForTimeOutFrames );
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.relativeSchemeId[0] =, 0 );
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.relativeSchemeId[1] =, 1 );
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.minFragSize[0] =,
+            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.minFragSize[0] );
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.minFragSize[1] =,
+            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.minFragSize[1] );
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.sgBpid =,
+            (int)model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.sgBpid );
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.dataLiodnOffset =,
+            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.dataLiodnOffset );
+        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.dataMemId =,
+            (int)model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.dataMemId );
+
+        indent -= 4;
+        EMIT1( "}," );
+    }
+
+    OUT_EMPTY;
+
     EMIT4( fman[, index, ].frag_count =, model.all_engines[index].frags.size() );
     for ( unsigned int i = 0; i < model.all_engines[index].frags.size(); i++ ) {
         strncpy( cmodel->fman[index].frag_name[i], model.all_engines[index].frag_names[i].c_str(), FMC_NAME_LEN - 1 );
@@ -224,7 +265,7 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
     EMIT1( std::string( "/* FMan port: " + model.all_ports[index].name + " */" ) );
 
     strncpy( cmodel->port[index].name, model.all_ports[index].name.c_str(), FMC_NAME_LEN - 1 );
-    cmodel->fman[index].ports[FMC_NAME_LEN - 1] = 0;
+    cmodel->port[index].name[FMC_NAME_LEN - 1] = 0;
     oss << ind( indent ) << ".port[" << index << "].name = \"" << model.all_ports[index].name << "\"," << std::endl;
 
     EMIT4STR( port[, index, ].type =, model.all_ports[index].type );
@@ -247,7 +288,7 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
 
     // Distinction units
     unsigned int numOfDistUnits = model.all_ports[index].protocols.size();
-    if ( model.all_ports[index].reasm.size() != 0 ) {
+    if ( model.all_ports[index].reasm_index != 0 ) {
         numOfDistUnits += 2;
     }
     EMIT4( port[, index, ].distinctionUnits.numOfDistinctionUnits =, numOfDistUnits );
@@ -281,7 +322,7 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
         }
     }
 
-    if ( model.all_ports[index].reasm.size() != 0 ) {
+    if ( model.all_ports[index].reasm_index != 0 ) {
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 2,].hdrs[0].hdr = HEADER_TYPE_IPv4 );
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 2,].hdrs[0].opt.ipv4Opt = IPV4_FRAG_1 );
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 1,].hdrs[0].hdr = HEADER_TYPE_IPv6 );
@@ -289,11 +330,11 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
     }
 
     // Fill PCD params
-    if ( ( !model.all_ports[index].cctrees.empty() || model.all_ports[index].reasm.size() )
+    if ( ( !model.all_ports[index].cctrees.empty() || model.all_ports[index].reasm_index != 0 )
          && !model.all_ports[index].schemes.empty() && !model.all_policers.empty() ) {
         EMIT3( port[, index, ].pcdParam.pcdSupport = e_FM_PORT_PCD_SUPPORT_PRS_AND_KG_AND_CC_AND_PLCR );
     }
-    else if ( ( !model.all_ports[index].cctrees.empty() || model.all_ports[index].reasm.size() )
+    else if ( ( !model.all_ports[index].cctrees.empty() || model.all_ports[index].reasm_index != 0 )
          && !model.all_ports[index].schemes.empty() ) {
         EMIT3( port[, index, ].pcdParam.pcdSupport = e_FM_PORT_PCD_SUPPORT_PRS_AND_KG_AND_CC );
     }
@@ -311,7 +352,7 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
     if( !model.all_ports[index].schemes.empty() ) {
         EMIT7SP( port[, index, ].pcdParam.p_KgParams =, &cmodel->port[, &cmodel.port[, index, ].kgParam );
     }
-    if( !model.all_ports[index].cctrees.empty() || model.all_ports[index].reasm.size() ) {
+    if( !model.all_ports[index].cctrees.empty() || model.all_ports[index].reasm_index != 0 ) {
         EMIT7SP( port[, index, ].pcdParam.p_CcParams =, &cmodel->port[, &cmodel.port[, index, ].ccParam );
     }
 
@@ -341,42 +382,7 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
         EMIT4( port[, index, ].kgParam.numOfSchemes =, model.all_ports[index].schemes.size() );
     }
 
-
-    EMIT4( port[, index, ].reasm_flag =, model.all_ports[index].reasm.size() );
-    if ( model.all_ports[index].reasm.size() > 0 ) {
-        EMIT4( port[, index, ].reasm.fragOrReasm =,                      model.all_ports[index].reasm[0].fragOrReasm );
-        EMIT4( port[, index, ].reasm.fragOrReasmParams.frag =,           model.all_ports[index].reasm[0].fragOrReasmParams.frag );
-        EMIT4( port[, index, ].reasm.fragOrReasmParams.extBufPoolIndx =, (int)model.all_ports[index].reasm[0].fragOrReasmParams.extBufPoolIndx );
-        EMIT3( port[, index, ].reasm.fragOrReasmParams.hdr = HEADER_TYPE_IPv6 );
-        EMIT1( "{" );
-        indent += 4;
-
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.maxNumFramesInProcess =,
-            model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.maxNumFramesInProcess );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.timeOutMode =,
-            model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.timeOutMode );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.numOfFramesPerHashEntry =,
-            model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.numOfFramesPerHashEntry );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.timeoutThresholdForReassmProcess =,
-            model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.timeoutThresholdForReassmProcess );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.fqidForTimeOutFrames =,
-            model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.fqidForTimeOutFrames );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.relativeSchemeId[0] =, 0 );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.relativeSchemeId[1] =, 1 );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.minFragSize[0] =,
-            model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.minFragSize[0] );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.minFragSize[1] =,
-            model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.minFragSize[1] );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.sgBpid =,
-            (int)model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.sgBpid );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.dataLiodnOffset =,
-            model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.dataLiodnOffset );
-        EMIT5_2( port[, index, ].reasm.fragOrReasmParams, .ipReasmParams.dataMemId =,
-            (int)model.all_ports[index].reasm[0].fragOrReasmParams.ipReasmParams.dataMemId );
-
-        indent -= 4;
-        EMIT1( "}," );
-    }
+    EMIT4( port[, index, ].reasm_index =, model.all_ports[index].reasm_index );
 
     OUT_EMPTY;
 }
@@ -395,7 +401,8 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
     cmodel->scheme_name[index][FMC_NAME_LEN - 1] = 0;
     oss << ind( indent ) << ".scheme_name[" << index << "] = " << std::string( "\"" + sch.name + "\"" ) << "," << std::endl;
 
-    EMIT4( scheme[, index, ].alwaysDirect =, model.all_schemes[index].isDirect );
+    EMIT4( scheme[, index, ].alwaysDirect        =, model.all_schemes[index].isDirect );
+//    EMIT4( scheme[, index, ].id.relativeSchemeId =, (unsigned int)model.all_schemes[index].relativeSchemeId );
     EMIT4( scheme[, index, ].netEnvParams.numOfDistinctionUnits =, sch.used_protocols.size() );
 
     // Find port this scheme belongs to
@@ -437,9 +444,9 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
         EMIT4( scheme[, index, ].kgNextEngineParams.cc.grpId =, sch.actionHandleIndex );
     }
 
-    EMIT4( scheme[, index, ].schemeCounter.update =,                   1 );
-    EMIT4( scheme[, index, ].schemeCounter.value =,                    0 );
-    EMIT4( scheme[, index, ].keyExtractAndHashParams.numOfUsedMasks =, 0 );
+    EMIT3( scheme[, index, ].schemeCounter.update = 1 );
+    EMIT3( scheme[, index, ].schemeCounter.value  = 0 );
+    EMIT3( scheme[, index, ].keyExtractAndHashParams.numOfUsedMasks = 0 );
     EMIT4( scheme[, index, ].keyExtractAndHashParams.hashShift =,      sch.hashShift );
     EMIT4( scheme[, index, ].keyExtractAndHashParams.symmetricHash =,  sch.symmetricHash );
     EMIT4( scheme[, index, ].keyExtractAndHashParams.hashDistributionNumOfFqids =,

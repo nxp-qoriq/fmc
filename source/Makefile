@@ -18,7 +18,7 @@ FMD_USPACE_LIB_PATH    ?= /usr/lib
 LIBXML2_HEADER_PATH    ?= /usr/include/libxml2
 TCLAP_HEADER_PATH      ?= /usr/include
 
-PKG_NAME = fmc-0.9.11
+PKG_NAME = fmc-0.9.12
 PKG_RELEASE = 1
 
 ifeq ($(SUB_PLATFORM),p1023)

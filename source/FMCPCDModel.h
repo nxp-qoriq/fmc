@@ -306,7 +306,7 @@ public:
     std::map< Protocol,
         std::pair< unsigned int, DistinctionUnitElement > > protocols; ///<
                                         ///< Protocols used by this port
-    std::vector< t_FmPcdManipParams > reasm;
+    unsigned int reasm_index;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,6 +320,9 @@ public:
     std::string  pcd_name;              ///< PCD name == 'policy' name
 
     std::vector< unsigned int > ports;  ///< Ports of the engine
+
+    std::vector< t_FmPcdManipParams > reasm;
+    std::vector< std::string >        reasm_names;
     
     std::vector< t_FmPcdManipParams > frags;
     std::vector< std::string >        frag_names;

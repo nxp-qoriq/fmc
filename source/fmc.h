@@ -44,7 +44,12 @@ typedef struct fmc_fman_t {
     t_Handle           handle;
     char               pcd_name[FMC_NAME_LEN];
     t_Handle           pcd_handle;
-    
+
+    unsigned int       reasm_count;
+    t_FmPcdManipParams reasm[FMC_MANIP_MAX];
+    char               reasm_name[FMC_MANIP_MAX][FMC_NAME_LEN];
+    t_Handle           reasm_handle[FMC_MANIP_MAX];
+
     unsigned int       frag_count;
     t_FmPcdManipParams frag[FMC_MANIP_MAX];
     char               frag_name[FMC_MANIP_MAX][FMC_NAME_LEN];
@@ -74,9 +79,7 @@ typedef struct fmc_port_t {
     unsigned int         ccroot_count;
     unsigned int         ccroot[FMC_CC_NODES_NUM];
 
-    unsigned int         reasm_flag;
-    t_FmPcdManipParams   reasm;
-    t_Handle             reasm_handle;
+    unsigned int         reasm_index;
 } fmc_port;
 
 

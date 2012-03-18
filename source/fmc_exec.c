@@ -21,7 +21,7 @@ static int fmc_exec_engine_start( fmc_model* model, unsigned int index );
 static int fmc_exec_engine_end  ( fmc_model* model, unsigned int index );
 static int fmc_exec_port_start  ( fmc_model* model, unsigned int engine,
                                   unsigned int index,
-                                  unsigned int* prelative_scheme_index );
+                                  unsigned int* p_relative_scheme_index );
 static int fmc_exec_port_end    ( fmc_model* model, unsigned int engine,
                                   unsigned int index );
 static int fmc_exec_scheme      ( fmc_model* model,  unsigned int engine,
@@ -255,6 +255,11 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index )
     }
     FM_PCD_Enable( model->fman[index].pcd_handle );
 
+    for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
+        model->fman[index].reasm_handle[i] =
+            FM_PCD_ManipSetNode( model->fman[index].pcd_handle, &model->fman[index].reasm[i] );
+    }
+
     for ( i = 0; i < model->fman[index].frag_count; i++ ) {
         model->fman[index].frag_handle[i] =
             FM_PCD_ManipSetNode( model->fman[index].pcd_handle, &model->fman[index].frag[i] );
@@ -275,7 +280,7 @@ fmc_exec_engine_end( fmc_model* model, unsigned int index )
 /* -------------------------------------------------------------------------- */
 static int
 fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port,
-                                       unsigned int* prelative_scheme_index )
+                                       unsigned int* p_relative_scheme_index )
 {
     t_FmPortParams  fmPortParam      = {0};
 
@@ -305,10 +310,8 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port,
         return 4;
     }
 
-    if ( pport->reasm_flag != 0 ) {
-        *prelative_scheme_index += 2;
-        pport->reasm_handle =
-            FM_PCD_ManipSetNode( pengine->pcd_handle, &pport->reasm );
+    if ( pport->reasm_index != 0 ) {
+        *p_relative_scheme_index += 2;
     }
 
     return 0;
@@ -336,17 +339,13 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     }
 
     // Add CC runtime parameters
-    if ( pport->ccnodes_count != 0 || pport->reasm_flag ) {
+    if ( pport->ccnodes_count != 0 || pport->reasm_index > 0 ) {
         pport->pcdParam.p_CcParams           = &pport->ccParam;
         pport->pcdParam.p_CcParams->h_CcTree = pport->cctree_handle;
     }
 
-    err = FM_PORT_Disable( pport->handle );
-    if ( err ) { return 5; }
     err = FM_PORT_SetPCD( pport->handle, &pport->pcdParam );
     if ( err ) { return 6; }
-    err = FM_PORT_Enable( pport->handle );
-    if ( err ) { return 7; }
 
     return 0;
 }
@@ -438,11 +437,15 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
                  unsigned int port )
 {
     t_FmPcdCcTreeParams ccTreeParams = { 0 };
-    unsigned int i;
+    unsigned int        reasm_index;
+    unsigned int        i;
+
     ccTreeParams.numOfGrps = model->port[port].ccroot_count;
     ccTreeParams.h_NetEnv  = model->port[port].env_id_handle;
-    if ( model->port[port].reasm_flag ) {
-        ccTreeParams.h_IpReassemblyManip = model->port[port].reasm_handle;
+    reasm_index            = model->port[port].reasm_index;
+    if ( reasm_index != 0 ) {
+        ccTreeParams.h_IpReassemblyManip =
+            model->fman[engine].reasm_handle[reasm_index - 1];
     }
 
     for ( i = 0; i < model->port[port].ccroot_count; ++i ) {
@@ -526,6 +529,10 @@ fmc_clean_engine_start( fmc_model* model, unsigned int index )
 
     for ( i = 0; i < model->fman[index].frag_count; i++ ) {
         FM_PCD_ManipDeleteNode( model->fman[index].pcd_handle, model->fman[index].frag_handle[i] );
+    }
+
+    for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
+        FM_PCD_ManipDeleteNode( model->fman[index].pcd_handle, model->fman[index].reasm_handle[i] );
     }
 
     if ( model->fman[index].pcd_handle != 0 ) {

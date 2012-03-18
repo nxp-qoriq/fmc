@@ -167,7 +167,7 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
                 }
             }
 
-            if ( !port.cctrees.empty() || port.reasm.size() ) {
+            if ( !port.cctrees.empty() || port.reasm_index != 0 ) {
                 applier.addDelayed( ApplyOrder::Entry( ApplyOrder::CCTree, port.getIndex() ) );
             }
             applier.insertDelayedAfter( applier_pos );
@@ -220,6 +220,29 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
     engine.number   = std::strtoul( xmlEngine.name.c_str() + 2, 0, 0 );
     engine.pcd_name = engine.name + "/pcd";
 
+    std::map< std::string, CReassembly >::const_iterator reasmit;
+    for ( reasmit = pTaskDef->reassemblies.begin(); reasmit != pTaskDef->reassemblies.end(); ++reasmit ) {
+        t_FmPcdManipParams reasm;
+
+        reasm.fragOrReasm                                                      = 1;
+        reasm.fragOrReasmParams.frag                                           = 0;
+        reasm.fragOrReasmParams.hdr                                            = HEADER_TYPE_IPv6;
+        reasm.fragOrReasmParams.extBufPoolIndx                                 = reasmit->second.sgBpid;
+        reasm.fragOrReasmParams.ipReasmParams.maxNumFramesInProcess            = reasmit->second.maxInProcess;
+        reasm.fragOrReasmParams.ipReasmParams.sgBpid                           = reasmit->second.sgBpid;
+        reasm.fragOrReasmParams.ipReasmParams.dataLiodnOffset                  = reasmit->second.dataLiodnOffset;
+        reasm.fragOrReasmParams.ipReasmParams.dataMemId                        = reasmit->second.dataMemId;
+        reasm.fragOrReasmParams.ipReasmParams.minFragSize[0]                   = reasmit->second.ipv4minFragSize;
+        reasm.fragOrReasmParams.ipReasmParams.minFragSize[1]                   = reasmit->second.ipv6minFragSize;
+        reasm.fragOrReasmParams.ipReasmParams.timeOutMode                      = (e_FmPcdManipReassemTimeOutMode)reasmit->second.timeOutMode;
+        reasm.fragOrReasmParams.ipReasmParams.fqidForTimeOutFrames             = reasmit->second.fqidForTimeOutFrames;
+        reasm.fragOrReasmParams.ipReasmParams.numOfFramesPerHashEntry          = (e_FmPcdManipReassemWaysNumber)reasmit->second.numOfFramesPerHashEntry;
+        reasm.fragOrReasmParams.ipReasmParams.timeoutThresholdForReassmProcess = reasmit->second.timeoutThreshold;
+
+        engine.reasm.push_back( reasm );
+        engine.reasm_names.push_back( engine.name + "/reasm/" + reasmit->second.name );
+    }
+
     std::map< std::string, CFragmentation >::const_iterator fragit;
     for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {
         t_FmPcdManipParams frag;
@@ -260,25 +283,19 @@ CFMCModel::createPort( Engine& engine, const CPort& xmlPort, const CTaskDef* pTa
     oss << engine.name << port.typeStr << port.number;
     port.signature = oss.str();
 
-    std::map< std::string, CReassembly >::const_iterator it;
-    for ( it = pTaskDef->reassemblies.begin(); it != pTaskDef->reassemblies.end(); ++it ) {
-        t_FmPcdManipParams reasm;
-        reasm.fragOrReasm = 1;
-        reasm.fragOrReasmParams.frag = 0;
-        reasm.fragOrReasmParams.hdr             = HEADER_TYPE_IPv6;
-        reasm.fragOrReasmParams.extBufPoolIndx  = it->second.sgBpid;
-        reasm.fragOrReasmParams.ipReasmParams.maxNumFramesInProcess             = it->second.maxInProcess;
-        reasm.fragOrReasmParams.ipReasmParams.sgBpid                            = it->second.sgBpid;
-        reasm.fragOrReasmParams.ipReasmParams.dataLiodnOffset                   = it->second.dataLiodnOffset;
-        reasm.fragOrReasmParams.ipReasmParams.dataMemId                         = it->second.dataMemId;
-        reasm.fragOrReasmParams.ipReasmParams.minFragSize[0]                    = it->second.ipv4minFragSize;
-        reasm.fragOrReasmParams.ipReasmParams.minFragSize[1]                    = it->second.ipv6minFragSize;
-        reasm.fragOrReasmParams.ipReasmParams.timeOutMode                       = (e_FmPcdManipReassemTimeOutMode)it->second.timeOutMode;
-        reasm.fragOrReasmParams.ipReasmParams.fqidForTimeOutFrames              = it->second.fqidForTimeOutFrames;
-        reasm.fragOrReasmParams.ipReasmParams.numOfFramesPerHashEntry           = (e_FmPcdManipReassemWaysNumber)it->second.numOfFramesPerHashEntry;
-        reasm.fragOrReasmParams.ipReasmParams.timeoutThresholdForReassmProcess  = it->second.timeoutThreshold;
-
-        port.reasm.push_back( reasm );
+    port.reasm_index = 0;
+    // Find port's corresponding policy
+    CPolicy& policy = ((CTaskDef*)pTaskDef)->policies[xmlPort.policy];
+    if ( !policy.reassemblyName.empty() ) {
+        unsigned int reasm_index = 1;
+        std::map< std::string, CReassembly >::const_iterator reasmit;
+        for ( reasmit = pTaskDef->reassemblies.begin(); reasmit != pTaskDef->reassemblies.end(); ++reasmit ) {
+            if ( reasmit->first == policy.reassemblyName ) {
+                port.reasm_index = reasm_index;
+                break;
+            }
+            ++reasm_index;
+        }
     }
 
     return port;
@@ -309,9 +326,9 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
     scheme.qcount                = xmlDist.qcount;
     scheme.privateDflt0          = xmlDist.dflt0;
     scheme.privateDflt1          = xmlDist.dflt1;
-    scheme.relativeSchemeId      = port.schemes.size();
     scheme.hashShift             = xmlDist.keyShift;
     scheme.symmetricHash         = xmlDist.symmetricHash;
+    scheme.relativeSchemeId      = port.schemes.size() - 1;
     scheme.isDirect              = isDirect ? 1 : 0;
     scheme.scheme_index_per_port = -1;
     scheme.port_signature        = port.signature;
