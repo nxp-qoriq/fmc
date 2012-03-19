@@ -195,6 +195,7 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
         cmodel->fman[index].reasm_name[i][FMC_NAME_LEN - 1] = 0;
         oss << ind( indent ) << ".fman[" << index << "].reasm_name[" << i << "] = \"" << model.all_engines[index].reasm_names[i] << "\"," << std::endl;
 
+        EMIT6( fman[, index, ].reasm[, i, ].fragOrReasm =,                      model.all_engines[index].reasm[i].fragOrReasm );
         EMIT6( fman[, index, ].reasm[, i, ].fragOrReasmParams.frag =,           model.all_engines[index].reasm[i].fragOrReasmParams.frag );
         EMIT6( fman[, index, ].reasm[, i, ].fragOrReasmParams.extBufPoolIndx =, (int)model.all_engines[index].reasm[i].fragOrReasmParams.extBufPoolIndx );
         EMIT5( fman[, index, ].reasm[, i, ].fragOrReasmParams.hdr = HEADER_TYPE_IPv6 );
