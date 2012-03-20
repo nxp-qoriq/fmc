@@ -227,7 +227,6 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
         reasm.fragOrReasm                                                      = 1;
         reasm.fragOrReasmParams.frag                                           = 0;
         reasm.fragOrReasmParams.hdr                                            = HEADER_TYPE_IPv6;
-        reasm.fragOrReasmParams.extBufPoolIndx                                 = reasmit->second.sgBpid;
         reasm.fragOrReasmParams.ipReasmParams.maxNumFramesInProcess            = reasmit->second.maxInProcess;
         reasm.fragOrReasmParams.ipReasmParams.sgBpid                           = reasmit->second.sgBpid;
         reasm.fragOrReasmParams.ipReasmParams.dataLiodnOffset                  = reasmit->second.dataLiodnOffset;

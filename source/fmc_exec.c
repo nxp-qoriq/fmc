@@ -17,11 +17,11 @@
 
 
 // Forward declaration of static functions
-static int fmc_exec_engine_start( fmc_model* model, unsigned int index );
+static int fmc_exec_engine_start( fmc_model* model, unsigned int index,
+                                  unsigned int* p_relative_scheme_index );
 static int fmc_exec_engine_end  ( fmc_model* model, unsigned int index );
 static int fmc_exec_port_start  ( fmc_model* model, unsigned int engine,
-                                  unsigned int index,
-                                  unsigned int* p_relative_scheme_index );
+                                  unsigned int index );
 static int fmc_exec_port_end    ( fmc_model* model, unsigned int engine,
                                   unsigned int index );
 static int fmc_exec_scheme      ( fmc_model* model,  unsigned int engine,
@@ -60,19 +60,23 @@ fmc_execute( fmc_model* model )
     unsigned int relative_scheme_index;
     unsigned int i;
 
+    if ( model->format_version != FMC_OUTPUT_FORMAT_VER ) {
+        return 0xFFFFFFFF;
+    }
+    
     for ( i = 0; i < model->ao_count; i++ ) {
         switch ( model->ao[i].type ) {
             case FMCEngineStart:
                 current_engine        = model->ao[i].index;
                 relative_scheme_index = 0;
-                ret = fmc_exec_engine_start( model, current_engine );
+                ret = fmc_exec_engine_start( model, current_engine, &relative_scheme_index );
                 break;
             case FMCEngineEnd:
                 ret = fmc_exec_engine_end( model, current_engine );
                 break;
             case FMCPortStart:
                 current_port = model->ao[i].index;
-                ret = fmc_exec_port_start( model, current_engine, current_port, &relative_scheme_index );
+                ret = fmc_exec_port_start( model, current_engine, current_port );
                 break;
             case FMCPortEnd:
                 ret = fmc_exec_port_end( model, current_engine, current_port );
@@ -110,6 +114,10 @@ fmc_clean( fmc_model* model )
     unsigned int current_engine;
     unsigned int current_port;
     unsigned int i, j;
+
+    if ( model->format_version != FMC_OUTPUT_FORMAT_VER ) {
+        return 0xFFFFFFFF;
+    }
 
     for ( j = 0; j < model->ao_count; j++ ) {
         // Clean entities in reverse order of applying
@@ -223,7 +231,8 @@ fmc_get_handle(
 
 /* -------------------------------------------------------------------------- */
 static int
-fmc_exec_engine_start( fmc_model* model, unsigned int index )
+fmc_exec_engine_start( fmc_model* model, unsigned int index, 
+                       unsigned int* p_relative_scheme_index )
 {
     unsigned int i;
 
@@ -256,6 +265,17 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index )
     FM_PCD_Enable( model->fman[index].pcd_handle );
 
     for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
+        if ( model->fman[index].reasm[i].fragOrReasmParams.hdr == HEADER_TYPE_IPv6 ) {
+            model->fman[index].reasm[i].fragOrReasmParams.ipReasmParams.relativeSchemeId[0] =
+                (*p_relative_scheme_index)++;
+            model->fman[index].reasm[i].fragOrReasmParams.ipReasmParams.relativeSchemeId[1] =
+                (*p_relative_scheme_index)++;
+        }
+        else {
+            model->fman[index].reasm[i].fragOrReasmParams.ipReasmParams.relativeSchemeId[0] =
+                (*p_relative_scheme_index)++;
+        }
+
         model->fman[index].reasm_handle[i] =
             FM_PCD_ManipSetNode( model->fman[index].pcd_handle, &model->fman[index].reasm[i] );
     }
@@ -279,8 +299,7 @@ fmc_exec_engine_end( fmc_model* model, unsigned int index )
 
 /* -------------------------------------------------------------------------- */
 static int
-fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port,
-                                       unsigned int* p_relative_scheme_index )
+fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port )
 {
     t_FmPortParams  fmPortParam      = {0};
 
@@ -308,10 +327,6 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port,
                                 &pport->distinctionUnits );
     if ( pport->env_id_handle == 0 ) {
         return 4;
-    }
-
-    if ( pport->reasm_index != 0 ) {
-        *p_relative_scheme_index += 2;
     }
 
     return 0;
@@ -344,8 +359,12 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
         pport->pcdParam.p_CcParams->h_CcTree = pport->cctree_handle;
     }
 
+    err = FM_PORT_Disable( pport->handle );
+    if ( err ) { return 5; }
     err = FM_PORT_SetPCD( pport->handle, &pport->pcdParam );
     if ( err ) { return 6; }
+    err = FM_PORT_Enable( pport->handle );
+    if ( err ) { return 7; }
 
     return 0;
 }
@@ -565,7 +584,7 @@ fmc_clean_port_start( fmc_model* model, unsigned int engine, unsigned int port )
 {
     fmc_port* pport = &model->port[port];
 
-    if ( pport->handle != 0 ) {
+    if ( pport->handle == 0 ) {
         return 0;
     }
 
@@ -587,10 +606,12 @@ fmc_clean_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     t_Error err;
     fmc_port* pport = &model->port[port];
 
-    if ( pport->handle != 0 ) {
-        err = FM_PORT_DeletePCD( pport->handle );
-        if ( err ) { return 6; }
+    if ( pport->handle == 0 ) {
+        return 0;
     }
+
+    err = FM_PORT_DeletePCD( pport->handle );
+    if ( err ) { return 6; }
 
     return 0;
 }

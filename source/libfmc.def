@@ -2,4 +2,5 @@ LIBRARY	"libfmc"
 EXPORTS
     fmc_compile
     fmc_execute
+    fmc_clean
     fmc_get_error

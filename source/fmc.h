@@ -26,6 +26,8 @@ extern "C"
 #include <Peripherals/fm_pcd_ext.h>
 #include <Peripherals/fm_port_ext.h>
 
+#define FMC_OUTPUT_FORMAT_VER 0x103
+
 #define FMC_NAME_LEN             64
 #define FMC_FMAN_NUM              2
 #define FMC_PORTS_PER_FMAN       16

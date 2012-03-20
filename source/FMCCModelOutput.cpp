@@ -106,7 +106,7 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
     indent += 4;
 
     // Output format version
-    EMIT2( format_version =, 0x102 );
+    EMIT2( format_version =, FMC_OUTPUT_FORMAT_VER );
 
     // Output Soft Parser
     EMIT2( sp_enable =, model.spEnable );
@@ -197,7 +197,6 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 
         EMIT6( fman[, index, ].reasm[, i, ].fragOrReasm =,                      model.all_engines[index].reasm[i].fragOrReasm );
         EMIT6( fman[, index, ].reasm[, i, ].fragOrReasmParams.frag =,           model.all_engines[index].reasm[i].fragOrReasmParams.frag );
-        EMIT6( fman[, index, ].reasm[, i, ].fragOrReasmParams.extBufPoolIndx =, (int)model.all_engines[index].reasm[i].fragOrReasmParams.extBufPoolIndx );
         EMIT5( fman[, index, ].reasm[, i, ].fragOrReasmParams.hdr = HEADER_TYPE_IPv6 );
         EMIT1( "{" );
         indent += 4;
@@ -212,8 +211,8 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
             model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.timeoutThresholdForReassmProcess );
         EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.fqidForTimeOutFrames =,
             model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.fqidForTimeOutFrames );
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.relativeSchemeId[0] =, 0 );
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.relativeSchemeId[1] =, 1 );
+//        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.relativeSchemeId[0] =, 0 );
+//        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.relativeSchemeId[1] =, 1 );
         EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.minFragSize[0] =,
             model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.minFragSize[0] );
         EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.minFragSize[1] =,
