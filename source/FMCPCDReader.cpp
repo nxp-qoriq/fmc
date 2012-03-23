@@ -170,7 +170,9 @@ CPCDReader::parseNetPCD( std::string filename )
         }
         // other
         else {
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
         }
 
         cur = cur->next;
@@ -214,7 +216,9 @@ CPCDReader::parseAlias( xmlNodePtr pNode )
         }
         // other
         else
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
 
         cur = cur->next;
     }
@@ -410,7 +414,9 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
         }
         // other
         else
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
 
         cur = cur->next;
     }
@@ -580,7 +586,9 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
 
             std::string condition = stripBlanks( getAttr( cur, "condition" ) );
             if ( condition != "on-miss" ) {
-                CGenericError::printWarning( WARN_COND_ON_MISS, classification->name );
+                CGenericErrorLine::printWarning( WARN_COND_ON_MISS,
+                                                 xmlGetLineNo( cur ),
+                                                 classification->name );
             }
             classification->actionOnMiss     = stripBlanks( getAttr( cur, "type" ) );
             classification->actionNameOnMiss = stripBlanks( getAttr( cur, "name" ) );
@@ -605,7 +613,9 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
         }
         // other
         else
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
 
         cur = cur->next;
     }
@@ -644,7 +654,9 @@ CPCDReader::parseFieldRef( CFieldRef* fieldref, xmlNodePtr pNode )
         }
         // other
         else
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
         cur = cur->next;
     }
 }
@@ -825,7 +837,9 @@ CPCDReader::parsePolicer( CPolicer* policer, xmlNodePtr pNode )
             std::string text = getXMLElement( cur );
             policer->dfltColor = text;
             if ( ( text != "red" ) && ( text != "yellow" ) && ( text != "green" ) && ( text != "override" ) ) {
-                CGenericError::printWarning( WARN_UNEXPECTED_COLOR, text, policer->name );
+                CGenericErrorLine::printWarning( WARN_UNEXPECTED_COLOR,
+                                                 xmlGetLineNo( cur ),
+                                                 text, policer->name );
             }
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"action" ) ) {
@@ -855,7 +869,9 @@ CPCDReader::parsePolicer( CPolicer* policer, xmlNodePtr pNode )
         }
         // other
         else
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
 
         cur = cur->next;
     }
@@ -889,7 +905,9 @@ CPCDReader::parsePolicy( CPolicy* policy, xmlNodePtr pNode )
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"reassembly" ) ) {
             if (strcmp("", policy->reassemblyName.c_str()))
             {
-                CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+                CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                                 xmlGetLineNo( cur ),
+                                                 (char*)cur->name );
             }
             policy->reassemblyName = getAttr( cur, "name" );
         }
@@ -898,7 +916,9 @@ CPCDReader::parsePolicy( CPolicy* policy, xmlNodePtr pNode )
         }
         // other
         else
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
 
         cur = cur->next;
     }
@@ -928,16 +948,9 @@ CPCDReader::parseDistOrder( CPolicy* policy, xmlNodePtr pNode )
         }
         // other
         else
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
-
-//        CAction action;
-//        action.type = "distribution";
-//        action.ref  = getAttr( pNode, "default_map" );
-//        if ( !action.ref.empty() ) {
-//            CDistribution dist;
-//            dist.mapref = action.ref;
-//            policy->dist_order.push_back( action );
-//        }
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
 
         cur = cur->next;
     }
@@ -1023,7 +1036,9 @@ CPCDReader::parseReassembly( CReassembly* reassembly, xmlNodePtr pNode )
         }
         // other
         else
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( pNode ),
+                                             (char*)cur->name);
 
         cur = cur->next;
     }
@@ -1077,7 +1092,9 @@ CPCDReader::parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode 
         }
         // other
         else
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
 
         cur = cur->next;
     }
@@ -1112,7 +1129,9 @@ CPCDReader::parseManipulations( xmlNodePtr pNode )
         }
         // other
         else
-            CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
 
         cur = cur->next;
     }
@@ -1136,9 +1155,9 @@ void CPCDReader::checkUnknownAttr ( xmlNodePtr pNode, int num, ...)
     {
         if (allowedAttr.find(pNode->properties->name) ==
             allowedAttr.end())
-            CGenericErrorLine::printWarning(WARN_UNKNOWN_ATTRIBUTE,
+            CGenericErrorLine::printWarning( WARN_UNKNOWN_ATTRIBUTE,
                 xmlGetLineNo(pNode), (char*)pNode->properties->name,
-                (char*)pNode->name);
+                (char*)pNode->name );
         pNode->properties=pNode->properties->next;
     }
     pNode->properties=attributes;

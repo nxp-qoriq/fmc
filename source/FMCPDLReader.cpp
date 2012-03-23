@@ -228,8 +228,8 @@ CPDLReader::parseProtocol( CProtocol* protocol, xmlNodePtr pNode )
         }
         // other
         else {
-            CGenericErrorLine::printWarning(WARN_UNEXPECTED_NODE, 
-                                          xmlGetLineNo(cur), (char*)cur->name);
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE, 
+                                             xmlGetLineNo(cur), (char*)cur->name );
         }
 
         cur = cur->next;
