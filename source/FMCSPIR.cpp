@@ -1562,6 +1562,7 @@ void RA::initRA()
     RAInInfo["nxthdroffset"]          = RA_NXTHDROFFSET;
     RAInInfo["framedescriptor1"]      = RA_FRAMEDESCRIPTOR1;
     RAInInfo["framedescriptor2"]      = RA_FRAMEDESCRIPTOR2;
+    RAInInfo["framedescriptor2_low"]  = RA_FRAMEDESCRIPTOR2_LOW;
     RAInInfo["actiondescriptor"]      = RA_ACTIONDESCRIPTOR;
     RAInInfo["ccbase"]                = RA_CCBASE;
     RAInInfo["ks"]                    = RA_KS;
@@ -1617,6 +1618,7 @@ void RA::initRA()
     RATypeInfo[RA_NXTHDROFFSET]          = CLocation(47,47);
     RATypeInfo[RA_FRAMEDESCRIPTOR1]      = CLocation(48,55);
     RATypeInfo[RA_FRAMEDESCRIPTOR2]      = CLocation(56,63);
+    RATypeInfo[RA_FRAMEDESCRIPTOR2_LOW]  = CLocation(60,63);
     RATypeInfo[RA_ACTIONDESCRIPTOR]      = CLocation(64,71);
     RATypeInfo[RA_CCBASE]                = CLocation(72,75);
     RATypeInfo[RA_KS]                    = CLocation(76,76);
