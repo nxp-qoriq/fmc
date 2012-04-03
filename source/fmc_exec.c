@@ -13,6 +13,11 @@
  * ===================================================================*/
 
 #include <string.h>
+
+#ifdef NETCOMM_SW
+    #include "sys_ext.h"
+#endif
+
 #include "fmc.h"
 
 
@@ -253,7 +258,7 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
 #ifndef NETCOMM_SW
     model->fman[index].pcd_handle = FM_PCD_Open( &fmPcdParams );
 #else
-    model->fman[index].handle_pcd = SYS_GetHandle(e_SYS_SUBMODULE_FM_PCD, model->fman[index].number );
+    model->fman[index].pcd_handle = SYS_GetHandle(e_SYS_SUBMODULE_FM_PCD, model->fman[index].number );
 #endif
     if ( model->fman[index].pcd_handle == 0 ) {
         return 2;
