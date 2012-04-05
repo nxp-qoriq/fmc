@@ -32,6 +32,8 @@ int libmain( int argc, char* argv[] );
 
 #include <cstdlib>
 
+fmc_model_t model = {0};
+
 int main( int argc, char* argv[] )
 {
 #ifdef _DEBUG
@@ -113,7 +115,6 @@ int main( int argc, char* argv[] )
             throw CGenericError(ERR_CONFIG_REQUIRED);
         CGenericError::dontWarn = dontWarn.isSet();
 
-        fmc_model_t model = {0};
         const char* dump = 0;
         
         int ret = fmc_compile(
