@@ -26,7 +26,7 @@
 #endif
 #endif
 
-#define FMC_VERSION "0.9.15"
+#define FMC_VERSION "0.9.16"
 
 int libmain( int argc, char* argv[] );
 
