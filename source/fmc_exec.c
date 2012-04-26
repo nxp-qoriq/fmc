@@ -270,14 +270,14 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
     FM_PCD_Enable( model->fman[index].pcd_handle );
 
     for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
-        if ( model->fman[index].reasm[i].fragOrReasmParams.hdr == HEADER_TYPE_IPv6 ) {
-            model->fman[index].reasm[i].fragOrReasmParams.ipReasmParams.relativeSchemeId[0] =
+		if ( model->fman[index].reasm[i].u.reassem.hdr == HEADER_TYPE_IPv6 ) {
+			model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[0] =
                 (*p_relative_scheme_index)++;
-            model->fman[index].reasm[i].fragOrReasmParams.ipReasmParams.relativeSchemeId[1] =
+            model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[1] =
                 (*p_relative_scheme_index)++;
         }
         else {
-            model->fman[index].reasm[i].fragOrReasmParams.ipReasmParams.relativeSchemeId[0] =
+            model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[0] =
                 (*p_relative_scheme_index)++;
         }
 
@@ -327,7 +327,7 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port )
         return 3;
     }
 
-    pport->env_id_handle = FM_PCD_SetNetEnvCharacteristics(
+    pport->env_id_handle = FM_PCD_NetEnvCharacteristicsSet(
                                 pengine->pcd_handle,
                                 &pport->distinctionUnits );
     if ( pport->env_id_handle == 0 ) {
@@ -345,9 +345,13 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     t_Error err;
     fmc_port* pport = &model->port[port];
     unsigned int i;
+    
+    unsigned int        reasm_index;
+    reasm_index            		= model->port[port].reasm_index;
 
     pport->pcdParam.h_NetEnv    = pport->env_id_handle;
     pport->pcdParam.p_PrsParams = &pport->prsParam;
+    pport->pcdParam.h_IpReassemblyManip = model->fman[engine].reasm_handle[reasm_index - 1];
 
     // Add KeyGen runtime parameters
     if ( pport->schemes_count != 0 ) {
@@ -391,7 +395,7 @@ fmc_exec_scheme( fmc_model* model,  unsigned int engine,
     }
 
     model->scheme_handle[index] =
-        FM_PCD_KgSetScheme( model->fman[engine].pcd_handle,
+    	FM_PCD_KgSchemeSet( model->fman[engine].pcd_handle,
                             &(model->scheme[index]) );
     if ( model->scheme_handle[index] == 0 ) {
         return 5;
@@ -424,10 +428,12 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
                                              model->ccnode_handle[action_index];
         }
 
+
         if ( model->ccentry_frag[index][i] != 0 ) {
             model->ccnode[index].keysParams.keyParams[i].ccNextEngineParams.h_Manip =
                 model->fman[engine].frag_handle[ model->ccentry_frag[index][i] - 1 ];
         }
+
     }
     action_index = model->ccmiss_action_index[index];
     if ( model->ccnode[index].keysParams.ccNextEngineParamsForMiss
@@ -444,7 +450,7 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
 
 
     model->ccnode_handle[index] =
-        FM_PCD_CcSetNode( model->fman[engine].pcd_handle,
+    	FM_PCD_MatchTableSet( model->fman[engine].pcd_handle,
                           &(model->ccnode[index]) );
 
     if ( model->ccnode_handle[index] == 0 ) {
@@ -467,10 +473,6 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
     ccTreeParams.numOfGrps = model->port[port].ccroot_count;
     ccTreeParams.h_NetEnv  = model->port[port].env_id_handle;
     reasm_index            = model->port[port].reasm_index;
-    if ( reasm_index != 0 ) {
-        ccTreeParams.h_IpReassemblyManip =
-            model->fman[engine].reasm_handle[reasm_index - 1];
-    }
 
     for ( i = 0; i < model->port[port].ccroot_count; ++i ) {
         ccTreeParams.ccGrpParams[i].numOfDistinctionUnits = 0;
@@ -482,7 +484,7 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
     }
 
     model->port[port].cctree_handle =
-        FM_PCD_CcBuildTree( model->fman[engine].pcd_handle,
+    	FM_PCD_CcRootBuild( model->fman[engine].pcd_handle,
                             &ccTreeParams );
     if ( model->port[port].cctree_handle == 0 ) {
         return 7;
@@ -535,7 +537,7 @@ fmc_exec_policer( fmc_model* model, unsigned int engine,
     }
 
     model->policer_handle[index] =
-        FM_PCD_PlcrSetProfile( model->fman[engine].pcd_handle,
+        FM_PCD_PlcrProfileSet( model->fman[engine].pcd_handle,
                                &(model->policer[index]) );
     if ( model->policer_handle[index] == 0 ) {
         return 8;
@@ -552,11 +554,11 @@ fmc_clean_engine_start( fmc_model* model, unsigned int index )
     unsigned int i;
 
     for ( i = 0; i < model->fman[index].frag_count; i++ ) {
-        FM_PCD_ManipDeleteNode( model->fman[index].pcd_handle, model->fman[index].frag_handle[i] );
+        FM_PCD_ManipNodeDelete( model->fman[index].frag_handle[i] );
     }
 
     for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
-        FM_PCD_ManipDeleteNode( model->fman[index].pcd_handle, model->fman[index].reasm_handle[i] );
+        FM_PCD_ManipNodeDelete( model->fman[index].reasm_handle[i] );
     }
 
     if ( model->fman[index].pcd_handle != 0 ) {
@@ -593,8 +595,7 @@ fmc_clean_port_start( fmc_model* model, unsigned int engine, unsigned int port )
         return 0;
     }
 
-    FM_PCD_DeleteNetEnvCharacteristics( model->fman[engine].pcd_handle,
-                                        pport->env_id_handle );
+    FM_PCD_NetEnvCharacteristicsDelete( pport->env_id_handle );
 
 #ifndef NETCOMM_SW
     FM_PORT_Close( pport->handle );
@@ -628,8 +629,7 @@ fmc_clean_scheme( fmc_model* model,  unsigned int engine,
                  unsigned int port, unsigned int index )
 {
     if ( model->scheme_handle[index] != 0 ) {
-        FM_PCD_KgDeleteScheme( model->fman[engine].pcd_handle,
-                               model->scheme_handle[index] );
+        FM_PCD_KgSchemeDelete( model->scheme_handle[index] );
     }
 
     return 0;
@@ -642,8 +642,7 @@ fmc_clean_ccnode( fmc_model* model, unsigned int engine,
                  unsigned int index )
 {
     if ( model->ccnode_handle[index] != 0 ) {
-        FM_PCD_CcDeleteNode( model->fman[engine].pcd_handle,
-                             model->ccnode_handle[index] );
+        FM_PCD_MatchTableDelete( model->ccnode_handle[index] );
     }
 
     return 0;
@@ -656,8 +655,7 @@ fmc_clean_cctree( fmc_model* model, unsigned int engine,
                  unsigned int port )
 {
     if ( model->port[port].cctree_handle != 0 ) {
-        FM_PCD_CcDeleteTree( model->fman[engine].pcd_handle,
-                             model->port[port].cctree_handle );
+        FM_PCD_CcRootDelete( model->port[port].cctree_handle );
     }
 
     return 0;
@@ -670,8 +668,7 @@ fmc_clean_policer( fmc_model* model, unsigned int engine,
                   unsigned int index )
 {
     if ( model->policer_handle[index] != 0 ) {
-        FM_PCD_PlcrDeleteProfile( model->fman[engine].pcd_handle,
-                                  model->policer_handle[index] );
+        FM_PCD_PlcrProfileDelete( model->policer_handle[index] );
     }
 
     return 0;

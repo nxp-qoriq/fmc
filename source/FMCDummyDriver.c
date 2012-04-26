@@ -243,9 +243,9 @@ t_Handle
 FM_PCD_ManipSetNode(t_Handle h_FmPcd, t_FmPcdManipParams *p_FmPcdManipParams)
 {
     printf( "Calling IOCTL::FM_PCD_ManipSetNode %d\n", handle_no + 1 );
-    if ( p_FmPcdManipParams->fragOrReasmParams.frag == 0 ) {
-        printf( "rel= %d %d\n", p_FmPcdManipParams->fragOrReasmParams.ipReasmParams.relativeSchemeId[0],
-                                p_FmPcdManipParams->fragOrReasmParams.ipReasmParams.relativeSchemeId[1] );
+	if ( p_FmPcdManipParams->type == e_FM_PCD_MANIP_REASSEM ) {
+		printf( "rel= %d %d\n", p_FmPcdManipParams->u.reassem.u.ipReassem.relativeSchemeId[0],
+                                p_FmPcdManipParams->u.reassem.u.ipReassem.relativeSchemeId[1] );
     }
     return (t_Handle)++handle_no;
 }

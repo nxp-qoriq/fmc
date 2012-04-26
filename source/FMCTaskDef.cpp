@@ -239,7 +239,12 @@ CTaskDef::checkSemanticsReassembly(CReassembly& reas)
 		throw CGenericError( ERR_REAS_IPV6FRAGSIZE, reas.name );
 	}
 
-	if ( reas.numOfFramesPerHashEntry < 1 || reas.numOfFramesPerHashEntry > 8)
+	if ( reas.numOfFramesPerHashEntry[0] < 1 || reas.numOfFramesPerHashEntry[0] > 8)
+	{
+		throw CGenericError( ERR_REAS_NUMFRAMESHASH, reas.name );
+	}
+
+	if ( reas.numOfFramesPerHashEntry[1] < 1 || reas.numOfFramesPerHashEntry[1] > 6)
 	{
 		throw CGenericError( ERR_REAS_NUMFRAMESHASH, reas.name );
 	}

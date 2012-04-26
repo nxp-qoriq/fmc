@@ -508,6 +508,8 @@ class CFragmentation
 	unsigned int size;
 	unsigned int dontFragAction;
 	unsigned int scratchBpid;
+	unsigned int sgBpid;
+	bool		 sgBpidEn;
 };
 
 class CReassembly
@@ -522,7 +524,7 @@ class CReassembly
 	unsigned int ipv6minFragSize;
 	unsigned int timeOutMode;
 	unsigned int fqidForTimeOutFrames;
-	unsigned int numOfFramesPerHashEntry;
+	unsigned int numOfFramesPerHashEntry[2];
 	unsigned int timeoutThreshold;
 };
 

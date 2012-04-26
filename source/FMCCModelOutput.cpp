@@ -72,6 +72,13 @@ static std::string ind( size_t count )
     cmodel->A B C D E F G;              \
     oss << ind( indent ) << QUOTE( F ) << G << "," << std::endl;
 
+#define EMIT7_2A( A, B, C, D, E, F, G ) \
+    cmodel->A B C D E F G;              \
+    oss << ind( indent ) << "."                                         \
+        << QUOTE( A ) << B << QUOTE( C ) << D                 \
+        << QUOTE( E ) << QUOTE( F ) << G                                               \
+        << "," << std::endl;
+
 #define EMIT7_2STR( A, B, C, D, E, F, G )  \
     cmodel->A B C D E F G;                  \
     oss << ind( indent ) << QUOTE( F ) << G ## Str << "," << std::endl;
@@ -195,37 +202,37 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
         cmodel->fman[index].reasm_name[i][FMC_NAME_LEN - 1] = 0;
         oss << ind( indent ) << ".fman[" << index << "].reasm_name[" << i << "] = \"" << model.all_engines[index].reasm_names[i] << "\"," << std::endl;
 
-        EMIT6( fman[, index, ].reasm[, i, ].fragOrReasm =,                      model.all_engines[index].reasm[i].fragOrReasm );
-        EMIT6( fman[, index, ].reasm[, i, ].fragOrReasmParams.frag =,           model.all_engines[index].reasm[i].fragOrReasmParams.frag );
-        EMIT5( fman[, index, ].reasm[, i, ].fragOrReasmParams.hdr = HEADER_TYPE_IPv6 );
-        EMIT1( "{" );
-        indent += 4;
+		EMIT5( fman[, index, ].reasm[, i, ].type = e_FM_PCD_MANIP_REASSEM );
+		EMIT5( fman[, index, ].reasm[, i, ].h_NextManip = NULL );
+		EMIT5( fman[, index, ].reasm[, i, ].u.reassem.hdr = HEADER_TYPE_IPv6 );
 
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.maxNumFramesInProcess =,
-            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.maxNumFramesInProcess );
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.timeOutMode =,
-            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.timeOutMode );
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.numOfFramesPerHashEntry =,
-            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.numOfFramesPerHashEntry );
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.timeoutThresholdForReassmProcess =,
-            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.timeoutThresholdForReassmProcess );
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.fqidForTimeOutFrames =,
-            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.fqidForTimeOutFrames );
+		EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.maxNumFramesInProcess =,
+            model.all_engines[index].reasm[i].u.reassem.u.ipReassem.maxNumFramesInProcess );
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.timeOutMode =,
+            model.all_engines[index].reasm[i].u.reassem.u.ipReassem.timeOutMode );
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.numOfFramesPerHashEntry[0] =,
+            model.all_engines[index].reasm[i].u.reassem.u.ipReassem.numOfFramesPerHashEntry[0] );
+		EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.numOfFramesPerHashEntry[1] =,
+            model.all_engines[index].reasm[i].u.reassem.u.ipReassem.numOfFramesPerHashEntry[1] );
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.timeoutThresholdForReassmProcess =,
+            model.all_engines[index].reasm[i].u.reassem.u.ipReassem.timeoutThresholdForReassmProcess );
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.fqidForTimeOutFrames =,
+            model.all_engines[index].reasm[i].u.reassem.u.ipReassem.fqidForTimeOutFrames );
 //        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.relativeSchemeId[0] =, 0 );
 //        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.relativeSchemeId[1] =, 1 );
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.minFragSize[0] =,
-            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.minFragSize[0] );
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.minFragSize[1] =,
-            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.minFragSize[1] );
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.sgBpid =,
-            (int)model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.sgBpid );
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.dataLiodnOffset =,
-            model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.dataLiodnOffset );
-        EMIT7_2( fman[, index, ].reasm[, i, ].fragOrReasmParams, .ipReasmParams.dataMemId =,
-            (int)model.all_engines[index].reasm[i].fragOrReasmParams.ipReasmParams.dataMemId );
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.minFragSize[0] =,
+            model.all_engines[index].reasm[i].u.reassem.u.ipReassem.minFragSize[0] );
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.minFragSize[1] =,
+            model.all_engines[index].reasm[i].u.reassem.u.ipReassem.minFragSize[1] );
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.sgBpid =,
+            (int)model.all_engines[index].reasm[i].u.reassem.u.ipReassem.sgBpid );
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.dataLiodnOffset =,
+            model.all_engines[index].reasm[i].u.reassem.u.ipReassem.dataLiodnOffset );
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.dataMemId =,
+            (int)model.all_engines[index].reasm[i].u.reassem.u.ipReassem.dataMemId );
 
-        indent -= 4;
-        EMIT1( "}," );
+        //indent -= 4;
+        //EMIT1( "}," );
     }
 
     OUT_EMPTY;
@@ -236,21 +243,23 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
         cmodel->fman[index].frag_name[i][FMC_NAME_LEN - 1] = 0;
         oss << ind( indent ) << ".fman[" << index << "].frag_name[" << i << "] = \"" << model.all_engines[index].frag_names[i] << "\"," << std::endl;
 
-        EMIT6( fman[, index, ].frag[, i,].fragOrReasm =,                      model.all_engines[index].frags[i].fragOrReasm );
-        EMIT6( fman[, index, ].frag[, i,].fragOrReasmParams.frag =,           model.all_engines[index].frags[i].fragOrReasmParams.frag );
-        EMIT5( fman[, index, ].frag[, i,].fragOrReasmParams.hdr = HEADER_TYPE_IPv6 );
-        EMIT1( "{" );
-        indent += 4;
+		EMIT5( fman[, index, ].frag[, i, ].type = e_FM_PCD_MANIP_FRAG );
+		EMIT5( fman[, index, ].frag[, i, ].h_NextManip = NULL );
+		EMIT5( fman[, index, ].frag[, i, ].u.frag.hdr = HEADER_TYPE_IPv6 );
 
-        EMIT7_2( fman[, index, ].frag[, i,].fragOrReasmParams, .ipFragParams.sizeForFragmentation =,
-            model.all_engines[index].frags[i].fragOrReasmParams.ipFragParams.sizeForFragmentation );
-        EMIT7_2( fman[, index, ].frag[, i,].fragOrReasmParams, .ipFragParams.scratchBpid =,
-            (int)model.all_engines[index].frags[i].fragOrReasmParams.ipFragParams.scratchBpid );
-        EMIT7_2( fman[, index, ].frag[, i,].fragOrReasmParams, .ipFragParams.dontFragAction =,
-            model.all_engines[index].frags[i].fragOrReasmParams.ipFragParams.dontFragAction );
-
-        indent -= 4;
-        EMIT1( "}," );
+		EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sizeForFragmentation =,
+            model.all_engines[index].frags[i].u.frag.u.ipFrag.sizeForFragmentation );
+        EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.scratchBpid =,
+            (int)model.all_engines[index].frags[i].u.frag.u.ipFrag.scratchBpid );
+        EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.dontFragAction =,
+            model.all_engines[index].frags[i].u.frag.u.ipFrag.dontFragAction );
+		EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sgBpidEn =,
+            model.all_engines[index].frags[i].u.frag.u.ipFrag.sgBpidEn );
+		EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sgBpid =,
+            (int)model.all_engines[index].frags[i].u.frag.u.ipFrag.sgBpid );
+		
+        //indent -= 4;
+        //EMIT1( "}," );
     }
 
     OUT_EMPTY;

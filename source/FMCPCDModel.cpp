@@ -223,20 +223,21 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
     std::map< std::string, CReassembly >::const_iterator reasmit;
     for ( reasmit = pTaskDef->reassemblies.begin(); reasmit != pTaskDef->reassemblies.end(); ++reasmit ) {
         t_FmPcdManipParams reasm;
-
-        reasm.fragOrReasm                                                      = 1;
-        reasm.fragOrReasmParams.frag                                           = 0;
-        reasm.fragOrReasmParams.hdr                                            = HEADER_TYPE_IPv6;
-        reasm.fragOrReasmParams.ipReasmParams.maxNumFramesInProcess            = reasmit->second.maxInProcess;
-        reasm.fragOrReasmParams.ipReasmParams.sgBpid                           = reasmit->second.sgBpid;
-        reasm.fragOrReasmParams.ipReasmParams.dataLiodnOffset                  = reasmit->second.dataLiodnOffset;
-        reasm.fragOrReasmParams.ipReasmParams.dataMemId                        = reasmit->second.dataMemId;
-        reasm.fragOrReasmParams.ipReasmParams.minFragSize[0]                   = reasmit->second.ipv4minFragSize;
-        reasm.fragOrReasmParams.ipReasmParams.minFragSize[1]                   = reasmit->second.ipv6minFragSize;
-        reasm.fragOrReasmParams.ipReasmParams.timeOutMode                      = (e_FmPcdManipReassemTimeOutMode)reasmit->second.timeOutMode;
-        reasm.fragOrReasmParams.ipReasmParams.fqidForTimeOutFrames             = reasmit->second.fqidForTimeOutFrames;
-        reasm.fragOrReasmParams.ipReasmParams.numOfFramesPerHashEntry          = (e_FmPcdManipReassemWaysNumber)reasmit->second.numOfFramesPerHashEntry;
-        reasm.fragOrReasmParams.ipReasmParams.timeoutThresholdForReassmProcess = reasmit->second.timeoutThreshold;
+		
+		reasm.h_NextManip = 0;
+		reasm.type = e_FM_PCD_MANIP_REASSEM;
+		reasm.u.reassem.hdr											 = HEADER_TYPE_IPv6;
+		reasm.u.reassem.u.ipReassem.maxNumFramesInProcess			 = reasmit->second.maxInProcess;
+        reasm.u.reassem.u.ipReassem.sgBpid                           = reasmit->second.sgBpid;
+        reasm.u.reassem.u.ipReassem.dataLiodnOffset                  = reasmit->second.dataLiodnOffset;
+        reasm.u.reassem.u.ipReassem.dataMemId                        = reasmit->second.dataMemId;
+        reasm.u.reassem.u.ipReassem.minFragSize[0]                   = reasmit->second.ipv4minFragSize;
+        reasm.u.reassem.u.ipReassem.minFragSize[1]                   = reasmit->second.ipv6minFragSize;
+        reasm.u.reassem.u.ipReassem.timeOutMode                      = (e_FmPcdManipReassemTimeOutMode)reasmit->second.timeOutMode;
+        reasm.u.reassem.u.ipReassem.fqidForTimeOutFrames             = reasmit->second.fqidForTimeOutFrames;
+        reasm.u.reassem.u.ipReassem.numOfFramesPerHashEntry[0]       = (e_FmPcdManipReassemWaysNumber)reasmit->second.numOfFramesPerHashEntry[0];
+		reasm.u.reassem.u.ipReassem.numOfFramesPerHashEntry[1]       = (e_FmPcdManipReassemWaysNumber)reasmit->second.numOfFramesPerHashEntry[1];
+        reasm.u.reassem.u.ipReassem.timeoutThresholdForReassmProcess = reasmit->second.timeoutThreshold;
 
         engine.reasm.push_back( reasm );
         engine.reasm_names.push_back( engine.name + "/reasm/" + reasmit->second.name );
@@ -245,12 +246,14 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
     std::map< std::string, CFragmentation >::const_iterator fragit;
     for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {
         t_FmPcdManipParams frag;
-        frag.fragOrReasm                                         = 1;
-        frag.fragOrReasmParams.frag                              = 1;
-        frag.fragOrReasmParams.hdr                               = HEADER_TYPE_IPv6;
-        frag.fragOrReasmParams.ipFragParams.sizeForFragmentation = fragit->second.size;
-        frag.fragOrReasmParams.ipFragParams.scratchBpid          = fragit->second.scratchBpid;
-        frag.fragOrReasmParams.ipFragParams.dontFragAction       = (e_FmPcdManipDontFragAction)fragit->second.dontFragAction;
+        frag.h_NextManip                                         = 0;
+        frag.type												 = e_FM_PCD_MANIP_FRAG;
+		frag.u.frag.hdr			                                 = HEADER_TYPE_IPv6;
+		frag.u.frag.u.ipFrag.sizeForFragmentation				 = fragit->second.size;
+        frag.u.frag.u.ipFrag.scratchBpid						 = fragit->second.scratchBpid;
+        frag.u.frag.u.ipFrag.dontFragAction						 = (e_FmPcdManipDontFragAction)fragit->second.dontFragAction;
+		frag.u.frag.u.ipFrag.sgBpid								 = fragit->second.sgBpid;
+		frag.u.frag.u.ipFrag.sgBpidEn							 = fragit->second.sgBpidEn;
 
         engine.frags.push_back( frag );
         engine.frag_names.push_back( engine.name + "/frag/" + fragit->second.name );
