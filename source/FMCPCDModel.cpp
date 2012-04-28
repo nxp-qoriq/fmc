@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <algorithm>
+#include <functional>
 #include "FMCTaskDef.h"
 #include "FMCPCDModel.h"
 
@@ -139,11 +140,12 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
             for ( distRefIt = policyIt->second.dist_order.rbegin();
                   distRefIt != policyIt->second.dist_order.rend();
                   ++distRefIt, ++scheme_index ) {
-                unsigned int index = FindAndAddSchemeByName( pTaskDef,
+                unsigned int index = get_scheme_index( pTaskDef,
                     *distRefIt, policyIt->first, port, false );
+
                 Scheme& scheme = all_schemes[index];
                 scheme.scheme_index_per_port = scheme_index;
-
+                
                 // Add scheme's protocols to the port's protocol list
                 std::set< Protocol >::iterator protoIt;
                 for ( protoIt  = scheme.used_protocols.begin();
@@ -167,10 +169,11 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
                 }
             }
 
+            applier.sort();
+            
             if ( !port.cctrees.empty() || port.reasm_index != 0 ) {
-                applier.addDelayed( ApplyOrder::Entry( ApplyOrder::CCTree, port.getIndex() ) );
+                applier.add( ApplyOrder::Entry( ApplyOrder::CCTree, port.getIndex() ), applier_pos );
             }
-            applier.insertDelayedAfter( applier_pos );
 
             // Enumerate and fill used protocols
             std::map< Protocol, std::pair< unsigned int, DistinctionUnitElement > >::iterator protoIt;
@@ -311,12 +314,8 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
 {
     Scheme& scheme = all_schemes[FMBlock::assignIndex( all_schemes )];
 
-    if ( isDirect ) {
-        applier.add( ApplyOrder::Entry( ApplyOrder::Scheme, scheme.getIndex() ) );
-    }
-    else {
-        applier.addDelayed( ApplyOrder::Entry( ApplyOrder::Scheme, scheme.getIndex() ) );
-    }
+    ApplyOrder::Entry n1( ApplyOrder::Scheme, scheme.getIndex() );
+    applier.add_edge( n1, ApplyOrder::Entry( ApplyOrder::None, 0 ) );
 
     port.schemes.push_back( scheme.getIndex() );
 
@@ -614,6 +613,7 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
     scheme.doneAction        = e_FM_PCD_ENQ_FRAME;
     scheme.doneActionStr     = "e_FM_PCD_ENQ_FRAME";
     scheme.actionHandleIndex = 0xFFFFFFFF;
+
     if ( scheme.nextEngine == e_FM_PCD_DONE &&
          xmlDist.action == "drop" ) {                   // Is it drop?
         scheme.doneAction    = e_FM_PCD_DROP_FRAME;
@@ -622,20 +622,26 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
     else if ( scheme.nextEngine == e_FM_PCD_PLCR ) {    // Is it a policer?
         // Find the policer and add it
         scheme.actionHandleIndex =
-            FindAndAddPolicerByName( pTaskDef, xmlDist.actionName, xmlDist.name,
-                                     port );
+            get_policer_index( pTaskDef, xmlDist.actionName, xmlDist.name,
+                               port );
+        ApplyOrder::Entry n2( ApplyOrder::Policer, scheme.actionHandleIndex );
+        applier.add_edge( n1, n2 );
     }
     else if ( scheme.nextEngine == e_FM_PCD_KG ) {      // Is it a distribution?
         // Find the distribution and add it
         scheme.actionHandleIndex =
-            FindAndAddSchemeByName( pTaskDef, xmlDist.actionName, xmlDist.name,
-                                    port, true );
+            get_scheme_index( pTaskDef, xmlDist.actionName, xmlDist.name,
+                              port, true );
+            ApplyOrder::Entry n2( ApplyOrder::Scheme, scheme.actionHandleIndex );
+            applier.add_edge( n1, n2 );
     }
     else if ( scheme.nextEngine == e_FM_PCD_CC ) {      // Is it CC node?
         // Find CC node
         scheme.actionHandleIndex =
-            FindAndAddCCNodeByName( pTaskDef, xmlDist.actionName, xmlDist.name,
-                                    port, true );
+            get_ccnode_index( pTaskDef, xmlDist.actionName, xmlDist.name,
+                              port, true );
+        ApplyOrder::Entry n2( ApplyOrder::CCNode, scheme.actionHandleIndex );
+        applier.add_edge( n1, n2 );
     }
 
     return scheme;
@@ -651,7 +657,8 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 {
     CCNode& ccNode = all_ccnodes[FMBlock::assignIndex( all_ccnodes )];
 
-    applier.add( ApplyOrder::Entry( ApplyOrder::CCNode, ccNode.getIndex() ) );
+    ApplyOrder::Entry n1( ApplyOrder::CCNode, ccNode.getIndex() );
+    applier.add_edge( n1, ApplyOrder::Entry( ApplyOrder::None, 0 ) );
 
     port.ccnodes.push_back( ccNode.getIndex() );
 
@@ -827,18 +834,27 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         }
         if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_CC ) {
             ccNode.nextEngines[i].actionHandleIndex =
-                FindAndAddCCNodeByName( pTaskDef, xmlCCNode.entries[i].actionName,
-                                        ccNode.name, port, false );
+                get_ccnode_index( pTaskDef, xmlCCNode.entries[i].actionName,
+                                  ccNode.name, port, false );
+            ApplyOrder::Entry n2( ApplyOrder::CCNode,
+                                  ccNode.nextEngines[i].actionHandleIndex );
+            applier.add_edge( n1, n2 );
         }
         else if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_KG ) {
             ccNode.nextEngines[i].actionHandleIndex =
-                FindAndAddSchemeByName( pTaskDef, xmlCCNode.entries[i].actionName,
-                                        ccNode.name, port, true );
+                get_scheme_index( pTaskDef, xmlCCNode.entries[i].actionName,
+                                  ccNode.name, port, true );
+            ApplyOrder::Entry n2( ApplyOrder::Scheme,
+                                  ccNode.nextEngines[i].actionHandleIndex );
+            applier.add_edge( n1, n2 );
         }
         else if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_PLCR ) {
             ccNode.nextEngines[i].actionHandleIndex =
-                FindAndAddPolicerByName( pTaskDef, xmlCCNode.entries[i].actionName,
-                                        ccNode.name, port );
+                get_policer_index( pTaskDef, xmlCCNode.entries[i].actionName,
+                                   ccNode.name, port );
+            ApplyOrder::Entry n2( ApplyOrder::Policer,
+                                  ccNode.nextEngines[i].actionHandleIndex );
+            applier.add_edge( n1, n2 );
         }
     }
 
@@ -855,18 +871,27 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     }
     if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_CC ) {
         ccNode.nextEngineOnMiss.actionHandleIndex =
-            FindAndAddCCNodeByName( pTaskDef, xmlCCNode.actionNameOnMiss,
-                                    ccNode.name, port, false );
+            get_ccnode_index( pTaskDef, xmlCCNode.actionNameOnMiss,
+                              ccNode.name, port, false );
+        ApplyOrder::Entry n2( ApplyOrder::CCNode,
+                              ccNode.nextEngineOnMiss.actionHandleIndex );
+        applier.add_edge( n1, n2 );
     }
     else if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_KG ) {
         ccNode.nextEngineOnMiss.actionHandleIndex =
-            FindAndAddSchemeByName( pTaskDef, xmlCCNode.actionNameOnMiss,
-                                    ccNode.name, port, true );
+            get_scheme_index( pTaskDef, xmlCCNode.actionNameOnMiss,
+                              ccNode.name, port, true );
+        ApplyOrder::Entry n2( ApplyOrder::Scheme,
+                              ccNode.nextEngineOnMiss.actionHandleIndex );
+        applier.add_edge( n1, n2 );
     }
     else if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_PLCR ) {
         ccNode.nextEngineOnMiss.actionHandleIndex =
-            FindAndAddPolicerByName( pTaskDef, xmlCCNode.actionNameOnMiss,
-                                    ccNode.name, port );
+            get_policer_index( pTaskDef, xmlCCNode.actionNameOnMiss,
+                               ccNode.name, port );
+        ApplyOrder::Entry n2( ApplyOrder::Policer,
+                              ccNode.nextEngineOnMiss.actionHandleIndex );
+        applier.add_edge( n1, n2 );
     }
     else if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_DONE ) {
         ccNode.nextEngineOnMiss.newFqid = xmlCCNode.qbase;
@@ -880,8 +905,8 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 /// Finds XML definition for a coarse classification node and adds it
 ////////////////////////////////////////////////////////////////////////////////
 unsigned int
-CFMCModel::FindAndAddCCNodeByName( const CTaskDef* pTaskDef, std::string name,
-                                   std::string from, Port& port, bool isRoot )
+CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
+                             std::string from, Port& port, bool isRoot )
 {
     std::map< std::string, CClassification >::const_iterator nodeIt;
     nodeIt = pTaskDef->classifications.find( name );
@@ -898,9 +923,6 @@ CFMCModel::FindAndAddCCNodeByName( const CTaskDef* pTaskDef, std::string name,
              ( all_ccnodes[i].port_signature == port.signature ) ) {
             found = true;
             index = all_ccnodes[i].getIndex();
-
-            applier.move( ApplyOrder::Entry( ApplyOrder::CCNode,
-                                             index ) );
         }
     }
 
@@ -978,8 +1000,8 @@ CFMCModel::createSoftParse( const CTaskDef* pTaskDef )
 /// Finds XML definition for a scheme and adds it
 ////////////////////////////////////////////////////////////////////////////////
 unsigned int
-CFMCModel::FindAndAddSchemeByName( const CTaskDef* pTaskDef, std::string name,
-                                   std::string from, Port& port, bool isDirect )
+CFMCModel::get_scheme_index( const CTaskDef* pTaskDef, std::string name,
+                             std::string from, Port& port, bool isDirect )
 {
     std::map< std::string, CDistribution >::const_iterator distIt;
     distIt = pTaskDef->distributions.find( name );
@@ -997,9 +1019,6 @@ CFMCModel::FindAndAddSchemeByName( const CTaskDef* pTaskDef, std::string name,
              ( all_schemes[i].port_signature == port.signature ) ) {
             found = true;
             index = all_schemes[i].getIndex();
-
-            applier.move( ApplyOrder::Entry( ApplyOrder::Scheme,
-                                             index ) );
         }
     }
 
@@ -1021,7 +1040,8 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
 {
     Policer& policer = all_policers[FMBlock::assignIndex( all_policers )];
 
-    applier.add( ApplyOrder::Entry( ApplyOrder::Policer, policer.getIndex() ) );
+    ApplyOrder::Entry n1( ApplyOrder::Policer, policer.getIndex() );
+    applier.add_edge( n1, ApplyOrder::Entry( ApplyOrder::None, 0 ) );
 
     policer.name = xmlPolicer.name;
 
@@ -1077,12 +1097,18 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
     }
     if ( policer.nextEngineOnGreen == e_FM_PCD_KG ) {
         policer.onGreenActionHandleIndex =
-            FindAndAddSchemeByName( pTaskDef, xmlPolicer.actionNameOnGreen,
-                                    xmlPolicer.name, port, true );
+            get_scheme_index( pTaskDef, xmlPolicer.actionNameOnGreen,
+                              xmlPolicer.name, port, true );
+        ApplyOrder::Entry n2( ApplyOrder::Scheme,
+                              policer.onGreenActionHandleIndex );
+        applier.add_edge( n1, n2 );
     } else if ( policer.nextEngineOnGreen == e_FM_PCD_PLCR ) {
         policer.onGreenActionHandleIndex =
-            FindAndAddPolicerByName( pTaskDef, xmlPolicer.actionNameOnGreen,
-                                     xmlPolicer.name, port );
+            get_policer_index( pTaskDef, xmlPolicer.actionNameOnGreen,
+                               xmlPolicer.name, port );
+        ApplyOrder::Entry n2( ApplyOrder::Policer,
+                              policer.onGreenActionHandleIndex );
+        applier.add_edge( n1, n2 );
     }
 
     policer.nextEngineOnYellow        = getEngineByType( xmlPolicer.actionOnYellow );
@@ -1090,18 +1116,25 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
     policer.onYellowAction            = e_FM_PCD_ENQ_FRAME;
     policer.onYellowActionStr         = "e_FM_PCD_ENQ_FRAME";
     policer.onYellowActionHandleIndex = 0xFFFFFFFF;
+
     if ( xmlPolicer.actionOnYellow == "drop" ) {
         policer.onYellowAction    = e_FM_PCD_DROP_FRAME;
         policer.onYellowActionStr = "e_FM_PCD_DROP_FRAME";
     }
     if ( policer.nextEngineOnYellow == e_FM_PCD_KG ) {
         policer.onYellowActionHandleIndex =
-            FindAndAddSchemeByName( pTaskDef, xmlPolicer.actionNameOnYellow,
-                                    xmlPolicer.name, port, true );
+            get_scheme_index( pTaskDef, xmlPolicer.actionNameOnYellow,
+                              xmlPolicer.name, port, true );
+        ApplyOrder::Entry n2( ApplyOrder::Scheme,
+                              policer.onYellowActionHandleIndex );
+        applier.add_edge( n1, n2 );
     } else if ( policer.nextEngineOnYellow == e_FM_PCD_PLCR ) {
         policer.onYellowActionHandleIndex =
-            FindAndAddPolicerByName( pTaskDef, xmlPolicer.actionNameOnYellow,
-                                     xmlPolicer.name, port );
+            get_policer_index( pTaskDef, xmlPolicer.actionNameOnYellow,
+                               xmlPolicer.name, port );
+        ApplyOrder::Entry n2( ApplyOrder::Policer,
+                              policer.onYellowActionHandleIndex );
+        applier.add_edge( n1, n2 );
     }
 
     policer.nextEngineOnRed        = getEngineByType( xmlPolicer.actionOnRed );
@@ -1115,12 +1148,18 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
     }
     if ( policer.nextEngineOnRed == e_FM_PCD_KG ) {
         policer.onRedActionHandleIndex =
-            FindAndAddSchemeByName( pTaskDef, xmlPolicer.actionNameOnRed,
-                                    xmlPolicer.name, port, true );
+            get_scheme_index( pTaskDef, xmlPolicer.actionNameOnRed,
+                              xmlPolicer.name, port, true );
+        ApplyOrder::Entry n2( ApplyOrder::Scheme,
+                              policer.onRedActionHandleIndex );
+        applier.add_edge( n1, n2 );
     } else if ( policer.nextEngineOnRed == e_FM_PCD_PLCR ) {
         policer.onRedActionHandleIndex =
-            FindAndAddPolicerByName( pTaskDef, xmlPolicer.actionNameOnRed,
-                                     xmlPolicer.name, port );
+            get_policer_index( pTaskDef, xmlPolicer.actionNameOnRed,
+                               xmlPolicer.name, port );
+        ApplyOrder::Entry n2( ApplyOrder::Policer,
+                              policer.onRedActionHandleIndex );
+        applier.add_edge( n1, n2 );
     }
 
     return policer;
@@ -1131,8 +1170,8 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
 /// Finds XML definition for a policer and adds it
 ////////////////////////////////////////////////////////////////////////////////
 unsigned int
-CFMCModel::FindAndAddPolicerByName( const CTaskDef* pTaskDef, std::string name,
-                                    std::string from, Port& port )
+CFMCModel::get_policer_index( const CTaskDef* pTaskDef, std::string name,
+                              std::string from, Port& port )
 {
     std::map< std::string, CPolicer >::const_iterator policerIt;
     policerIt = pTaskDef->policers.find( name );
@@ -1651,41 +1690,94 @@ ApplyOrder::add( Entry entry )
 
 
 void
-ApplyOrder::move( Entry entry )
+ApplyOrder::add( Entry entry, unsigned int index )
 {
-    // Find existing entry
-    std::vector< Entry >::iterator entryIt = entries.begin();
-    for ( entryIt = entries.begin(); entryIt != entries.end(); ++entryIt ) {
-        if ( entryIt->index == entry.index &&
-             entryIt->type  == entry.type ) {
-            entries.erase( entryIt );
-            entryIt = entries.begin();
+    entries.insert( entries.begin() + index, entry );
+}
+
+
+void
+ApplyOrder::add_edge( Entry& n1, Entry& n2 )
+{
+    edges.push_back( std::pair< Entry, Entry >( n1, n2 ) );
+}
+
+
+class my_pred
+{
+  public:
+    my_pred( const ApplyOrder::Entry c_ ) : c( c_ )
+    {
+    }
+
+    bool operator()( const std::pair< ApplyOrder::Entry, ApplyOrder::Entry > e )
+    {
+        if ( e.second == c )
+            return true;
+        return false;
+    }
+
+    ApplyOrder::Entry c;
+};
+
+
+void
+ApplyOrder::sort()
+{
+    // Find nodes with no children
+    std::vector< Entry > result;
+
+    // Count number of children
+    std::map< Entry, int > all;
+    for ( unsigned int i = 0; i < edges.size(); ++i ) {
+        if ( all.find( edges[i].first ) == all.end() ) {
+            all[edges[i].first] = 0;
+        }
+        if ( all.find( edges[i].second ) == all.end() ) {
+            all[edges[i].second] = 0;
+        }
+        ++all[edges[i].first];
+    }
+
+    bool was_change = true;
+
+    while ( was_change ) {
+        was_change = false;
+        // Move childless nodes to result list
+        std::map< Entry, int >::iterator it;
+        for ( it = all.begin(); it != all.end(); ++it ) {
+            if ( it->second == 0 ) {
+                was_change = true;
+
+                std::vector< std::pair< Entry, Entry > >::iterator edge;
+                for ( edge = edges.begin(); edge != edges.end(); ++edge ) {
+                    if ( edge->second == it->first ) {
+                        --all[edge->first];
+                    }
+                }
+
+                std::vector< std::pair< Entry, Entry > >::iterator new_end;
+                new_end = std::remove_if( edges.begin(), edges.end(),
+                    my_pred( it->first ) );
+                edges.erase( new_end, edges.end() );
+
+                if ( it->first.type != None ) {
+                    result.push_back( it->first );
+                }
+                all.erase( it );
+                break;
+            }
         }
     }
-    add( entry );
-}
 
-
-void
-ApplyOrder::addDelayed( Entry entry )
-{
-    delayed_entries.push_back( entry );
-}
-
-
-void
-ApplyOrder::insertDelayedAfter( unsigned int after )
-{
-    entries.insert( entries.begin() + after,
-        delayed_entries.begin(),
-        delayed_entries.end() );
-
-    delayed_entries.clear();
+    for ( unsigned int i = result.size(); i != 0; --i ) {
+        entries.push_back( result[i - 1] );
+    }
 }
 
 
 ApplyOrder::Entry
-ApplyOrder::getAt( unsigned int index ) const
+ApplyOrder::get( unsigned int index ) const
 {
     return entries[index];
 }
@@ -1699,7 +1791,7 @@ ApplyOrder::size() const
 
 
 std::string
-ApplyOrder::getTypeAsStr( Type t ) const
+ApplyOrder::get_type_str( Type t ) const
 {
     switch ( t ) {
         case EngineStart:
