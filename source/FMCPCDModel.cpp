@@ -132,8 +132,6 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
 
             applier.add( ApplyOrder::Entry( ApplyOrder::PortEnd, port.getIndex() ) );
 
-            unsigned int applier_pos = applier.size();
-
             // For all distributions in this policy
             std::vector< std::string >::reverse_iterator distRefIt;
             uint8_t scheme_index = 0;
@@ -169,12 +167,13 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
                 }
             }
 
-            applier.sort();
-            
             if ( !port.cctrees.empty() || port.reasm_index != 0 ) {
-                applier.add( ApplyOrder::Entry( ApplyOrder::CCTree, port.getIndex() ), applier_pos );
+                applier.add_edge( ApplyOrder::Entry( ApplyOrder::CCTree, port.getIndex() ),
+                                  ApplyOrder::Entry( ApplyOrder::None, 0 ) );
             }
 
+            applier.sort();
+            
             // Enumerate and fill used protocols
             std::map< Protocol, std::pair< unsigned int, DistinctionUnitElement > >::iterator protoIt;
             unsigned int i;
@@ -640,7 +639,7 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
         scheme.actionHandleIndex =
             get_ccnode_index( pTaskDef, xmlDist.actionName, xmlDist.name,
                               port, true );
-        ApplyOrder::Entry n2( ApplyOrder::CCNode, scheme.actionHandleIndex );
+        ApplyOrder::Entry n2( ApplyOrder::CCTree, port.getIndex() );
         applier.add_edge( n1, n2 );
     }
 
@@ -930,6 +929,10 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
         CCNode& ccnode = createCCNode( pTaskDef, port, nodeIt->second );
         index = ccnode.getIndex();
     }
+
+    ApplyOrder::Entry root( ApplyOrder::CCTree, port.getIndex() );
+    ApplyOrder::Entry node( ApplyOrder::CCNode, index );
+    applier.add_edge( root, node );
 
     if ( isRoot ) {
         port.cctrees.push_back( index );
