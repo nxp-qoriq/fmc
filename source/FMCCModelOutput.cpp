@@ -18,7 +18,6 @@
 #include <iomanip>
 #include <string.h>
 
-#include "fmc.h"
 #include "FMCCModelOutput.h"
 
 
@@ -1075,13 +1074,63 @@ CFMCCModelOutput::output_fmc_applier( const CFMCModel& model, fmc_model_t* cmode
 {
     ApplyOrder::Entry e = model.applier.get( index );
 
-    cmodel->ao[cmodel->ao_count - index - 1].type = (fmc_apply_order_e)e.type;
+    cmodel->ao[cmodel->ao_count - index - 1].type = get_fmc_type( e.type );
     oss << ind( indent )
         << ".ao["
         << cmodel->ao_count - index - 1
         << "] = "
-        << model.applier.get_type_str( e.type )
+        << get_fmc_type_str( e.type )
         << ","
         << std::endl;
     EMIT4( ao[, cmodel->ao_count - index - 1, ].index =, e.index );
+}
+
+
+fmc_apply_order_e
+CFMCCModelOutput::get_fmc_type( ApplyOrder::Type t ) const
+{
+    switch ( t ) {
+        case ApplyOrder::EngineStart:
+            return FMCEngineStart;
+        case ApplyOrder::EngineEnd:
+            return FMCEngineEnd;
+        case ApplyOrder::PortStart:
+            return FMCPortStart;
+        case ApplyOrder::PortEnd:
+            return FMCPortEnd;
+        case ApplyOrder::Scheme:
+            return FMCScheme;
+        case ApplyOrder::CCNode:
+            return FMCCCNode;
+        case ApplyOrder::CCTree:
+            return FMCCCTree;
+        case ApplyOrder::Policer:
+            return FMCPolicer;
+    }
+    return FMCEngineStart;
+}
+
+
+std::string
+CFMCCModelOutput::get_fmc_type_str( ApplyOrder::Type t ) const
+{
+    switch ( t ) {
+        case ApplyOrder::EngineStart:
+            return "FMCEngineStart";
+        case ApplyOrder::EngineEnd:
+            return "FMCEngineEnd";
+        case ApplyOrder::PortStart:
+            return "FMCPortStart";
+        case ApplyOrder::PortEnd:
+            return "FMCPortEnd";
+        case ApplyOrder::Scheme:
+            return "FMCScheme";
+        case ApplyOrder::CCNode:
+            return "FMCCCNode";
+        case ApplyOrder::CCTree:
+            return "FMCCCTree";
+        case ApplyOrder::Policer:
+            return "FMCPolicer";
+    }
+    return "";
 }

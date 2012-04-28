@@ -1788,28 +1788,3 @@ ApplyOrder::size() const
 {
     return entries.size();
 }
-
-
-std::string
-ApplyOrder::get_type_str( Type t ) const
-{
-    switch ( t ) {
-        case EngineStart:
-            return "FMCEngineStart";
-        case EngineEnd:
-            return "FMCEngineEnd";
-        case PortStart:
-            return "FMCPortStart";
-        case PortEnd:
-            return "FMCPortEnd";
-        case Scheme:
-            return "FMCScheme";
-        case CCNode:
-            return "FMCCCNode";
-        case CCTree:
-            return "FMCCCTree";
-        case Policer:
-            return "FMCPolicer";
-    }
-    return "";
-}

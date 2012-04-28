@@ -368,8 +368,8 @@ public:
     std::string get_type_str( Type t ) const;     ///< Return type name as string
 
 private:
-    std::vector< Entry > entries;         ///< The entries' storage
-    std::vector< std::pair< Entry, Entry > > edges;
+    std::vector< Entry > entries;                   ///< The entries' storage
+    std::vector< std::pair< Entry, Entry > > edges; ///< The edges' storage
 };
 
 

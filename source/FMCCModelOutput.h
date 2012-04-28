@@ -15,6 +15,7 @@
 #ifndef FMCCMODELOUTPUT_H
 #define FMCCMODELOUTPUT_H
 
+#include "fmc.h"
 #include "FMCPCDModel.h"
 
 class CFMCCModelOutput
@@ -41,6 +42,9 @@ protected:
     void output_fmc_applier( const CFMCModel& model, fmc_model_t* cmodel,
                              unsigned int index,
                              std::ostream& oss, size_t indent );
+
+    fmc_apply_order_e get_fmc_type    ( ApplyOrder::Type t ) const;
+    std::string       get_fmc_type_str( ApplyOrder::Type t ) const;
 };
 
 #endif
