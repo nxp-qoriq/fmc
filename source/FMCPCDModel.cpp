@@ -277,14 +277,11 @@ CFMCModel::createPort( Engine& engine, const CPort& xmlPort, const CTaskDef* pTa
 
     port.type      = getPortType( xmlPort.type );
     port.typeStr   = getPortTypeStr( port.type );
-    std::ostringstream oss1;
-    oss1 << engine.name + "/port/" + xmlPort.type + "/" << xmlPort.number;
-    port.name      = oss1.str();
+    std::ostringstream oss;
+    oss << engine.name + "/port/" + xmlPort.type + "/" << xmlPort.number;
+    port.name      = oss.str();
     port.number    = xmlPort.number;
     port.portid    = xmlPort.portid;
-    std::ostringstream oss;
-    oss << engine.name << port.typeStr << port.number;
-    port.signature = oss.str();
 
     port.reasm_index = 0;
     // Find port's corresponding policy
@@ -320,7 +317,10 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
 
     port.schemes.push_back( scheme.getIndex() );
 
-    scheme.name                  = xmlDist.name;
+    scheme.name = port.name + "/dist/" + xmlDist.name;
+    if ( isDirect ) {
+        scheme.name = scheme.name + "/direct";
+    }
     scheme.qbase                 = xmlDist.qbase;
     scheme.qcount                = xmlDist.qcount;
     scheme.privateDflt0          = xmlDist.dflt0;
@@ -330,7 +330,7 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
     scheme.relativeSchemeId      = port.schemes.size() - 1;
     scheme.isDirect              = isDirect ? 1 : 0;
     scheme.scheme_index_per_port = -1;
-    scheme.port_signature        = port.signature;
+    scheme.port_signature        = port.name;
 
     // For each 'key' entry
     for ( unsigned int i = 0; i < xmlDist.key.size(); ++i ) {
@@ -663,8 +663,8 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 
     port.ccnodes.push_back( ccNode.getIndex() );
 
-    ccNode.name           = xmlCCNode.name;
-    ccNode.port_signature = port.signature;
+    ccNode.name           = port.name + "/ccnode/" + xmlCCNode.name;
+    ccNode.port_signature = port.name;
 
 
     if (xmlCCNode.key.header)
@@ -921,7 +921,7 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
     unsigned int index;
     for ( unsigned int i = 0; i < all_ccnodes.size(); ++i ) {
         if ( ( all_ccnodes[i].name == name ) &&
-             ( all_ccnodes[i].port_signature == port.signature ) ) {
+             ( all_ccnodes[i].port_signature == port.name ) ) {
             found = true;
             index = all_ccnodes[i].getIndex();
         }
@@ -1021,7 +1021,7 @@ CFMCModel::get_scheme_index( const CTaskDef* pTaskDef, std::string name,
     for ( unsigned int i = 0; i < all_schemes.size(); ++i ) {
         if ( ( all_schemes[i].name           == name )                 &&
              ( all_schemes[i].isDirect       == ( isDirect ? 1 : 0 ) ) &&
-             ( all_schemes[i].port_signature == port.signature ) ) {
+             ( all_schemes[i].port_signature == port.name ) ) {
             found = true;
             index = all_schemes[i].getIndex();
         }
@@ -1048,7 +1048,7 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
     ApplyOrder::Entry n1( ApplyOrder::Policer, policer.getIndex() );
     applier.add_edge( n1, ApplyOrder::Entry( ApplyOrder::None, 0 ) );
 
-    policer.name = xmlPolicer.name;
+    policer.name = port.name + "/policer/" + xmlPolicer.name;
 
     switch( xmlPolicer.algorithm ) {
         case 1:

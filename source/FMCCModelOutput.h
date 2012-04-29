@@ -45,6 +45,8 @@ protected:
 
     fmc_apply_order_e get_fmc_type    ( ApplyOrder::Type t ) const;
     std::string       get_fmc_type_str( ApplyOrder::Type t ) const;
+    std::string       get_apply_item_name( fmc_model_t* cmodel,
+                                           ApplyOrder::Entry e );
 };
 
 #endif

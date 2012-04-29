@@ -400,7 +400,7 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
 
     EMIT1( std::string( "/* Distribution: " + sch.name + " */" ) );
 
-    strncpy( cmodel->scheme_name[index], std::string( "\"" + sch.name + "\"" ).c_str(), FMC_NAME_LEN - 1 );
+    strncpy( cmodel->scheme_name[index], sch.name.c_str(), FMC_NAME_LEN - 1 );
     cmodel->scheme_name[index][FMC_NAME_LEN - 1] = 0;
     oss << ind( indent ) << ".scheme_name[" << index << "] = " << std::string( "\"" + sch.name + "\"" ) << "," << std::endl;
 
@@ -1071,6 +1071,36 @@ CFMCCModelOutput::output_fmc_policer( const CFMCModel& model, fmc_model_t* cmode
 }
 
 
+std::string
+CFMCCModelOutput::get_apply_item_name( fmc_model_t* cmodel,
+                                       ApplyOrder::Entry e )
+{
+    switch ( get_fmc_type( e.type ) ) {
+    case FMCEngineStart:
+    case FMCEngineEnd:
+        return std::string( " /* " ) +
+            cmodel->fman[e.index].name + " */";
+    case FMCPortStart:
+    case FMCPortEnd:
+    case FMCCCTree:
+        return std::string( " /* " ) +
+            cmodel->port[e.index].name + " */";
+    case FMCScheme:
+        return std::string( " /* " ) +
+            cmodel->scheme_name[e.index] + " */";
+    case FMCCCNode:
+        return std::string( " /* " ) +
+            cmodel->ccnode_name[e.index] + " */";
+    case FMCPolicer:
+        return std::string( " /* " ) +
+            cmodel->policer_name[e.index] + " */";
+    default:
+        return "";
+    }
+    return "";
+}
+
+
 void
 CFMCCModelOutput::output_fmc_applier( const CFMCModel& model, fmc_model_t* cmodel,
                                       unsigned int index,
@@ -1078,15 +1108,21 @@ CFMCCModelOutput::output_fmc_applier( const CFMCModel& model, fmc_model_t* cmode
 {
     ApplyOrder::Entry e = model.applier.get( index );
 
-    cmodel->ao[cmodel->ao_count - index - 1].type = get_fmc_type( e.type );
+    cmodel->ao[cmodel->ao_count - index - 1].type  = get_fmc_type( e.type );
+    cmodel->ao[cmodel->ao_count - index - 1].index = e.index;
+
     oss << ind( indent )
-        << ".ao["
+        << "FMC_APPLY_ORDER("
+        << std::setfill(' ') << std::setw( 3 )
         << cmodel->ao_count - index - 1
-        << "] = "
+        << ", "
         << get_fmc_type_str( e.type )
         << ","
+        << std::setfill(' ') << std::setw( 3 )
+        << e.index
+        << " ),"
+        << get_apply_item_name( cmodel, e )
         << std::endl;
-    EMIT4( ao[, cmodel->ao_count - index - 1, ].index =, e.index );
 }
 
 
@@ -1122,19 +1158,19 @@ CFMCCModelOutput::get_fmc_type_str( ApplyOrder::Type t ) const
         case ApplyOrder::EngineStart:
             return "FMCEngineStart";
         case ApplyOrder::EngineEnd:
-            return "FMCEngineEnd";
+            return "FMCEngineEnd  ";
         case ApplyOrder::PortStart:
-            return "FMCPortStart";
+            return "FMCPortStart  ";
         case ApplyOrder::PortEnd:
-            return "FMCPortEnd";
+            return "FMCPortEnd    ";
         case ApplyOrder::Scheme:
-            return "FMCScheme";
+            return "FMCScheme     ";
         case ApplyOrder::CCNode:
-            return "FMCCCNode";
+            return "FMCCCNode     ";
         case ApplyOrder::CCTree:
-            return "FMCCCTree";
+            return "FMCCCTree     ";
         case ApplyOrder::Policer:
-            return "FMCPolicer";
+            return "FMCPolicer    ";
     }
     return "";
 }

@@ -295,8 +295,6 @@ public:
 
     unsigned int portid;                ///< Port assigned ID
 
-    std::string  signature;
-
     std::vector< unsigned int > schemes; ///<
                                         ///< Schemes used by this port
     std::vector< unsigned int > ccnodes; ///<
