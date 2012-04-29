@@ -217,12 +217,14 @@ fmc_get_handle(
         return model->fman[engine].pcd_handle;
     }
 
+#ifndef P1023
     // Check fragmentation names
     for ( i = 0; i < model->fman[engine].frag_count; i++ ) {
         if ( strcmp( model->fman[engine].frag_name[i], name ) == 0 ) {
             return model->fman[engine].frag_handle[i];
         }
     }
+#endif /* P1023 */
 
     // Find port index
     found = 0;
@@ -285,6 +287,7 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
     }
     FM_PCD_Enable( model->fman[index].pcd_handle );
 
+#ifndef P1023
     for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
         if ( model->fman[index].reasm[i].fragOrReasmParams.hdr == HEADER_TYPE_IPv6 ) {
             model->fman[index].reasm[i].fragOrReasmParams.ipReasmParams.relativeSchemeId[0] =
@@ -305,6 +308,7 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
         model->fman[index].frag_handle[i] =
             FM_PCD_ManipSetNode( model->fman[index].pcd_handle, &model->fman[index].frag[i] );
     }
+#endif /* P1023 */
 
     return 0;
 }
@@ -440,10 +444,12 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
                                              model->ccnode_handle[action_index];
         }
 
+#ifndef P1023
         if ( model->ccentry_frag[index][i] != 0 ) {
             model->ccnode[index].keysParams.keyParams[i].ccNextEngineParams.h_Manip =
                 model->fman[engine].frag_handle[ model->ccentry_frag[index][i] - 1 ];
         }
+#endif /* P1023 */
     }
     action_index = model->ccmiss_action_index[index];
     if ( model->ccnode[index].keysParams.ccNextEngineParamsForMiss
@@ -477,16 +483,20 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
                  unsigned int port )
 {
     t_FmPcdCcTreeParams ccTreeParams = { 0 };
+#ifndef P1023
     unsigned int        reasm_index;
+#endif /* P1023 */
     unsigned int        i;
 
     ccTreeParams.numOfGrps = model->port[port].ccroot_count;
     ccTreeParams.h_NetEnv  = model->port[port].env_id_handle;
+#ifndef P1023
     reasm_index            = model->port[port].reasm_index;
     if ( reasm_index != 0 ) {
         ccTreeParams.h_IpReassemblyManip =
             model->fman[engine].reasm_handle[reasm_index - 1];
     }
+#endif /* P1023 */
 
     for ( i = 0; i < model->port[port].ccroot_count; ++i ) {
         ccTreeParams.ccGrpParams[i].numOfDistinctionUnits = 0;
@@ -567,6 +577,7 @@ fmc_clean_engine_start( fmc_model* model, unsigned int index )
 {
     unsigned int i;
 
+#ifndef P1023
     for ( i = 0; i < model->fman[index].frag_count; i++ ) {
         FM_PCD_ManipDeleteNode( model->fman[index].pcd_handle, model->fman[index].frag_handle[i] );
     }
@@ -574,6 +585,7 @@ fmc_clean_engine_start( fmc_model* model, unsigned int index )
     for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
         FM_PCD_ManipDeleteNode( model->fman[index].pcd_handle, model->fman[index].reasm_handle[i] );
     }
+#endif /* P1023 */
 
     if ( model->fman[index].pcd_handle != 0 ) {
 #ifndef NETCOMM_SW

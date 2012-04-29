@@ -239,6 +239,7 @@ FM_PCD_PrsLoadSw(t_Handle h_FmPcd, t_FmPcdPrsSwParams *p_SwPrs)
 }
 
 
+#ifndef P1023
 t_Handle
 FM_PCD_ManipSetNode(t_Handle h_FmPcd, t_FmPcdManipParams *p_FmPcdManipParams)
 {
@@ -257,3 +258,4 @@ FM_PCD_ManipDeleteNode(t_Handle h_FmPcd, t_Handle h_HdrManipNode)
     printf( "Calling IOCTL::FM_PCD_ManipDeleteNode %d\n", h_HdrManipNode );
     return E_OK;
 }
+#endif /* P1023 */

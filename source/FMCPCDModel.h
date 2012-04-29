@@ -321,11 +321,13 @@ public:
 
     std::vector< unsigned int > ports;  ///< Ports of the engine
 
+#ifndef P1023
     std::vector< t_FmPcdManipParams > reasm;
     std::vector< std::string >        reasm_names;
     
     std::vector< t_FmPcdManipParams > frags;
     std::vector< std::string >        frag_names;
+#endif /* P1023 */
 };
 
 
@@ -360,7 +362,7 @@ public:
 public:
     void  add( Entry entry );                     ///< Add new entry
     void  add( Entry entry, unsigned int index ); ///< Add new entry at position
-    void  add_edge( Entry& n1, Entry& n2 );       ///< Add edge between entries
+    void  add_edge( Entry n1, Entry n2 );         ///< Add edge between entries
     void  sort();                                 ///< Topological sort of entries
 
     unsigned int size() const;                    ///< Return number of entries

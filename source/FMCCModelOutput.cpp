@@ -188,6 +188,7 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 
     OUT_EMPTY;
 
+#ifndef P1023
     EMIT4( fman[, index, ].reasm_count =, model.all_engines[index].reasm.size() );
     for ( unsigned int i = 0; i < model.all_engines[index].reasm.size(); i++ ) {
         strncpy( cmodel->fman[index].reasm_name[i], model.all_engines[index].reasm_names[i].c_str(), FMC_NAME_LEN - 1 );
@@ -253,6 +254,7 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
     }
 
     OUT_EMPTY;
+#endif /* P1023 */
 }
 
 
@@ -321,12 +323,14 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
         }
     }
 
+#ifndef P1023
     if ( model.all_ports[index].reasm_index != 0 ) {
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 2,].hdrs[0].hdr = HEADER_TYPE_IPv4 );
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 2,].hdrs[0].opt.ipv4Opt = IPV4_FRAG_1 );
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 1,].hdrs[0].hdr = HEADER_TYPE_IPv6 );
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 1,].hdrs[0].opt.ipv6Opt = IPV6_FRAG_1 );
     }
+#endif /* P1023 */
 
     // Fill PCD params
     if ( ( !model.all_ports[index].cctrees.empty() || model.all_ports[index].reasm_index != 0 )

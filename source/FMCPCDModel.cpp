@@ -222,6 +222,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
     engine.number   = std::strtoul( xmlEngine.name.c_str() + 2, 0, 0 );
     engine.pcd_name = engine.name + "/pcd";
 
+#ifndef P1023
     std::map< std::string, CReassembly >::const_iterator reasmit;
     for ( reasmit = pTaskDef->reassemblies.begin(); reasmit != pTaskDef->reassemblies.end(); ++reasmit ) {
         t_FmPcdManipParams reasm;
@@ -257,6 +258,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
         engine.frags.push_back( frag );
         engine.frag_names.push_back( engine.name + "/frag/" + fragit->second.name );
     }
+#endif /* P1023 */
 
     return engine;
 }
@@ -1700,7 +1702,7 @@ ApplyOrder::add( Entry entry, unsigned int index )
 
 
 void
-ApplyOrder::add_edge( Entry& n1, Entry& n2 )
+ApplyOrder::add_edge( Entry n1, Entry n2 )
 {
     edges.push_back( std::pair< Entry, Entry >( n1, n2 ) );
 }
