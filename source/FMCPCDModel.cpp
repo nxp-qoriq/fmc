@@ -639,8 +639,9 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
     else if ( scheme.nextEngine == e_FM_PCD_CC ) {      // Is it CC node?
         // Find CC node
         scheme.actionHandleIndex =
-            get_ccnode_index( pTaskDef, xmlDist.actionName, xmlDist.name,
-                              port, true );
+            get_ccnode_index( pTaskDef,
+                              xmlDist.actionName,
+                              xmlDist.name, port, true );
         ApplyOrder::Entry n2( ApplyOrder::CCTree, port.getIndex() );
         applier.add_edge( n1, n2 );
     }
@@ -835,7 +836,8 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         }
         if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_CC ) {
             ccNode.nextEngines[i].actionHandleIndex =
-                get_ccnode_index( pTaskDef, xmlCCNode.entries[i].actionName,
+                get_ccnode_index( pTaskDef,
+                                  xmlCCNode.entries[i].actionName,
                                   ccNode.name, port, false );
             ApplyOrder::Entry n2( ApplyOrder::CCNode,
                                   ccNode.nextEngines[i].actionHandleIndex );
@@ -872,7 +874,8 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     }
     if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_CC ) {
         ccNode.nextEngineOnMiss.actionHandleIndex =
-            get_ccnode_index( pTaskDef, xmlCCNode.actionNameOnMiss,
+            get_ccnode_index( pTaskDef,
+                              xmlCCNode.actionNameOnMiss,
                               ccNode.name, port, false );
         ApplyOrder::Entry n2( ApplyOrder::CCNode,
                               ccNode.nextEngineOnMiss.actionHandleIndex );
@@ -920,7 +923,7 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
     bool         found = false;
     unsigned int index;
     for ( unsigned int i = 0; i < all_ccnodes.size(); ++i ) {
-        if ( ( all_ccnodes[i].name == name ) &&
+        if ( ( all_ccnodes[i].name           == port.name + "/ccnode/" + name ) &&
              ( all_ccnodes[i].port_signature == port.name ) ) {
             found = true;
             index = all_ccnodes[i].getIndex();
@@ -1019,7 +1022,7 @@ CFMCModel::get_scheme_index( const CTaskDef* pTaskDef, std::string name,
     bool         found = false;
     unsigned int index;
     for ( unsigned int i = 0; i < all_schemes.size(); ++i ) {
-        if ( ( all_schemes[i].name           == name )                 &&
+        if ( ( all_schemes[i].name           == port.name + "/dist/" + name + ((isDirect)?"/direct":"") ) &&
              ( all_schemes[i].isDirect       == ( isDirect ? 1 : 0 ) ) &&
              ( all_schemes[i].port_signature == port.name ) ) {
             found = true;
@@ -1048,7 +1051,8 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
     ApplyOrder::Entry n1( ApplyOrder::Policer, policer.getIndex() );
     applier.add_edge( n1, ApplyOrder::Entry( ApplyOrder::None, 0 ) );
 
-    policer.name = port.name + "/policer/" + xmlPolicer.name;
+    policer.name           = port.name + "/policer/" + xmlPolicer.name;
+    policer.port_signature = port.name;
 
     switch( xmlPolicer.algorithm ) {
         case 1:
@@ -1184,9 +1188,24 @@ CFMCModel::get_policer_index( const CTaskDef* pTaskDef, std::string name,
     if ( policerIt == pTaskDef->policers.end() ) {
         throw CGenericError( ERR_POLICER_NOT_FOUND, name, from );
     }
-    Policer& policer = createPolicer( pTaskDef, port, policerIt->second );
 
-    return policer.getIndex();
+    // Check whether this policer was already created
+    bool         found = false;
+    unsigned int index;
+    for ( unsigned int i = 0; i < all_policers.size(); ++i ) {
+        if ( ( all_policers[i].name           == port.name + "/policer/" + name ) &&
+             ( all_policers[i].port_signature == port.name ) ) {
+            found = true;
+            index = all_policers[i].getIndex();
+        }
+    }
+
+    if ( !found ) {
+        Policer& policer = createPolicer( pTaskDef, port, policerIt->second );
+        index = policer.getIndex();
+    }
+
+    return index;
 }
 
 

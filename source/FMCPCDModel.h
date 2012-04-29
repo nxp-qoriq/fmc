@@ -278,6 +278,8 @@ public:
     e_FmPcdDoneAction onRedAction;
     std::string       onRedActionStr;
     unsigned int      onRedActionHandleIndex;
+
+    std::string   port_signature;
 };
 
 
