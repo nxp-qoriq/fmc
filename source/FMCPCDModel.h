@@ -278,6 +278,8 @@ public:
     e_FmPcdDoneAction onRedAction;
     std::string       onRedActionStr;
     unsigned int      onRedActionHandleIndex;
+
+    std::string   port_signature;
 };
 
 
@@ -294,8 +296,6 @@ public:
     unsigned int number;                ///< Port number
 
     unsigned int portid;                ///< Port assigned ID
-
-    std::string  signature;
 
     std::vector< unsigned int > schemes; ///<
                                         ///< Schemes used by this port
@@ -321,11 +321,13 @@ public:
 
     std::vector< unsigned int > ports;  ///< Ports of the engine
 
+#ifndef P1023
     std::vector< t_FmPcdManipParams > reasm;
     std::vector< std::string >        reasm_names;
     
     std::vector< t_FmPcdManipParams > frags;
     std::vector< std::string >        frag_names;
+#endif /* P1023 */
 };
 
 
@@ -335,12 +337,22 @@ public:
 class ApplyOrder
 {
 public:
-    enum Type { EngineStart, EngineEnd, PortStart, PortEnd, Scheme, CCNode, CCTree, Policer };
+    enum Type { None, EngineStart, EngineEnd, PortStart, PortEnd, Scheme, CCNode, CCTree, Policer };
 
     class Entry {
     public:
-        Entry( Type type, unsigned int index ); ///<
-                                        ///< Entry's constructor
+        Entry( Type type, unsigned int index ); ///< Entry's constructor
+
+        bool operator<( const Entry& rh ) const {
+            if ( type < rh.type )                      return true;
+            if ( type == rh.type && index < rh.index ) return true;
+            return false;
+        };
+
+        bool operator==( const Entry& rh ) const {
+            if ( type == rh.type && index == rh.index ) return true;
+            return false;
+        };
 
     public:
         Type         type;              ///< The type of the entry to apply
@@ -348,17 +360,18 @@ public:
     };
 
 public:
-    void add( Entry entry );            ///< Add new entry
-    void move( Entry entry );           ///< Change placement of an existing entry
-    void addDelayed( Entry entry );     ///< Add new entry to the delayed list
-    void insertDelayedAfter( unsigned int after ); ///< Merge regular and delayed lists
-    Entry getAt( unsigned int index ) const; ///< Returns entry at the given position
-    unsigned int size() const;          ///< Returns the number of entries
-    std::string getTypeAsStr( Type t ) const;
+    void  add( Entry entry );                     ///< Add new entry
+    void  add( Entry entry, unsigned int index ); ///< Add new entry at position
+    void  add_edge( Entry n1, Entry n2 );         ///< Add edge between entries
+    void  sort();                                 ///< Topological sort of entries
+
+    unsigned int size() const;                    ///< Return number of entries
+    Entry get( unsigned int index ) const;        ///< Return entry at position
+    std::string get_type_str( Type t ) const;     ///< Return type name as string
 
 private:
-    std::vector< Entry > entries;       ///< The entries' storage
-    std::vector< Entry > delayed_entries;       ///< The entries' storage
+    std::vector< Entry > entries;                   ///< The entries' storage
+    std::vector< std::pair< Entry, Entry > > edges; ///< The edges' storage
 };
 
 
@@ -413,12 +426,12 @@ private:
     Policer& createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& xmlPolicer );
     void     createSoftParse( const CTaskDef* pTaskDef );
 
-    unsigned int FindAndAddSchemeByName( const CTaskDef* pTaskDef, std::string name,
-                                         std::string from, Port& port, bool isDirect );
-    unsigned int FindAndAddCCNodeByName( const CTaskDef* pTaskDef, std::string name,
-                                         std::string from, Port& port, bool isRoot );
-    unsigned int FindAndAddPolicerByName( const CTaskDef* pTaskDef, std::string name,
-                                          std::string from, Port& port );
+    unsigned int get_scheme_index( const CTaskDef* pTaskDef, std::string name,
+                                   std::string from, Port& port, bool isDirect );
+    unsigned int get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
+                                   std::string from, Port& port, bool isRoot );
+    unsigned int get_policer_index( const CTaskDef* pTaskDef, std::string name,
+                                    std::string from, Port& port );
 };
 
 #endif // FMCMODEL_H

@@ -18,7 +18,6 @@
 #include <iomanip>
 #include <string.h>
 
-#include "fmc.h"
 #include "FMCCModelOutput.h"
 
 
@@ -196,6 +195,7 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 
     OUT_EMPTY;
 
+#ifndef P1023
     EMIT4( fman[, index, ].reasm_count =, model.all_engines[index].reasm.size() );
     for ( unsigned int i = 0; i < model.all_engines[index].reasm.size(); i++ ) {
         strncpy( cmodel->fman[index].reasm_name[i], model.all_engines[index].reasm_names[i].c_str(), FMC_NAME_LEN - 1 );
@@ -263,6 +263,7 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
     }
 
     OUT_EMPTY;
+#endif /* P1023 */
 }
 
 
@@ -331,12 +332,14 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
         }
     }
 
+#ifndef P1023
     if ( model.all_ports[index].reasm_index != 0 ) {
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 2,].hdrs[0].hdr = HEADER_TYPE_IPv4 );
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 2,].hdrs[0].opt.ipv4Opt = IPV4_FRAG_1 );
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 1,].hdrs[0].hdr = HEADER_TYPE_IPv6 );
         EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 1,].hdrs[0].opt.ipv6Opt = IPV6_FRAG_1 );
     }
+#endif /* P1023 */
 
     // Fill PCD params
     if ( ( !model.all_ports[index].cctrees.empty() || model.all_ports[index].reasm_index != 0 )
@@ -406,7 +409,7 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
 
     EMIT1( std::string( "/* Distribution: " + sch.name + " */" ) );
 
-    strncpy( cmodel->scheme_name[index], std::string( "\"" + sch.name + "\"" ).c_str(), FMC_NAME_LEN - 1 );
+    strncpy( cmodel->scheme_name[index], sch.name.c_str(), FMC_NAME_LEN - 1 );
     cmodel->scheme_name[index][FMC_NAME_LEN - 1] = 0;
     oss << ind( indent ) << ".scheme_name[" << index << "] = " << std::string( "\"" + sch.name + "\"" ) << "," << std::endl;
 
@@ -1077,20 +1080,106 @@ CFMCCModelOutput::output_fmc_policer( const CFMCModel& model, fmc_model_t* cmode
 }
 
 
+std::string
+CFMCCModelOutput::get_apply_item_name( fmc_model_t* cmodel,
+                                       ApplyOrder::Entry e )
+{
+    switch ( get_fmc_type( e.type ) ) {
+    case FMCEngineStart:
+    case FMCEngineEnd:
+        return std::string( " /* " ) +
+            cmodel->fman[e.index].name + " */";
+    case FMCPortStart:
+    case FMCPortEnd:
+    case FMCCCTree:
+        return std::string( " /* " ) +
+            cmodel->port[e.index].name + " */";
+    case FMCScheme:
+        return std::string( " /* " ) +
+            cmodel->scheme_name[e.index] + " */";
+    case FMCCCNode:
+        return std::string( " /* " ) +
+            cmodel->ccnode_name[e.index] + " */";
+    case FMCPolicer:
+        return std::string( " /* " ) +
+            cmodel->policer_name[e.index] + " */";
+    default:
+        return "";
+    }
+    return "";
+}
+
+
 void
 CFMCCModelOutput::output_fmc_applier( const CFMCModel& model, fmc_model_t* cmodel,
                                       unsigned int index,
                                       std::ostream& oss, size_t indent )
 {
-    ApplyOrder::Entry e = model.applier.getAt( index );
+    ApplyOrder::Entry e = model.applier.get( index );
 
-    cmodel->ao[cmodel->ao_count - index - 1].type = (fmc_apply_order_e)e.type;
+    cmodel->ao[cmodel->ao_count - index - 1].type  = get_fmc_type( e.type );
+    cmodel->ao[cmodel->ao_count - index - 1].index = e.index;
+
     oss << ind( indent )
-        << ".ao["
+        << "FMC_APPLY_ORDER("
+        << std::setfill(' ') << std::setw( 3 )
         << cmodel->ao_count - index - 1
-        << "] = "
-        << model.applier.getTypeAsStr( e.type )
+        << ", "
+        << get_fmc_type_str( e.type )
         << ","
+        << std::setfill(' ') << std::setw( 3 )
+        << e.index
+        << " ),"
+        << get_apply_item_name( cmodel, e )
         << std::endl;
-    EMIT4( ao[, cmodel->ao_count - index - 1, ].index =, e.index );
+}
+
+
+fmc_apply_order_e
+CFMCCModelOutput::get_fmc_type( ApplyOrder::Type t ) const
+{
+    switch ( t ) {
+        case ApplyOrder::EngineStart:
+            return FMCEngineStart;
+        case ApplyOrder::EngineEnd:
+            return FMCEngineEnd;
+        case ApplyOrder::PortStart:
+            return FMCPortStart;
+        case ApplyOrder::PortEnd:
+            return FMCPortEnd;
+        case ApplyOrder::Scheme:
+            return FMCScheme;
+        case ApplyOrder::CCNode:
+            return FMCCCNode;
+        case ApplyOrder::CCTree:
+            return FMCCCTree;
+        case ApplyOrder::Policer:
+            return FMCPolicer;
+    }
+    return FMCEngineStart;
+}
+
+
+std::string
+CFMCCModelOutput::get_fmc_type_str( ApplyOrder::Type t ) const
+{
+    switch ( t ) {
+        case ApplyOrder::EngineStart:
+            return "FMCEngineStart";
+        case ApplyOrder::EngineEnd:
+            return "FMCEngineEnd  ";
+        case ApplyOrder::PortStart:
+            return "FMCPortStart  ";
+        case ApplyOrder::PortEnd:
+            return "FMCPortEnd    ";
+        case ApplyOrder::Scheme:
+            return "FMCScheme     ";
+        case ApplyOrder::CCNode:
+            return "FMCCCNode     ";
+        case ApplyOrder::CCTree:
+            return "FMCCCTree     ";
+        case ApplyOrder::Policer:
+            return "FMCPolicer    ";
+    }
+    return "";
 }

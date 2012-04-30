@@ -54,6 +54,10 @@ extern "C"
 #define MAX_SP_CODE_SIZE      0x7C0
 #define FMC_MANIP_MAX             8
 
+#define FMC_APPLY_ORDER( Index, Type, Element ) \
+    .ao[Index].type  = Type,                    \
+    .ao[Index].index = Element,
+
 typedef struct fmc_fman_t {
     unsigned int       number;
     unsigned int       port_count;
@@ -63,6 +67,7 @@ typedef struct fmc_fman_t {
     char               pcd_name[FMC_NAME_LEN];
     t_Handle           pcd_handle;
 
+#ifndef P1023
     unsigned int       reasm_count;
     t_FmPcdManipParams reasm[FMC_MANIP_MAX];
     char               reasm_name[FMC_MANIP_MAX][FMC_NAME_LEN];
@@ -72,6 +77,7 @@ typedef struct fmc_fman_t {
     t_FmPcdManipParams frag[FMC_MANIP_MAX];
     char               frag_name[FMC_MANIP_MAX][FMC_NAME_LEN];
     t_Handle           frag_handle[FMC_MANIP_MAX];
+#endif /* P1023 */
 } fmc_fman;
 
 
