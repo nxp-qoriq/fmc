@@ -56,7 +56,7 @@ extern "C"
 
 #define FMC_APPLY_ORDER( Index, Type, Element ) \
     .ao[Index].type  = Type,                    \
-    .ao[Index].index = Element,
+    .ao[Index].index = Element
 
 typedef struct fmc_fman_t {
     unsigned int       number;
