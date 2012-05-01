@@ -134,12 +134,24 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
 
             // For all distributions in this policy
             std::vector< std::string >::reverse_iterator distRefIt;
-            uint8_t scheme_index = 0;
+            uint8_t           scheme_index = 0;
+            ApplyOrder::Entry prev_entry( ApplyOrder::Scheme, 0 );
             for ( distRefIt = policyIt->second.dist_order.rbegin();
                   distRefIt != policyIt->second.dist_order.rend();
                   ++distRefIt, ++scheme_index ) {
                 unsigned int index = get_scheme_index( pTaskDef,
                     *distRefIt, policyIt->first, port, false );
+
+                // To keep relative order of the distribution inside the policy
+                // add dependency edge between previous and current dist
+                if ( distRefIt == policyIt->second.dist_order.rbegin() ) {
+                    prev_entry.index = index;
+                }
+                else {
+                    ApplyOrder::Entry cur_entry( ApplyOrder::Scheme, index );
+                    applier.add_edge( prev_entry, cur_entry );
+                    prev_entry.index = index;
+                }
 
                 Scheme& scheme = all_schemes[index];
                 scheme.scheme_index_per_port = scheme_index;
