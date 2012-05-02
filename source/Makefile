@@ -21,7 +21,7 @@ TCLAP_HEADER_PATH      ?= /usr/include
 PKG_NAME = fmc-0.9.16
 PKG_RELEASE = 1
 
-ifeq ($(SUB_PLATFORM),p1023)
+ifeq ($(MACHINE),p1023rds)
 CFLAGS += -DP1023
 else
 CFLAGS += -DP4080
@@ -42,7 +42,7 @@ LDLIBS   = -lfmc -lfm -lxml2 -lm
 ifdef FMCHOSTMODE
 LDFLAGS += -L.
 else
-LDFLAGS += -L$(FMD_USPACE_LIB_PATH)
+LDFLAGS += -L. -L$(FMD_USPACE_LIB_PATH)
 endif
 ifdef 64BIT5020
 LDFLAGS += -m64
