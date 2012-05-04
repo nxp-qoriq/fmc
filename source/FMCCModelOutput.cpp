@@ -360,14 +360,6 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
         EMIT3( port[, index, ].pcdParam.pcdSupport = e_FM_PORT_PCD_SUPPORT_PRS_ONLY );
     }
 
-    EMIT7SP( port[, index, ].pcdParam.p_PrsParams =, &cmodel->port[, &cmodel.port[, index, ].prsParam );
-    if( !model.all_ports[index].schemes.empty() ) {
-        EMIT7SP( port[, index, ].pcdParam.p_KgParams =, &cmodel->port[, &cmodel.port[, index, ].kgParam );
-    }
-    if( !model.all_ports[index].cctrees.empty() || model.all_ports[index].reasm_index != 0 ) {
-        EMIT7SP( port[, index, ].pcdParam.p_CcParams =, &cmodel->port[, &cmodel.port[, index, ].ccParam );
-    }
-
     // Parser params
     EMIT3( port[, index, ].prsParam.parsingOffset = 0 );
     EMIT4( port[, index, ].prsParam.prsResultPrivateInfo =, model.all_ports[index].portid );
@@ -387,11 +379,6 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
             EMIT5( port[, index, ].prsParam.additionalParams[, i, ].indexPerHdr = 0 );
             EMIT5( port[, index, ].prsParam.additionalParams[, i, ].usePrsOpts  = 0 );
         }
-    }
-
-    // KeyGen params
-    if( !model.all_ports[index].schemes.empty() ) {
-        EMIT4( port[, index, ].kgParam.numOfSchemes =, model.all_ports[index].schemes.size() );
     }
 
     EMIT4( port[, index, ].reasm_index =, model.all_ports[index].reasm_index );
@@ -987,15 +974,6 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
 
     for ( unsigned int i = 0; i < node.keys.size(); ++i ) {
         int node_num = node.indices[i];
-        // Don't produce keys/masks in case next engine is classification and
-        // the current lookup is 'node_numed_lookup'
-        if ( ( cmodel->ccnode[index].extractCcParams.type == e_FM_PCD_EXTRACT_BY_HDR ) ||
-             ( node.nextEngines[i].nextEngine != e_FM_PCD_CC ) ) {
-            if ( node.extract.nhAction != e_FM_PCD_ACTION_INDEXED_LOOKUP ) {
-                EMIT11SP( ccnode[, index, ].keysParams.keyParams[, node_num, ].p_Key,  cmodel->cckeydata[, cmodel.cckeydata[,index,][,i,] );
-                EMIT11SP( ccnode[, index, ].keysParams.keyParams[, node_num, ].p_Mask, cmodel->ccmask[,    cmodel.ccmask   [,index,][,i,] );
-            }
-        }
 
         if ( node.frag[i] != 0 ) {
             EMIT6( ccentry_frag[, index, ][, node_num, ] =, node.frag[i] );

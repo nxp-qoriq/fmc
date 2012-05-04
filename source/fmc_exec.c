@@ -382,7 +382,9 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
 
     // Add KeyGen runtime parameters
     if ( pport->schemes_count != 0 ) {
-        pport->pcdParam.p_KgParams  = &pport->kgParam;
+        pport->kgParam.numOfSchemes = pport->schemes_count;
+
+        pport->pcdParam.p_KgParams = &pport->kgParam;
         for ( i = 0; i < pport->schemes_count; ++i ) {
             pport->pcdParam.p_KgParams->h_Schemes[ i ] =
                 model->scheme_handle[ pport->schemes[i] ];
@@ -461,7 +463,13 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
                 model->fman[engine].frag_handle[ model->ccentry_frag[index][i] - 1 ];
         }
 #endif /* P1023 */
+
+        model->ccnode[index].keysParams.keyParams[i].p_Key = 
+            model->cckeydata[index][i];
+        model->ccnode[index].keysParams.keyParams[i].p_Mask = 
+            model->ccmask[index][i];
     }
+
     action_index = model->ccmiss_action_index[index];
     if ( model->ccnode[index].keysParams.ccNextEngineParamsForMiss
                            .nextEngine == e_FM_PCD_KG ) {
