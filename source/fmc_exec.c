@@ -304,13 +304,13 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
         }
 
         model->fman[index].reasm_handle[i] =
-            FM_PCD_ManipSetNode( model->fman[index].pcd_handle,
+            FM_PCD_ManipNodeSet( model->fman[index].pcd_handle,
                                  &model->fman[index].reasm[i] );
     }
 
     for ( i = 0; i < model->fman[index].frag_count; i++ ) {
         model->fman[index].frag_handle[i] =
-            FM_PCD_ManipSetNode( model->fman[index].pcd_handle,
+            FM_PCD_ManipNodeSet( model->fman[index].pcd_handle,
                                  &model->fman[index].frag[i] );
     }
 #endif /* P1023 */

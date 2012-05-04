@@ -101,7 +101,7 @@ FM_PCD_Init(t_Handle h_FmPcd)
 }
 
 t_Handle
-FM_PCD_SetNetEnvCharacteristics( t_Handle h_FmPcd,
+FM_PCD_NetEnvCharacteristicsSet( t_Handle h_FmPcd,
                                 t_FmPcdNetEnvParams *p_Units )
 {
     printf( "Calling IOCTL::FM_PCD_SetNetEnvCharacteristics %d\n", handle_no + 1 );
@@ -109,7 +109,7 @@ FM_PCD_SetNetEnvCharacteristics( t_Handle h_FmPcd,
 }
 
 t_Handle
-FM_PCD_KgSetScheme( t_Handle h_FmPcd,
+FM_PCD_KgSchemeSet( t_Handle h_FmPcd,
                     t_FmPcdKgSchemeParams *p_Scheme )
 {
     printf( "Calling IOCTL::FM_PCD_KgSetScheme %d rel=%d\n", handle_no + 1, p_Scheme->id.relativeSchemeId );
@@ -118,7 +118,7 @@ FM_PCD_KgSetScheme( t_Handle h_FmPcd,
 
 
 t_Handle
-FM_PCD_PlcrSetProfile( t_Handle  h_FmPcd,  
+FM_PCD_PlcrProfileSet( t_Handle  h_FmPcd,  
                        t_FmPcdPlcrProfileParams *  p_Profile )
 {
     printf( "Calling IOCTL::FM_PCD_PlcrSetProfile %d\n", handle_no + 1 );
@@ -126,8 +126,9 @@ FM_PCD_PlcrSetProfile( t_Handle  h_FmPcd,
 }
 
 
-t_Handle   FM_PCD_CcSetNode(t_Handle             h_FmPcd,
-                            t_FmPcdCcNodeParams  *p_CcNodeParam)
+t_Handle
+FM_PCD_MatchTableSet(t_Handle             h_FmPcd,
+                     t_FmPcdCcNodeParams  *p_CcNodeParam)
 {
     printf( "Calling IOCTL::FM_PCD_CcSetNode %d\n", handle_no + 1 );
     return (t_Handle)++handle_no;
@@ -183,7 +184,7 @@ FM_PORT_DeletePCD(t_Handle h_FmPort)
 
 
 t_Error
-FM_PCD_KgDeleteScheme(t_Handle h_FmPcd, t_Handle h_Scheme)
+FM_PCD_KgSchemeDelete(t_Handle h_FmPcd, t_Handle h_Scheme)
 {
     printf( "Calling IOCTL::FM_PCD_KgDeleteScheme %d\n", h_Scheme );
     return E_OK;
@@ -191,7 +192,7 @@ FM_PCD_KgDeleteScheme(t_Handle h_FmPcd, t_Handle h_Scheme)
 
 
 t_Error
-FM_PCD_CcDeleteNode(t_Handle h_FmPcd, t_Handle h_CcNode)
+FM_PCD_MatchTableDelete(t_Handle h_FmPcd, t_Handle h_CcNode)
 {
     printf( "Calling IOCTL::FM_PCD_CcDeleteNode %d\n", h_CcNode );
     return E_OK;
@@ -199,7 +200,7 @@ FM_PCD_CcDeleteNode(t_Handle h_FmPcd, t_Handle h_CcNode)
 
 
 t_Error
-FM_PCD_PlcrDeleteProfile(t_Handle h_FmPcd, t_Handle h_Profile)
+FM_PCD_PlcrProfileDelete(t_Handle h_FmPcd, t_Handle h_Profile)
 {
     printf( "Calling IOCTL::FM_PCD_PlcrDeleteProfile %d\n", h_Profile );
     return E_OK;
@@ -207,7 +208,7 @@ FM_PCD_PlcrDeleteProfile(t_Handle h_FmPcd, t_Handle h_Profile)
 
 
 t_Error
-FM_PCD_DeleteNetEnvCharacteristics(t_Handle h_FmPcd, t_Handle h_NetEnv)
+FM_PCD_NetEnvCharacteristicsDelete(t_Handle h_FmPcd, t_Handle h_NetEnv)
 {
     printf( "Calling IOCTL::FM_PCD_DeleteNetEnvCharacteristics %d\n", h_NetEnv );
     return E_OK;
@@ -215,8 +216,8 @@ FM_PCD_DeleteNetEnvCharacteristics(t_Handle h_FmPcd, t_Handle h_NetEnv)
 
 
 t_Handle
-FM_PCD_CcBuildTree (t_Handle             h_FmPcd,
-                    t_FmPcdCcTreeParams  *p_FmPcdCcTreeParams)
+FM_PCD_CcRootBuild(t_Handle             h_FmPcd,
+                   t_FmPcdCcTreeParams  *p_FmPcdCcTreeParams)
 {
     printf( "Calling IOCTL::FM_PCD_CcBuildTree %d\n", handle_no + 1 );
     return (t_Handle)++handle_no;
@@ -224,7 +225,7 @@ FM_PCD_CcBuildTree (t_Handle             h_FmPcd,
 
 
 t_Error
-FM_PCD_CcDeleteTree(t_Handle h_FmPcd, t_Handle h_CcTree)
+FM_PCD_CcRootDelete(t_Handle h_FmPcd, t_Handle h_CcTree)
 {
     printf( "Calling IOCTL::FM_PCD_CcDeleteTree %d\n", h_CcTree );
     return E_OK;
@@ -241,7 +242,7 @@ FM_PCD_PrsLoadSw(t_Handle h_FmPcd, t_FmPcdPrsSwParams *p_SwPrs)
 
 #ifndef P1023
 t_Handle
-FM_PCD_ManipSetNode(t_Handle h_FmPcd, t_FmPcdManipParams *p_FmPcdManipParams)
+FM_PCD_ManipNodeSet(t_Handle h_FmPcd, t_FmPcdManipParams *p_FmPcdManipParams)
 {
     printf( "Calling IOCTL::FM_PCD_ManipSetNode %d\n", handle_no + 1 );
 	if ( p_FmPcdManipParams->type == e_FM_PCD_MANIP_REASSEM ) {
@@ -253,7 +254,7 @@ FM_PCD_ManipSetNode(t_Handle h_FmPcd, t_FmPcdManipParams *p_FmPcdManipParams)
 
 
 t_Error
-FM_PCD_ManipDeleteNode(t_Handle h_FmPcd, t_Handle h_HdrManipNode)
+FM_PCD_ManipNodeDelete(t_Handle h_FmPcd, t_Handle h_HdrManipNode)
 {
     printf( "Calling IOCTL::FM_PCD_ManipDeleteNode %d\n", h_HdrManipNode );
     return E_OK;
