@@ -1239,9 +1239,6 @@ CFMCModel::getPortType( std::string type )
     else if ( "OFFLINE" == type ) {
         return e_FM_PORT_TYPE_OH_OFFLINE_PARSING;
     }
-    else if ( "HOST_CMD" == type ) {
-        return e_FM_PORT_TYPE_OH_HOST_COMMAND;
-    }
     else if ( "TX_1G" == type ) {
         return e_FM_PORT_TYPE_TX;
     }
@@ -1263,8 +1260,6 @@ CFMCModel::getPortTypeStr( e_FmPortType type )
     switch ( type ) {
         case e_FM_PORT_TYPE_OH_OFFLINE_PARSING:
             return "e_FM_PORT_TYPE_OH_OFFLINE_PARSING";
-        case e_FM_PORT_TYPE_OH_HOST_COMMAND:
-            return "e_FM_PORT_TYPE_OH_HOST_COMMAND";
         case e_FM_PORT_TYPE_RX:
             return "e_FM_PORT_TYPE_RX";
         case e_FM_PORT_TYPE_RX_10G:
