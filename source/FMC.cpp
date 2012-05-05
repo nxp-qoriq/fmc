@@ -27,12 +27,15 @@
 #endif
 
 #define FMC_VERSION "0.9.16"
+const char* TMPFILENAME = "/tmp/fmc.bin";
 
-int libmain( int argc, char* argv[] );
+bool load( fmc_model_t* pmodel );
+bool save( fmc_model_t* pmodel );
 
 #include <cstdlib>
 
-fmc_model_t model = {0};
+fmc_model_t model      = {0};
+fmc_model_t prev_model = {0};
 
 int main( int argc, char* argv[] )
 {
@@ -133,15 +136,22 @@ int main( int argc, char* argv[] )
             return ret;
         }
         
-        if ( !compOnly.getValue() && apply.getValue() ) {
+        if ( !compOnly.getValue() && ( apply.getValue() || force.getValue() ) ) {
+            if ( !force.getValue() && load( &prev_model ) ) {
+                fmc_clean( &prev_model );
+            }
+
             ret = fmc_execute( &model );
+
             if ( ret != 0 ) {
                 std::cerr << fmc_get_error() << std::endl;
-                return ret;
+                fmc_clean( &model );
+                std::memset( &model, 0, sizeof( model ) );
             }
-        }
 
-        if ( !apply.getValue() ) {
+            save( &model );
+        }
+        else {
             std::ofstream os( "./fmc_config_data.c" );
             os << dump;
         }
@@ -176,4 +186,48 @@ int main( int argc, char* argv[] )
     }
 
     return 0;
+}
+
+
+bool load( fmc_model_t* pmodel )
+{
+    bool ret = false;
+
+#ifdef __PPC__
+    std::ifstream ifs( TMPFILENAME,
+        std::ios::in | std::ios::binary );
+
+    if ( !ifs ) {
+        return false;
+    }
+
+    ifs.read( (char*)pmodel, sizeof( *pmodel ) );
+    ifs.close();
+    ret = true;
+#endif
+
+    return ret;
+}
+
+
+bool save( fmc_model_t* pmodel )
+{
+    bool ret = false;
+
+#ifdef __PPC__
+    std::ofstream ofs( TMPFILENAME,
+        std::ios::out | std::ios::binary | std::ios::trunc );
+
+    if ( !ofs ) {
+        std::cerr << "Can't open file " << TMPFILENAME
+                  << std::endl;
+        return false;
+    }
+
+    ofs.write( (char*)pmodel, sizeof( *pmodel ) );
+    ofs.close();
+    ret = true;
+#endif
+
+    return ret;
 }
