@@ -437,10 +437,18 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
     classification->actionNameOnMiss = "";
     classification->fragmentationNameOnMiss = "";
     classification->qbase            = 0;
-    classification->key.field         = false;
+    classification->key.field       = false;
+	classification->max				= 0;
+	classification->masks			= false;
 
     // Get known attributes
     classification->name = getAttr( pNode, "name" );
+
+	classification->max = std::strtol( getAttr( pNode, "max" ).c_str(), 0, 0 );
+
+	if ( getAttr( pNode, "masks" ) == "true" || getAttr( pNode, "masks" ) == "yes" ) {
+            classification->masks = true;
+    }
 
     // 'Key presents' flags
     bool nonHeaderFound = false;

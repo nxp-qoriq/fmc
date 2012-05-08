@@ -560,6 +560,9 @@ class CClassification
     std::string                actionNameOnMiss;
 	std::string				   fragmentationNameOnMiss;
     unsigned int               qbase;
+	//Preallocation
+	unsigned int			   max;
+	bool					   masks;
 };
 
 

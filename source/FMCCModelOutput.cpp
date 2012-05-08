@@ -890,6 +890,12 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
     indent -= 4;
     EMIT1( "}," );
 
+	if (node.maxNumOfKeys > 0)
+	{
+		EMIT4( ccnode[, index, ].keysParams.maxNumOfKeys =, node.maxNumOfKeys );
+		EMIT4( ccnode[, index, ].keysParams.maskSupport =, node.maskSupport );
+	}
+
     if ( ( cmodel->ccnode[index].extractCcParams.type != e_FM_PCD_EXTRACT_BY_HDR ) &&
          ( node.extract.nhAction == e_FM_PCD_ACTION_INDEXED_LOOKUP ) ) {
         // Take the upper bound of amount of keys. The number of entries

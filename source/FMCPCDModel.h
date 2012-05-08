@@ -214,6 +214,11 @@ public:
 
 public:
     std::string name;                   ///< Node name
+
+	unsigned int maxNumOfKeys;			///< Max number of keys
+
+	bool maskSupport;					///< Reservation of memory for key masks
+
     ExtractData extract;                ///< Extract parameters
 
     unsigned int keySize;               ///< The key data size in bits

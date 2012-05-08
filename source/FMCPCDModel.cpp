@@ -680,6 +680,11 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     port.ccnodes.push_back( ccNode.getIndex() );
 
     ccNode.name           = port.name + "/ccnode/" + xmlCCNode.name;
+
+	//Pre-allocation
+	ccNode.maxNumOfKeys = xmlCCNode.max;
+	ccNode.maskSupport = xmlCCNode.masks;
+
     ccNode.port_signature = port.name;
 
 
