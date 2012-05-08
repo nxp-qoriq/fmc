@@ -288,6 +288,12 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
     if ( model->sp_enable ) {
         FM_PCD_PrsLoadSw( model->fman[index].pcd_handle, &(model->sp) );
     }
+#ifndef P1023
+	if (model->fman[index].reasm_count > 0 || model->fman[index].frag_count > 0) {
+		FM_PCD_SetAdvancedOffloadSupport(model->fman[index].pcd_handle);
+	}
+#endif /* P1023 */
+
     FM_PCD_Enable( model->fman[index].pcd_handle );
 
 #ifndef P1023

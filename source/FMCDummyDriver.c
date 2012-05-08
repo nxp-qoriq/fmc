@@ -166,6 +166,13 @@ FM_PCD_Enable( t_Handle h_FmPcd )
     return E_OK;
 }
 
+t_Error
+FM_PCD_SetAdvancedOffloadSupport( t_Handle h_FmPcd )
+{
+    printf( "Calling IOCTL::FM_PCD_SetAdvancedOffloadSupport %d\n", h_FmPcd );
+    return E_OK;
+}
+
 
 t_Error
 FM_PCD_Disable( t_Handle h_FmPcd )
