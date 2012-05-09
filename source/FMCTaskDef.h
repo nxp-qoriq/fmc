@@ -34,6 +34,7 @@
 #include "FMCUtils.h"
 
 #define MAX_CC_KEY 56
+#define MAX_INSERT_SIZE 56 //TODO check max size with driver team
 
 class CExecuteExpression;
 class CExecuteSection;
@@ -528,6 +529,31 @@ class CReassembly
 	unsigned int timeoutThreshold;
 };
 
+class CHeaderInsert
+{
+ public:
+	unsigned int size;
+	unsigned int offset;
+	bool replace;
+	char data[MAX_INSERT_SIZE];
+};
+
+class CHeaderRemove
+{
+ public:
+   unsigned int size;
+   unsigned int offset;
+};
+
+class CHeaderManip
+{
+ public:
+    std::string  name;
+	bool insert;
+	bool remove;
+	CHeaderInsert hdrInsert;
+	CHeaderRemove hdrRemove;
+};
 
 class CClassEntry
 {
@@ -616,6 +642,7 @@ class CTaskDef
     std::map< std::string, CPolicy >         policies;
 	std::map< std::string, CFragmentation >  fragmentations;
 	std::map< std::string, CReassembly >     reassemblies;
+	std::map< std::string, CHeaderManip >    headermanips;
 
     std::map< std::string, CEngine > engines;
 
@@ -655,5 +682,6 @@ std::ostream& operator<<( std::ostream& os, const CAction& action );
 std::ostream& operator<<( std::ostream& os, const CPolicy& policy );
 std::ostream& operator<<( std::ostream& os, const CFragmentation& fragmentation );
 std::ostream& operator<<( std::ostream& os, const CReassembly& reassembly );
+std::ostream& operator<<( std::ostream& os, const CHeaderManip& headermanip );
 
 #endif // TASKDEF_H

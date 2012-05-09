@@ -327,11 +327,22 @@ public:
     std::vector< unsigned int > ports;  ///< Ports of the engine
 
 #ifndef P1023
+
+	class CInsertData
+    {
+    public:
+        unsigned char data[FM_PCD_MAX_SIZE_OF_KEY];
+    };
+
     std::vector< t_FmPcdManipParams > reasm;
     std::vector< std::string >        reasm_names;
     
     std::vector< t_FmPcdManipParams > frags;
     std::vector< std::string >        frag_names;
+
+	std::vector< t_FmPcdManipParams > headerManips;
+	std::vector< CInsertData >		  insertDatas;
+    std::vector< std::string >        headerManips_names;
 #endif /* P1023 */
 };
 
