@@ -167,14 +167,6 @@ FM_PCD_Enable( t_Handle h_FmPcd )
 }
 
 t_Error
-FM_PCD_SetAdvancedOffloadSupport( t_Handle h_FmPcd )
-{
-    printf( "Calling IOCTL::FM_PCD_SetAdvancedOffloadSupport %d\n", h_FmPcd );
-    return E_OK;
-}
-
-
-t_Error
 FM_PCD_Disable( t_Handle h_FmPcd )
 {
     printf( "Calling IOCTL::FM_PCD_Disable %d\n", h_FmPcd );
@@ -248,6 +240,13 @@ FM_PCD_PrsLoadSw(t_Handle h_FmPcd, t_FmPcdPrsSwParams *p_SwPrs)
 
 
 #ifndef P1023
+t_Error
+FM_PCD_SetAdvancedOffloadSupport( t_Handle h_FmPcd )
+{
+    printf( "Calling IOCTL::FM_PCD_SetAdvancedOffloadSupport %d\n", h_FmPcd );
+    return E_OK;
+}
+
 t_Handle
 FM_PCD_ManipNodeSet(t_Handle h_FmPcd, t_FmPcdManipParams *p_FmPcdManipParams)
 {

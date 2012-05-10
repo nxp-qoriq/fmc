@@ -159,6 +159,7 @@ typedef struct fmc_model_t {
                                                  [FM_PCD_MAX_SIZE_OF_KEY];
     unsigned int             ccentry_action_index[FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned char            ccentry_frag        [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
+	unsigned char            ccentry_manip       [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned int             ccmiss_action_index [FMC_CC_NODES_NUM];
                                      
     unsigned int             policer_count; ///< Number of used policers

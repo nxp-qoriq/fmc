@@ -232,6 +232,7 @@ public:
     std::vector< CCData >       masks;  ///< The list of masks corresponding to data entries
     std::vector< CCNextEngine > nextEngines;
     std::vector< unsigned int > frag;
+	std::vector< unsigned int > header;
     std::vector< unsigned int > indices;
 
     CCNextEngine nextEngineOnMiss;

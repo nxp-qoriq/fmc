@@ -563,6 +563,7 @@ class CClassEntry
     std::string  action;
     std::string  actionName;
 	std::string  fragmentationName;
+	std::string  headerManipName;
     unsigned int qbase;
     unsigned int index;
 };

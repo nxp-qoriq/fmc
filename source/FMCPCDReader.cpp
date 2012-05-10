@@ -509,6 +509,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
             memset( ce.mask, 0xFF, sizeof( ce.mask ) );
             ce.qbase = 0x00;
             ce.fragmentationName = "";
+			ce.headerManipName = "";
 
             // Calculate entry index
             if ( !getAttr( cur, "index" ).empty() ) {
@@ -571,9 +572,13 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                     // Get the 'base' attribute
                     ce.qbase = std::strtol( getAttr( pr, "base" ).c_str(), 0, 0 );
                 }
-                 else if ( !xmlStrcmp( pr->name, (const xmlChar*)"fragmentation" ) ) {
+                else if ( !xmlStrcmp( pr->name, (const xmlChar*)"fragmentation" ) ) {
                     // Get the 'name' attribute of the fragmentation
                     ce.fragmentationName = stripBlanks( getAttr( pr, "name" ) );
+                }
+				else if ( !xmlStrcmp( pr->name, (const xmlChar*)"header" ) ) {
+                    // Get the 'name' attribute of the header manipulation
+                    ce.headerManipName = stripBlanks( getAttr( pr, "name" ) );
                 }
                 else if ( !xmlStrcmp( pr->name, (const xmlChar*)"action" ) ) {
                     ce.action     = stripBlanks( getAttr( pr, "type" ) );

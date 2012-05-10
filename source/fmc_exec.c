@@ -499,6 +499,11 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
             model->ccnode[index].keysParams.keyParams[i].ccNextEngineParams.h_Manip =
                 model->fman[engine].frag_handle[ model->ccentry_frag[index][i] - 1 ];
         }
+
+		if ( model->ccentry_manip[index][i] != 0 ) {
+            model->ccnode[index].keysParams.keyParams[i].ccNextEngineParams.h_Manip =
+                model->fman[engine].hdr_handle[ model->ccentry_manip[index][i] - 1 ];
+        }
 #endif /* P1023 */
 
 		if (model->ccnode[index].extractCcParams.extractNonHdr.action == e_FM_PCD_ACTION_INDEXED_LOOKUP) {

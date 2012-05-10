@@ -862,7 +862,42 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         ccNode.keys.push_back( CCNode::CCData() );
         ccNode.masks.push_back( CCNode::CCData() );
         ccNode.indices.push_back( xmlCCNode.entries[i].index );
-        ccNode.frag.push_back( !xmlCCNode.entries[i].fragmentationName.empty() );
+
+		if (xmlCCNode.entries[i].headerManipName.empty())
+		{
+			ccNode.header.push_back( 0 );
+		}
+		else
+		{
+			std::map< std::string, CHeaderManip >::const_iterator headerit;
+			unsigned int hdr_index = 0;
+			for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
+				hdr_index++;
+				if (headerit->second.name == xmlCCNode.entries[i].headerManipName)
+				{
+					ccNode.header.push_back( hdr_index );
+					break;
+				}
+			}
+		}
+
+		if (xmlCCNode.entries[i].fragmentationName.empty())
+		{
+			ccNode.frag.push_back( 0 );
+		}
+		else
+		{
+			std::map< std::string, CFragmentation >::const_iterator fragit;
+			unsigned int frag_index = 0;
+			for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {
+				frag_index++;
+				if (fragit->second.name == xmlCCNode.entries[i].fragmentationName)
+				{
+					ccNode.frag.push_back( frag_index );
+					break;
+				}
+			}
+		}	
 
         for ( unsigned int j = 0; j < ccNode.keySize; ++j ) {
             ccNode.keys[i].data[j] =

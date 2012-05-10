@@ -1038,6 +1038,10 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
             EMIT6( ccentry_frag[, index, ][, node_num, ] =, node.frag[i] );
         }
 
+		if ( node.header[i] != 0 ) {
+            EMIT6( ccentry_manip[, index, ][, node_num, ] =, node.header[i] );
+        }
+
         EMIT6STR( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.nextEngine =, node.nextEngines[i].nextEngine );
         if ( node.nextEngines[i].nextEngine == e_FM_PCD_PLCR ) {
             EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.overrideParams = 1 );
