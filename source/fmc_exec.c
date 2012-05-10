@@ -567,6 +567,13 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
         ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
             params.ccParams.h_CcNode =
                 model->ccnode_handle[model->port[port].ccroot[i]];
+#ifndef P1023
+		if ( model->port[port].ccroot_manip[i] > 0 )
+		{
+			ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].h_Manip =
+				model->fman[engine].hdr_handle[model->port[port].ccroot_manip[i] - 1];
+		}
+#endif /* P1023 */
     }
 
     model->port[port].cctree_handle =

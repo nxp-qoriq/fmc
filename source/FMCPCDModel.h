@@ -309,6 +309,8 @@ public:
                                         ///< Class. nodes used by this port
     std::vector< unsigned int > cctrees; ///<
                                         ///< Root CC nodes
+	std::vector< unsigned int > hdrmanips; ///<
+                                        ///< Header manip for CC nodes
     std::map< Protocol,
         std::pair< unsigned int, DistinctionUnitElement > > protocols; ///<
                                         ///< Protocols used by this port
@@ -446,7 +448,7 @@ private:
     unsigned int get_scheme_index( const CTaskDef* pTaskDef, std::string name,
                                    std::string from, Port& port, bool isDirect );
     unsigned int get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
-                                   std::string from, Port& port, bool isRoot );
+                                   std::string from, Port& port, bool isRoot, unsigned int manip = 0 );
     unsigned int get_policer_index( const CTaskDef* pTaskDef, std::string name,
                                     std::string from, Port& port );
 };

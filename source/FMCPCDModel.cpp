@@ -282,6 +282,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
 		hdr.u.hdr.insrt = headerit->second.insert;
 		hdr.u.hdr.rmv = headerit->second.remove;
+		hdr.u.hdr.dontParseAfterManip = !headerit->second.parse;
 
 		hdr.u.hdr.insrtParams.type = e_FM_PCD_MANIP_INSRT_GENERIC;
 		hdr.u.hdr.insrtParams.u.generic.size = headerit->second.hdrInsert.size;
@@ -681,11 +682,30 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
             applier.add_edge( n1, n2 );
     }
     else if ( scheme.nextEngine == e_FM_PCD_CC ) {      // Is it CC node?
+		//Find Manip index
+
+		unsigned int hdr_index = 0;
+		if (xmlDist.headerManipName.empty())
+		{
+			hdr_index = 0;
+		}
+		else
+		{
+			std::map< std::string, CHeaderManip >::const_iterator headerit;
+			for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
+				hdr_index++;
+				if (headerit->second.name == xmlDist.headerManipName)
+				{
+					break;
+				}
+			}
+		}	
+
         // Find CC node
         scheme.actionHandleIndex =
             get_ccnode_index( pTaskDef,
                               xmlDist.actionName,
-                              xmlDist.name, port, true );
+                              xmlDist.name, port, true, hdr_index );
         ApplyOrder::Entry n2( ApplyOrder::CCTree, port.getIndex() );
         applier.add_edge( n1, n2 );
     }
@@ -994,7 +1014,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 ////////////////////////////////////////////////////////////////////////////////
 unsigned int
 CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
-                             std::string from, Port& port, bool isRoot )
+                             std::string from, Port& port, bool isRoot, unsigned int manip )
 {
     std::map< std::string, CClassification >::const_iterator nodeIt;
     nodeIt = pTaskDef->classifications.find( name );
@@ -1025,6 +1045,7 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
 
     if ( isRoot ) {
         port.cctrees.push_back( index );
+		port.hdrmanips.push_back( manip );
         return port.cctrees.size() - 1;
     }
 

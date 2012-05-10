@@ -277,6 +277,8 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 			model.all_engines[index].headerManips[i].u.hdr.insrt );
 		EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .rmv =,
 			model.all_engines[index].headerManips[i].u.hdr.rmv );
+		EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .dontParseAfterManip =,
+			model.all_engines[index].headerManips[i].u.hdr.dontParseAfterManip );
 
 		if ( model.all_engines[index].headerManips[i].u.hdr.insrt )
 		{
@@ -348,6 +350,12 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
     for ( unsigned int i = 0; i < cmodel->port[index].ccroot_count; ++i ) {
         EMIT6( port[, index, ].ccroot[, i, ] =, model.all_ports[index].cctrees[i] );
     }
+
+#ifndef P1023
+    for ( unsigned int i = 0; i < cmodel->port[index].ccroot_count; ++i ) {
+        EMIT6( port[, index, ].ccroot_manip[, i, ] =, model.all_ports[index].hdrmanips[i] );
+    }
+#endif /* P1023 */
 
     // Distinction units
     unsigned int numOfDistUnits = model.all_ports[index].protocols.size();

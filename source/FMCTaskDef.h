@@ -474,6 +474,7 @@ class CDistribution
 
     std::string action;
     std::string actionName;
+	std::string headerManipName;
 };
 
 
@@ -549,6 +550,7 @@ class CHeaderManip
 {
  public:
     std::string  name;
+	bool parse;
 	bool insert;
 	bool remove;
 	CHeaderInsert hdrInsert;

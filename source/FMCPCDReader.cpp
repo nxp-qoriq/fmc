@@ -404,9 +404,10 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
         }
         // action
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"action" ) ) {
-            checkUnknownAttr( cur, 2, "type", "name" );
+            checkUnknownAttr( cur, 3, "type", "name", "header" );
             distribution->action     = stripBlanks( getAttr( cur, "type" ) );
             distribution->actionName = stripBlanks( getAttr( cur, "name" ) );
+			distribution->headerManipName = stripBlanks( getAttr( cur, "header" ) );
         }
         // comment/text
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ||
@@ -1226,9 +1227,15 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
 	headerManip->hdrRemove.size = 0;
 	headerManip->hdrRemove.offset = 0;
 
-	checkUnknownAttr( pNode, 1, "name" );
+	checkUnknownAttr( pNode, 2, "name", "parse" );
 
 	headerManip->name = getAttr( pNode, "name" );
+
+	std::string parse = getAttr( pNode, "parse" );
+	if (parse == "yes" || parse == "true")
+		headerManip->parse = true;
+	else
+		headerManip->parse = false;
 
 	 // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;

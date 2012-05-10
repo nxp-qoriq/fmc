@@ -109,6 +109,9 @@ typedef struct fmc_port_t {
 
     unsigned int         ccroot_count;
     unsigned int         ccroot[FMC_CC_NODES_NUM];
+#ifndef P1023
+	unsigned int         ccroot_manip[FMC_CC_NODES_NUM];
+#endif /* P1023 */
 
     unsigned int         reasm_index;
 } fmc_port;
