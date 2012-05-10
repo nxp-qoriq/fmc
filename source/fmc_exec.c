@@ -653,6 +653,10 @@ fmc_clean_engine_start( fmc_model* model, unsigned int index )
     for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
         FM_PCD_ManipNodeDelete( model->fman[index].reasm_handle[i] );
     }
+
+	for ( i = 0; i < model->fman[index].hdr_count; i++ ) {
+        FM_PCD_ManipNodeDelete( model->fman[index].hdr_handle[i] );
+    }
 #endif /* P1023 */
 
     if ( model->fman[index].pcd_handle != 0 ) {
