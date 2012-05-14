@@ -75,10 +75,10 @@ static int fmc_clean_policer     ( fmc_model* model, unsigned int engine,
 int
 fmc_execute( fmc_model* model )
 {
-    int          ret = 0;
-    unsigned int current_engine;
-    unsigned int current_port;
-    unsigned int relative_scheme_index;
+    int          ret                   = 0;
+    unsigned int current_engine        = 0;
+    unsigned int current_port          = 0;
+    unsigned int relative_scheme_index = 0;
     unsigned int i;
 
     if ( model->format_version != FMC_OUTPUT_FORMAT_VER ) {
