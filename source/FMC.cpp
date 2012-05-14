@@ -15,6 +15,7 @@
 #include <tclap/CmdLine.h>
 #include <typeinfo>
 #include <fstream>
+#include <cstring>
 
 #include "fmc.h"
 #include "FMCGenericError.h"
