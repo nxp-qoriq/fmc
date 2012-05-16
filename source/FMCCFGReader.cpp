@@ -138,6 +138,9 @@ CCFGReader::parseEngine( xmlNodePtr pNode )
         throw CGenericError( ERR_INVALID_ENGINE_NAME, engine.name );
     }
 
+    std::string offload = stripBlanks( getXMLAttr( pNode, "offload" ) );
+    engine.offload_support = std::strtol( offload.c_str(), 0, 0 );
+
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {

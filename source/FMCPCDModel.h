@@ -326,6 +326,7 @@ public:
     std::string  name;                  ///< Engine's name
     unsigned int number;                ///< Engine's number
     std::string  pcd_name;              ///< PCD name == 'policy' name
+    unsigned int offload_support;       ///< Advanced offload support number
 
     std::vector< unsigned int > ports;  ///< Ports of the engine
 

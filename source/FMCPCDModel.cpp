@@ -230,9 +230,10 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
     Engine& engine = all_engines[FMBlock::assignIndex( all_engines )];
 
-    engine.name     = xmlEngine.name;
-    engine.number   = std::strtoul( xmlEngine.name.c_str() + 2, 0, 0 );
-    engine.pcd_name = engine.name + "/pcd";
+    engine.name            = xmlEngine.name;
+    engine.number          = std::strtoul( xmlEngine.name.c_str() + 2, 0, 0 );
+    engine.pcd_name        = engine.name + "/pcd";
+    engine.offload_support = xmlEngine.offload_support;
 
 #ifndef P1023
     std::map< std::string, CReassembly >::const_iterator reasmit;

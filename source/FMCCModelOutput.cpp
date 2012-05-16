@@ -196,6 +196,11 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
     OUT_EMPTY;
 
 #ifndef P1023
+    if ( model.all_engines[index].offload_support != 0 ) {
+        EMIT4( fman[, index, ].offload_support =, model.all_engines[index].offload_support );
+        OUT_EMPTY;
+    }
+
     EMIT4( fman[, index, ].reasm_count =, model.all_engines[index].reasm.size() );
     for ( unsigned int i = 0; i < model.all_engines[index].reasm.size(); i++ ) {
         strncpy( cmodel->fman[index].reasm_name[i], model.all_engines[index].reasm_names[i].c_str(), FMC_NAME_LEN - 1 );

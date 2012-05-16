@@ -69,6 +69,8 @@ typedef struct fmc_fman_t {
     t_Handle           pcd_handle;
 
 #ifndef P1023
+    unsigned int       offload_support;
+
     unsigned int       reasm_count;
     t_FmPcdManipParams reasm[FMC_MANIP_MAX];
     char               reasm_name[FMC_MANIP_MAX][FMC_NAME_LEN];

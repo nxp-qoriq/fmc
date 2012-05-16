@@ -621,6 +621,7 @@ class CEngine
     std::vector< CPort > ports;
     unsigned int default_queue1;
     unsigned int default_queue2;
+    unsigned int offload_support;
 };
 
 
