@@ -25,9 +25,6 @@ extern "C" {
 #include <Peripherals/fm_pcd_ext.h>
 #include <Peripherals/fm_port_ext.h>
 
-#ifdef __cplusplus
-}
-#endif
 /*
    Dummy stub functions' definitions. The file makes it possible
    to compile/link the project without the real driver integration
@@ -266,3 +263,7 @@ FM_PCD_ManipNodeDelete(t_Handle h_HdrManipNode)
     return E_OK;
 }
 #endif /* P1023 */
+
+#ifdef __cplusplus
+}
+#endif
