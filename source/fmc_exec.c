@@ -411,13 +411,18 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     t_Error err;
     fmc_port* pport = &model->port[port];
     unsigned int i;
+    unsigned int reasm_index = 0;
     
-    unsigned int        reasm_index;
-    reasm_index            		= model->port[port].reasm_index;
+#ifndef P1023
+    reasm_index = model->port[port].reasm_index;
+    if ( reasm_index > 0 ) {
+        pport->pcdParam.h_IpReassemblyManip =
+            model->fman[engine].reasm_handle[reasm_index - 1];
+    }
+#endif
 
     pport->pcdParam.h_NetEnv    = pport->env_id_handle;
     pport->pcdParam.p_PrsParams = &pport->prsParam;
-    pport->pcdParam.h_IpReassemblyManip = model->fman[engine].reasm_handle[reasm_index - 1];
 
     // Add KeyGen runtime parameters
     if ( pport->schemes_count != 0 ) {
@@ -431,7 +436,7 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     }
 
     // Add CC runtime parameters
-    if ( pport->ccnodes_count != 0 || pport->reasm_index > 0 ) {
+    if ( pport->ccnodes_count != 0 || reasm_index > 0 ) {
         pport->pcdParam.p_CcParams           = &pport->ccParam;
         pport->pcdParam.p_CcParams->h_CcTree = pport->cctree_handle;
     }
@@ -551,16 +556,10 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
                  unsigned int port )
 {
     t_FmPcdCcTreeParams ccTreeParams = { 0 };
-#ifndef P1023
-    unsigned int        reasm_index;
-#endif /* P1023 */
     unsigned int        i;
 
     ccTreeParams.numOfGrps = model->port[port].ccroot_count;
     ccTreeParams.h_NetEnv  = model->port[port].env_id_handle;
-#ifndef P1023
-    reasm_index            = model->port[port].reasm_index;
-#endif /* P1023 */
 
     for ( i = 0; i < model->port[port].ccroot_count; ++i ) {
         ccTreeParams.ccGrpParams[i].numOfDistinctionUnits = 0;

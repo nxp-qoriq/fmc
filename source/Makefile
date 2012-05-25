@@ -73,7 +73,7 @@ headers = FMCCFGReader.h FMCGenericError.h FMCPCDModel.h                     \
 other_files = ./fmc ./fmc_config ./fmc_config.c ./fmc_config.o ./softparse.h \
 	          ./libfm.a ./libfmc.a ./FMCDummyDriver.o ./FMC.o
 
-fmc : ./FMC.o ./FMCUtils.o ./FMCGenericError.o
+fmc : ./FMC.o ./FMCUtils.o ./FMCGenericError.o libfmc.a
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(objects) : $(headers)
