@@ -1,7 +1,7 @@
 /* ============================================================================
  *
  * Copyright (c) 2009-2012, Freescale Semiconductor, Inc.
- * 
+ *
  * MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -84,7 +84,7 @@ fmc_execute( fmc_model* model )
     if ( model->format_version != FMC_OUTPUT_FORMAT_VER ) {
         return 0xFFFFFFFF;
     }
-    
+
     for ( i = 0; i < model->ao_count; i++ ) {
         switch ( model->ao[i].type ) {
             case FMCEngineStart:
@@ -116,8 +116,8 @@ fmc_execute( fmc_model* model )
             case FMCPolicer:
                 ret = fmc_exec_policer( model, current_engine, model->ao[i].index );
                 break;
-			default:
-				break;
+            default:
+                break;
         }
 
         // Exit the loop in case of failure
@@ -176,8 +176,8 @@ fmc_clean( fmc_model* model )
             case FMCPolicer:
                 ret = fmc_clean_policer( model, current_engine, model->ao[i].index );
                 break;
-			default:
-				break;
+            default:
+                break;
         }
 
         // Exit the loop in case of failure
@@ -230,14 +230,14 @@ fmc_get_handle(
         }
     }
 
-	// Check reassembly names
+    // Check reassembly names
     for ( i = 0; i < model->fman[engine].reasm_count; i++ ) {
         if ( strcmp( model->fman[engine].reasm_name[i], name ) == 0 ) {
             return model->fman[engine].reasm_handle[i];
         }
     }
 
-	// Check header manip names
+    // Check header manip names
     for ( i = 0; i < model->fman[engine].hdr_count; i++ ) {
         if ( strcmp( model->fman[engine].hdr_name[i], name ) == 0 ) {
             return model->fman[engine].hdr_handle[i];
@@ -273,7 +273,7 @@ fmc_get_handle(
 
 /* -------------------------------------------------------------------------- */
 static int
-fmc_exec_engine_start( fmc_model* model, unsigned int index, 
+fmc_exec_engine_start( fmc_model* model, unsigned int index,
                        unsigned int* p_relative_scheme_index )
 {
 #ifndef P1023
@@ -310,7 +310,7 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
     }
 #ifndef P1023
     if ( model->fman[index].reasm_count     > 0 ||
-         model->fman[index].frag_count      > 0 || 
+         model->fman[index].frag_count      > 0 ||
          model->fman[index].offload_support > 0 ) {
         FM_PCD_SetAdvancedOffloadSupport( model->fman[index].pcd_handle );
     }
@@ -320,8 +320,8 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
 
 #ifndef P1023
     for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
-		if ( model->fman[index].reasm[i].u.reassem.hdr == HEADER_TYPE_IPv6 ) {
-			model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[0] =
+        if ( model->fman[index].reasm[i].u.reassem.hdr == HEADER_TYPE_IPv6 ) {
+            model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[0] =
                 (*p_relative_scheme_index)++;
             model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[1] =
                 (*p_relative_scheme_index)++;
@@ -342,11 +342,11 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
                                  &model->fman[index].frag[i] );
     }
 
-	for ( i = 0; i < model->fman[index].hdr_count; i++ ) {
-		if ( model->fman[index].hdr[i].u.hdr.insrt )
-		{
-			model->fman[index].hdr[i].u.hdr.insrtParams.u.generic.p_Data = model->fman[index].insertData[i];
-		}
+    for ( i = 0; i < model->fman[index].hdr_count; i++ ) {
+        if ( model->fman[index].hdr[i].u.hdr.insrt )
+        {
+            model->fman[index].hdr[i].u.hdr.insrtParams.u.generic.p_Data = model->fman[index].insertData[i];
+        }
 
         model->fman[index].hdr_handle[i] =
             FM_PCD_ManipNodeSet( model->fman[index].pcd_handle,
@@ -412,7 +412,7 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     fmc_port* pport = &model->port[port];
     unsigned int i;
     unsigned int reasm_index = 0;
-    
+
 #ifndef P1023
     reasm_index = model->port[port].reasm_index;
     if ( reasm_index > 0 ) {
@@ -468,7 +468,7 @@ fmc_exec_scheme( fmc_model* model,  unsigned int engine,
     }
 
     model->scheme_handle[index] =
-    	FM_PCD_KgSchemeSet( model->fman[engine].pcd_handle,
+        FM_PCD_KgSchemeSet( model->fman[engine].pcd_handle,
                             &(model->scheme[index]) );
     if ( model->scheme_handle[index] == 0 ) {
         return 5;
@@ -507,21 +507,21 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
                 model->fman[engine].frag_handle[ model->ccentry_frag[index][i] - 1 ];
         }
 
-		if ( model->ccentry_manip[index][i] != 0 ) {
+        if ( model->ccentry_manip[index][i] != 0 ) {
             model->ccnode[index].keysParams.keyParams[i].ccNextEngineParams.h_Manip =
                 model->fman[engine].hdr_handle[ model->ccentry_manip[index][i] - 1 ];
         }
 #endif /* P1023 */
 
-		if (model->ccnode[index].extractCcParams.extractNonHdr.action == e_FM_PCD_ACTION_INDEXED_LOOKUP) {
-			model->ccnode[index].keysParams.keyParams[i].p_Key = NULL; 
-			model->ccnode[index].keysParams.keyParams[i].p_Mask = NULL;
-		} else {
-			model->ccnode[index].keysParams.keyParams[i].p_Key = 
-				model->cckeydata[index][i];
-			model->ccnode[index].keysParams.keyParams[i].p_Mask = 
-				model->ccmask[index][i];
-		}
+        if (model->ccnode[index].extractCcParams.extractNonHdr.action == e_FM_PCD_ACTION_INDEXED_LOOKUP) {
+            model->ccnode[index].keysParams.keyParams[i].p_Key = NULL;
+            model->ccnode[index].keysParams.keyParams[i].p_Mask = NULL;
+        } else {
+            model->ccnode[index].keysParams.keyParams[i].p_Key =
+                model->cckeydata[index][i];
+            model->ccnode[index].keysParams.keyParams[i].p_Mask =
+                model->ccmask[index][i];
+        }
     }
 
     action_index = model->ccmiss_action_index[index];
@@ -539,7 +539,7 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
 
 
     model->ccnode_handle[index] =
-    	FM_PCD_MatchTableSet( model->fman[engine].pcd_handle,
+        FM_PCD_MatchTableSet( model->fman[engine].pcd_handle,
                           &(model->ccnode[index]) );
 
     if ( model->ccnode_handle[index] == 0 ) {
@@ -569,16 +569,16 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
             params.ccParams.h_CcNode =
                 model->ccnode_handle[model->port[port].ccroot[i]];
 #ifndef P1023
-		if ( model->port[port].ccroot_manip[i] > 0 )
-		{
-			ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].h_Manip =
-				model->fman[engine].hdr_handle[model->port[port].ccroot_manip[i] - 1];
-		}
+        if ( model->port[port].ccroot_manip[i] > 0 )
+        {
+            ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].h_Manip =
+                model->fman[engine].hdr_handle[model->port[port].ccroot_manip[i] - 1];
+        }
 #endif /* P1023 */
     }
 
     model->port[port].cctree_handle =
-    	FM_PCD_CcRootBuild( model->fman[engine].pcd_handle,
+        FM_PCD_CcRootBuild( model->fman[engine].pcd_handle,
                             &ccTreeParams );
     if ( model->port[port].cctree_handle == 0 ) {
         return 7;
@@ -606,8 +606,8 @@ fmc_exec_policer( fmc_model* model, unsigned int engine,
             model->policer[index].paramsOnGreen.h_DirectScheme =
                 model->scheme_handle[action_index];
             break;
-		default:
-			break;
+        default:
+            break;
     }
     action_index = model->policer_action_index[index][1];
     switch ( model->policer[index].nextEngineOnYellow ) {
@@ -619,8 +619,8 @@ fmc_exec_policer( fmc_model* model, unsigned int engine,
             model->policer[index].paramsOnYellow.h_DirectScheme =
                 model->scheme_handle[action_index];
             break;
-		default:
-			break;
+        default:
+            break;
     }
     action_index = model->policer_action_index[index][2];
     switch ( model->policer[index].nextEngineOnRed ) {
@@ -632,8 +632,8 @@ fmc_exec_policer( fmc_model* model, unsigned int engine,
             model->policer[index].paramsOnRed.h_DirectScheme =
                 model->scheme_handle[action_index];
             break;
-		default:
-			break;
+        default:
+            break;
     }
 
     model->policer_handle[index] =
@@ -662,7 +662,7 @@ fmc_clean_engine_start( fmc_model* model, unsigned int index )
         FM_PCD_ManipNodeDelete( model->fman[index].reasm_handle[i] );
     }
 
-	for ( i = 0; i < model->fman[index].hdr_count; i++ ) {
+    for ( i = 0; i < model->fman[index].hdr_count; i++ ) {
         FM_PCD_ManipNodeDelete( model->fman[index].hdr_handle[i] );
     }
 #endif /* P1023 */

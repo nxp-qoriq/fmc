@@ -155,7 +155,7 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
 
                 Scheme& scheme = all_schemes[index];
                 scheme.scheme_index_per_port = scheme_index;
-                
+
                 // Add scheme's protocols to the port's protocol list
                 std::set< Protocol >::iterator protoIt;
                 for ( protoIt  = scheme.used_protocols.begin();
@@ -185,7 +185,7 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
             }
 
             applier.sort();
-            
+
             // Enumerate and fill used protocols
             std::map< Protocol, std::pair< unsigned int, DistinctionUnitElement > >::iterator protoIt;
             unsigned int i;
@@ -239,11 +239,11 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
     std::map< std::string, CReassembly >::const_iterator reasmit;
     for ( reasmit = pTaskDef->reassemblies.begin(); reasmit != pTaskDef->reassemblies.end(); ++reasmit ) {
         t_FmPcdManipParams reasm;
-		
-		reasm.h_NextManip = 0;
-		reasm.type = e_FM_PCD_MANIP_REASSEM;
-		reasm.u.reassem.hdr											 = HEADER_TYPE_IPv6;
-		reasm.u.reassem.u.ipReassem.maxNumFramesInProcess			 = reasmit->second.maxInProcess;
+
+        reasm.h_NextManip = 0;
+        reasm.type = e_FM_PCD_MANIP_REASSEM;
+        reasm.u.reassem.hdr                                          = HEADER_TYPE_IPv6;
+        reasm.u.reassem.u.ipReassem.maxNumFramesInProcess            = reasmit->second.maxInProcess;
         reasm.u.reassem.u.ipReassem.sgBpid                           = reasmit->second.sgBpid;
         reasm.u.reassem.u.ipReassem.dataLiodnOffset                  = reasmit->second.dataLiodnOffset;
         reasm.u.reassem.u.ipReassem.dataMemId                        = reasmit->second.dataMemId;
@@ -252,7 +252,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
         reasm.u.reassem.u.ipReassem.timeOutMode                      = (e_FmPcdManipReassemTimeOutMode)reasmit->second.timeOutMode;
         reasm.u.reassem.u.ipReassem.fqidForTimeOutFrames             = reasmit->second.fqidForTimeOutFrames;
         reasm.u.reassem.u.ipReassem.numOfFramesPerHashEntry[0]       = (e_FmPcdManipReassemWaysNumber)reasmit->second.numOfFramesPerHashEntry[0];
-		reasm.u.reassem.u.ipReassem.numOfFramesPerHashEntry[1]       = (e_FmPcdManipReassemWaysNumber)reasmit->second.numOfFramesPerHashEntry[1];
+        reasm.u.reassem.u.ipReassem.numOfFramesPerHashEntry[1]       = (e_FmPcdManipReassemWaysNumber)reasmit->second.numOfFramesPerHashEntry[1];
         reasm.u.reassem.u.ipReassem.timeoutThresholdForReassmProcess = reasmit->second.timeoutThreshold;
 
         engine.reasm.push_back( reasm );
@@ -262,46 +262,47 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
     std::map< std::string, CFragmentation >::const_iterator fragit;
     for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {
         t_FmPcdManipParams frag;
-        frag.h_NextManip                                         = 0;
-        frag.type												 = e_FM_PCD_MANIP_FRAG;
-		frag.u.frag.hdr			                                 = HEADER_TYPE_IPv6;
-		frag.u.frag.u.ipFrag.sizeForFragmentation				 = fragit->second.size;
-        frag.u.frag.u.ipFrag.scratchBpid						 = fragit->second.scratchBpid;
-        frag.u.frag.u.ipFrag.dontFragAction						 = (e_FmPcdManipDontFragAction)fragit->second.dontFragAction;
-		frag.u.frag.u.ipFrag.sgBpid								 = fragit->second.sgBpid;
-		frag.u.frag.u.ipFrag.sgBpidEn							 = fragit->second.sgBpidEn;
+        frag.h_NextManip                          = 0;
+        frag.type                                 = e_FM_PCD_MANIP_FRAG;
+        frag.u.frag.hdr                           = HEADER_TYPE_IPv6;
+        frag.u.frag.u.ipFrag.sizeForFragmentation = fragit->second.size;
+        frag.u.frag.u.ipFrag.scratchBpid          = fragit->second.scratchBpid;
+        frag.u.frag.u.ipFrag.dontFragAction       = (e_FmPcdManipDontFragAction)
+                                                    fragit->second.dontFragAction;
+        frag.u.frag.u.ipFrag.sgBpid               = fragit->second.sgBpid;
+        frag.u.frag.u.ipFrag.sgBpidEn             = fragit->second.sgBpidEn;
 
         engine.frags.push_back( frag );
         engine.frag_names.push_back( engine.name + "/frag/" + fragit->second.name );
     }
 
-	std::map< std::string, CHeaderManip >::const_iterator headerit;
+    std::map< std::string, CHeaderManip >::const_iterator headerit;
     for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
         t_FmPcdManipParams hdr;
         hdr.h_NextManip                                         = 0;
-        hdr.type												= e_FM_PCD_MANIP_HDR;
+        hdr.type                                                = e_FM_PCD_MANIP_HDR;
 
-		hdr.u.hdr.insrt = headerit->second.insert;
-		hdr.u.hdr.rmv = headerit->second.remove;
-		hdr.u.hdr.dontParseAfterManip = !headerit->second.parse;
+        hdr.u.hdr.insrt = headerit->second.insert;
+        hdr.u.hdr.rmv   = headerit->second.remove;
+        hdr.u.hdr.dontParseAfterManip = !headerit->second.parse;
 
-		hdr.u.hdr.insrtParams.type = e_FM_PCD_MANIP_INSRT_GENERIC;
-		hdr.u.hdr.insrtParams.u.generic.size = headerit->second.hdrInsert.size;
-		hdr.u.hdr.insrtParams.u.generic.offset = headerit->second.hdrInsert.offset;
-		hdr.u.hdr.insrtParams.u.generic.replace = headerit->second.hdrInsert.replace;
-		Engine::CInsertData insertData;
+        hdr.u.hdr.insrtParams.type              = e_FM_PCD_MANIP_INSRT_GENERIC;
+        hdr.u.hdr.insrtParams.u.generic.size    = headerit->second.hdrInsert.size;
+        hdr.u.hdr.insrtParams.u.generic.offset  = headerit->second.hdrInsert.offset;
+        hdr.u.hdr.insrtParams.u.generic.replace = headerit->second.hdrInsert.replace;
 
-		for ( unsigned int j = 0; j < headerit->second.hdrInsert.size; ++j ) {
+        Engine::CInsertData insertData;
+        for ( unsigned int j = 0; j < headerit->second.hdrInsert.size; ++j ) {
             insertData.data[j] =
                 headerit->second.hdrInsert.data[FM_PCD_MAX_SIZE_OF_KEY - headerit->second.hdrInsert.size + j];
         }
-		
-		hdr.u.hdr.rmvParams.type = e_FM_PCD_MANIP_RMV_GENERIC;
-		hdr.u.hdr.rmvParams.u.generic.size = headerit->second.hdrRemove.size;
-		hdr.u.hdr.rmvParams.u.generic.offset = headerit->second.hdrRemove.offset;
+
+        hdr.u.hdr.rmvParams.type             = e_FM_PCD_MANIP_RMV_GENERIC;
+        hdr.u.hdr.rmvParams.u.generic.size   = headerit->second.hdrRemove.size;
+        hdr.u.hdr.rmvParams.u.generic.offset = headerit->second.hdrRemove.offset;
 
         engine.headerManips.push_back( hdr );
-		engine.insertDatas.push_back( insertData );
+        engine.insertDatas.push_back( insertData );
         engine.headerManips_names.push_back( engine.name + "/hdr/" + headerit->second.name );
     }
 #endif /* P1023 */
@@ -321,13 +322,13 @@ CFMCModel::createPort( Engine& engine, const CPort& xmlPort, const CTaskDef* pTa
 
     engine.ports.push_back( port.getIndex() );
 
-    port.type      = getPortType( xmlPort.type );
-    port.typeStr   = getPortTypeStr( port.type );
+    port.type    = getPortType( xmlPort.type );
+    port.typeStr = getPortTypeStr( port.type );
     std::ostringstream oss;
     oss << engine.name + "/port/" + xmlPort.type + "/" << xmlPort.number;
-    port.name      = oss.str();
-    port.number    = xmlPort.number;
-    port.portid    = xmlPort.portid;
+    port.name   = oss.str();
+    port.number = xmlPort.number;
+    port.portid = xmlPort.portid;
 
     port.reasm_index = 0;
     // Find port's corresponding policy
@@ -683,24 +684,24 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
             applier.add_edge( n1, n2 );
     }
     else if ( scheme.nextEngine == e_FM_PCD_CC ) {      // Is it CC node?
-		//Find Manip index
+        //Find Manip index
 
-		unsigned int hdr_index = 0;
-		if (xmlDist.headerManipName.empty())
-		{
-			hdr_index = 0;
-		}
-		else
-		{
-			std::map< std::string, CHeaderManip >::const_iterator headerit;
-			for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
-				hdr_index++;
-				if (headerit->second.name == xmlDist.headerManipName)
-				{
-					break;
-				}
-			}
-		}	
+        unsigned int hdr_index = 0;
+        if (xmlDist.headerManipName.empty())
+        {
+            hdr_index = 0;
+        }
+        else
+        {
+            std::map< std::string, CHeaderManip >::const_iterator headerit;
+            for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
+                hdr_index++;
+                if (headerit->second.name == xmlDist.headerManipName)
+                {
+                    break;
+                }
+            }
+        }
 
         // Find CC node
         scheme.actionHandleIndex =
@@ -731,9 +732,9 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 
     ccNode.name           = port.name + "/ccnode/" + xmlCCNode.name;
 
-	//Pre-allocation
-	ccNode.maxNumOfKeys = xmlCCNode.max;
-	ccNode.maskSupport = xmlCCNode.masks;
+    //Pre-allocation
+    ccNode.maxNumOfKeys = xmlCCNode.max;
+    ccNode.maskSupport = xmlCCNode.masks;
 
     ccNode.port_signature = port.name;
 
@@ -884,41 +885,41 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         ccNode.masks.push_back( CCNode::CCData() );
         ccNode.indices.push_back( xmlCCNode.entries[i].index );
 
-		if (xmlCCNode.entries[i].headerManipName.empty())
-		{
-			ccNode.header.push_back( 0 );
-		}
-		else
-		{
-			std::map< std::string, CHeaderManip >::const_iterator headerit;
-			unsigned int hdr_index = 0;
-			for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
-				hdr_index++;
-				if (headerit->second.name == xmlCCNode.entries[i].headerManipName)
-				{
-					ccNode.header.push_back( hdr_index );
-					break;
-				}
-			}
-		}
+        if (xmlCCNode.entries[i].headerManipName.empty())
+        {
+            ccNode.header.push_back( 0 );
+        }
+        else
+        {
+            std::map< std::string, CHeaderManip >::const_iterator headerit;
+            unsigned int hdr_index = 0;
+            for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
+                hdr_index++;
+                if (headerit->second.name == xmlCCNode.entries[i].headerManipName)
+                {
+                    ccNode.header.push_back( hdr_index );
+                    break;
+                }
+            }
+        }
 
-		if (xmlCCNode.entries[i].fragmentationName.empty())
-		{
-			ccNode.frag.push_back( 0 );
-		}
-		else
-		{
-			std::map< std::string, CFragmentation >::const_iterator fragit;
-			unsigned int frag_index = 0;
-			for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {
-				frag_index++;
-				if (fragit->second.name == xmlCCNode.entries[i].fragmentationName)
-				{
-					ccNode.frag.push_back( frag_index );
-					break;
-				}
-			}
-		}	
+        if (xmlCCNode.entries[i].fragmentationName.empty())
+        {
+            ccNode.frag.push_back( 0 );
+        }
+        else
+        {
+            std::map< std::string, CFragmentation >::const_iterator fragit;
+            unsigned int frag_index = 0;
+            for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {
+                frag_index++;
+                if (fragit->second.name == xmlCCNode.entries[i].fragmentationName)
+                {
+                    ccNode.frag.push_back( frag_index );
+                    break;
+                }
+            }
+        }
 
         for ( unsigned int j = 0; j < ccNode.keySize; ++j ) {
             ccNode.keys[i].data[j] =
@@ -1046,7 +1047,7 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
 
     if ( isRoot ) {
         port.cctrees.push_back( index );
-		port.hdrmanips.push_back( manip );
+        port.hdrmanips.push_back( manip );
         return port.cctrees.size() - 1;
     }
 

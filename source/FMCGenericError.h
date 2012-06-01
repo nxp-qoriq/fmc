@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -23,7 +23,7 @@ const int NO_LINE = -1;
 void errorFuncHandler( void * ctx, xmlErrorPtr error );
 
 
-class CGenericError {    
+class CGenericError {
   public:
     class CErrorElem
     {
@@ -31,25 +31,25 @@ class CGenericError {
         std::string str;
 
         CErrorElem(int i);
-        CErrorElem(std::string str); 
-        CErrorElem(const char* chr); 
+        CErrorElem(std::string str);
+        CErrorElem(const char* chr);
         CErrorElem();
     };
 
   public:
-    CGenericError() {};    
+    CGenericError() {};
     CGenericError(std::string error, CErrorElem="", CErrorElem="", CErrorElem="", CErrorElem="", CErrorElem="",
                   CErrorElem="",     CErrorElem="", CErrorElem="", CErrorElem="", CErrorElem="");
-    
+
     void createMessage(std::string error, int line=0, CErrorElem elem1="", CErrorElem elem2="", CErrorElem elem3="", CErrorElem elem4="", CErrorElem elem5="",
                                                       CErrorElem elem6="", CErrorElem elem7="", CErrorElem elem8="", CErrorElem elem9="", CErrorElem elem10="");
-    static void printWarning(std::string error,   CErrorElem elem1="", CErrorElem elem2="", CErrorElem elem3="", CErrorElem elem4="", 
+    static void printWarning(std::string error,   CErrorElem elem1="", CErrorElem elem2="", CErrorElem elem3="", CErrorElem elem4="",
                              CErrorElem elem5="", CErrorElem elem6="", CErrorElem elem7="", CErrorElem elem8="", CErrorElem elem9="", CErrorElem elem10="");
 
-    std::string getErrorMsg() const;    
+    std::string getErrorMsg() const;
 
   public:
-    static int  dontWarn; 
+    static int  dontWarn;
 
   private:
     std::string msg;
@@ -59,7 +59,7 @@ class CGenericError {
 class CGenericErrorLine : public CGenericError
 {
   public:
-      CGenericErrorLine(std::string error, int line,              CErrorElem elem1="", CErrorElem elem2="", CErrorElem elem3="", CErrorElem elem4="", 
+      CGenericErrorLine(std::string error, int line,              CErrorElem elem1="", CErrorElem elem2="", CErrorElem elem3="", CErrorElem elem4="",
                         CErrorElem elem5="", CErrorElem elem6="", CErrorElem elem7="", CErrorElem elem8="", CErrorElem elem9="", CErrorElem elem10="");
 
       static void printWarning(std::string error, int line, CErrorElem elem1="", CErrorElem elem2="", CErrorElem elem3="", CErrorElem elem4="",
@@ -102,7 +102,7 @@ const std::string ERR_NO_BITS_FOUND          = "No bits being set found in the m
 const std::string ERR_INCORRECT_QUEUE_SIZE   = "Incorrect size for queue: %1";
 const std::string ERR_ALIAS_ATTR_EMPTY       = "'name', 'protoref' and 'fieldref' are mandatory"
                                            "attributes for alias: %1";
-const std::string ERR_INVALID_ENGINE_NAME    = "Invalid engine name %1";   
+const std::string ERR_INVALID_ENGINE_NAME    = "Invalid engine name %1";
 const std::string ERR_FIELD_NOT_BIT_FIXED    = "Type attribute in field element must be 'bit' or 'fixed': %1";
 const std::string ERR_PROTO_NOT_FOUND        = "Can't find protocol's definition '%1' referenced by '%2'";
 const std::string ERR_POLICY_NOT_FOUND       = "Can't find policy's definition '%1' referenced by port '%2 %3'";
@@ -121,24 +121,24 @@ const std::string ERR_COND_UNEXPECTED        = "'condition=\"%1\"' unexpected in
 const std::string ERR_LOOP_DEPENDENCY        = "Cycled dependency is found. Possible candidates are: \n%1";
 
 const std::string ERR_CLSF_INDX_MASK         = "'ic_index_mask' last nible is not 0 in classification '%1'";
-const std::string ERR_CLSF_FROMFIELD_NO		 = "The number of extracts must be 1 when offset or size is not 0 in classification: '%1'";
-const std::string ERR_CLSF_FROMFIELD_HEADER	 = "You can only extract VLAN TCI of ETHERNET TYPE when using from field in classification: '%1'";
+const std::string ERR_CLSF_FROMFIELD_NO      = "The number of extracts must be 1 when offset or size is not 0 in classification: '%1'";
+const std::string ERR_CLSF_FROMFIELD_HEADER  = "You can only extract VLAN TCI of ETHERNET TYPE when using from field in classification: '%1'";
 
-const std::string ERR_REAS_MAXINPROCESS		 = "The number of frames which can be processes by reassembly at the same time must be a power of 2: '%1'";
-const std::string ERR_REAS_IPV6FRAGSIZE		 = "Minimum fragmentation size for IPv6 must be higher or equal to 256: '%1'";
-const std::string ERR_REAS_NUMFRAMESHASH	 = "The number of frames per hash entry needed for reassembly process must be a numeric value between 1 and 8: '%1'";
+const std::string ERR_REAS_MAXINPROCESS      = "The number of frames which can be processes by reassembly at the same time must be a power of 2: '%1'";
+const std::string ERR_REAS_IPV6FRAGSIZE      = "Minimum fragmentation size for IPv6 must be higher or equal to 256: '%1'";
+const std::string ERR_REAS_NUMFRAMESHASH     = "The number of frames per hash entry needed for reassembly process must be a numeric value between 1 and 8: '%1'";
 
 /*-------------------------Soft parser errors--------------------------*/
 const std::string ERR_INTERNAL_SP_ERROR      = "Soft parser internal error: %1";
 const std::string ERR_TOO_MANY_INSTR         = "Generated code is too large for softparser. "
-                                               "The number of instructions in the softparser is limited, try shortning the xml: %1"; 
+                                               "The number of instructions in the softparser is limited, try shortning the xml: %1";
 
-/*Expressions and parsing expressions error*/    
+/*Expressions and parsing expressions error*/
 const std::string ERR_EXPECTED_COND          = "Unexpected arithmetic expression, expecting logical expression inside 'if'/'loop': %1";
-const std::string ERR_EXPECTED_COND_AND      = "Unexpected arithmetic expression, expecting logical expression" 
+const std::string ERR_EXPECTED_COND_AND      = "Unexpected arithmetic expression, expecting logical expression"
                                            " before and after the 'and', 'or' logical operators";
-const std::string ERR_EXPECTED_COND_NOT      = "The 'not' operator is only allowed on logical expressions" 
-                                           " (and, or, ge, gt, le, lt, ==, !=)";  
+const std::string ERR_EXPECTED_COND_NOT      = "The 'not' operator is only allowed on logical expressions"
+                                           " (and, or, ge, gt, le, lt, ==, !=)";
 const std::string ERR_UNEXPECTED_COND_SWITCH = "Unexpected logical expression, expecting arithmetic expression inside switch: %1";
 const std::string ERR_UNEXPECTED_COND_ASSIGN = "Unexpected logical expression, expecting arithmetic expression in value attribute of assign element: %1";
 const std::string ERR_UNEXPECTED_COND        = "Unexpected logical expression, expecting arithmetic expression";
@@ -175,7 +175,7 @@ const std::string ERR_FW_SIZE_LARGE          = "Cannot load from FW, maximum siz
 const std::string ERR_PA_SIZE_MISSING        = "Size must be larger than 0 when accessing PA: %1";
 const std::string ERR_PA_SIZE_LARGE          = "Parameter array (PA) contains 64 bytes,"
                                                " cannot access bytes in an offset larger than 64: %1";
-const std::string ERR_BUFFER_ACCESS_TOO_LARGE= "Can not access more than 8 bytes in a buffer: %1";    
+const std::string ERR_BUFFER_ACCESS_TOO_LARGE= "Can not access more than 8 bytes in a buffer: %1";
 const std::string ERR_VAR_ACCESS_TOO_LARGE   = "Can not access specified bytes in buffer. The size of variable %1 is %2 you tried to access %3.";
 const std::string ERR_VAR_TOO_LARGE          = "Variable is too large (over 8 bytes), index of bytes should be specified: %1";
 const std::string ERR_FIELD_TOO_LARGE        = "Field is too large (over 8 bytes), try accessing FW directly"
@@ -205,13 +205,13 @@ const std::string ERR_INTEGER_RANGE          = "Integer is out of range, should 
 /* Error in nonheader extract parameters*/
 const std::string ERR_NH_INVALID_SOURCE      = "Extraction source invalid: %1";
 const std::string ERR_NH_INVALID_ACTION      = "Action invalid: %1";
-const std::string ERR_NH_COND_ACTION		 = "The action %1 is not valid for the source %2";
-const std::string ERR_NH_COND_NOACTION		 = "You must provide an action if you use the source: %1";
-const std::string ERR_NH_FIELDREF			 = "You cannot have both fieldref and nonheader in the same key for classification %1";
-const std::string ERR_NH_ONE_ENTRY			 = "There can be only 1 nonheader entry for classification %1";
-const std::string ERR_NH_KEY_SIZE			 = "Non-header size must be smaller or equal to %1: '%2'";
+const std::string ERR_NH_COND_ACTION         = "The action %1 is not valid for the source %2";
+const std::string ERR_NH_COND_NOACTION       = "You must provide an action if you use the source: %1";
+const std::string ERR_NH_FIELDREF            = "You cannot have both fieldref and nonheader in the same key for classification %1";
+const std::string ERR_NH_ONE_ENTRY           = "There can be only 1 nonheader entry for classification %1";
+const std::string ERR_NH_KEY_SIZE            = "Non-header size must be smaller or equal to %1: '%2'";
 
 
-const std::string ERR_DIST_HDRINDEX				 = "Header index %1 not available for field %2: '%3'"; //ADDED
-const std::string ERR_CLSF_EXTRACTION			 = "Extraction not supported (%1): '%2'"; //ADDED
+const std::string ERR_DIST_HDRINDEX          = "Header index %1 not available for field %2: '%3'"; //ADDED
+const std::string ERR_CLSF_EXTRACTION        = "Extraction not supported (%1): '%2'"; //ADDED
 #endif // GENERICERROR_H

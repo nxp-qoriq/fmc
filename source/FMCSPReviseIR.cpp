@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -16,9 +16,9 @@
 
 void CIR::reviseEntireIR ()
 {
-    uint32_t i; 
+    uint32_t i;
     for (i = 0; i < protocolsIRs.size(); i++)
-        protocolsIRs[i].reviseProtocolIR(this);	
+        protocolsIRs[i].reviseProtocolIR(this);
 }
 
 void CProtocolIR::reviseProtocolIR(CIR *ir)
@@ -30,24 +30,24 @@ void CProtocolIR::reviseProtocolIR(CIR *ir)
         revised = 0;
         for (i = 0; i < statements.size(); i++)
         {
-            if (statements[i].type == ST_IFGOTO && 
+            if (statements[i].type == ST_IFGOTO &&
                 statements[i].expr->type == EAND)
                     reviseAnd(i, ir, revised);
-            if (statements[i].type == ST_IFGOTO && 
+            if (statements[i].type == ST_IFGOTO &&
                 statements[i].expr->type == EOR)
                     reviseOr(i, revised);
             if (statements[i].type == ST_IFNGOTO)
                     reviseIfngoto(i, revised);
             if (statements[i].isGeneralExprStatement())
                     statements[i].reviseStatement(statements[i].expr, revised);
-        }  
+        }
         /*if (revised)
         {
             *(ir->outFile) << "\n\n\n-----------TEMP----------\n\n\n";
             dumpProtocol(*(ir->outFile), 0);
         }*/
-    }  
-    
+    }
+
     /*After we have a final IR version we are ready to prepare
       for register assignment by assigning weight*/
     for (i = 0; i < statements.size(); i++)
@@ -58,9 +58,9 @@ void CProtocolIR::reviseProtocolIR(CIR *ir)
 }
 
 /* Check for too complex expressions, assign weight (how many registers)
-       are needed for this node and its children) and decide if the left or 
+       are needed for this node and its children) and decide if the left or
        right node should be calculated first*/
-void CENode::assignWeight () 
+void CENode::assignWeight ()
 {
     if (type == ECHECKSUM)
     {
@@ -72,7 +72,7 @@ void CENode::assignWeight ()
     {
         dyadic.left->assignWeight();
         dyadic.right->assignWeight();
-        
+
         /*In these case we can use only one register
           for example WR0=WR0+1*/
         if (dyadic.right->type == EINTCONST && !isCondNoti() &&
@@ -85,12 +85,12 @@ void CENode::assignWeight ()
             weight = dyadic.left->weight+1;
         else if (dyadic.left->weight > dyadic.right->weight)
             weight = dyadic.left->weight;
-        else 
+        else
             weight = dyadic.right->weight;
 
         /*If dir==1 we should start by calculating the right node*/
         if (dyadic.right->weight > dyadic.left->weight)
-            dyadic.dir = 1;        
+            dyadic.dir = 1;
     }
     else if (isMonadic())
     {
@@ -99,7 +99,7 @@ void CENode::assignWeight ()
     }
     else
         weight = 1;
-    
+
     if (weight == 4)
         throw CGenericErrorLine (ERR_COMPLEX_EXPR, line);
 }
@@ -127,10 +127,10 @@ void CStatement::reviseStatement(CENode*& expr, bool  &revised)
 
 /*Replace 'and' with two seperate expressions
 IFGOTO LABEL_1               IFNGOTO LABEL_2
-    EAND                         COND_A      
-        COND_A      =>       IFNGOTO LABEL_2                           
-        COND_B                   COND_B      
-                             GOTO LABEL_1      
+    EAND                         COND_A
+        COND_A      =>       IFNGOTO LABEL_2
+        COND_B                   COND_B
+                             GOTO LABEL_1
                              LABEL_2:        */
 void CProtocolIR::reviseAnd(uint32_t i, CIR *ir, bool &revised)
 {
@@ -138,7 +138,7 @@ void CProtocolIR::reviseAnd(uint32_t i, CIR *ir, bool &revised)
     CStatement falseLStatement, gStatement, newStatement1, newStatement2;
     falseLStatement.createLabelStatement(ir->createUniqueName());
     int line = statements[i].line;
-    
+
     newStatement1.createIfNGotoStatement(falseLStatement.label, line);
     newStatement2.createIfNGotoStatement(falseLStatement.label, line);
     newStatement1.expr  = statements[i].expr->dyadic.left;
@@ -157,7 +157,7 @@ void CProtocolIR::reviseAnd(uint32_t i, CIR *ir, bool &revised)
 
 /*Replace 'or' with two seperate expressions
 IFGOTO LABEL_1               IFGOTO LABEL1
-    EOR                         COND_A      
+    EOR                         COND_A
         COND_A      =>       IFGOTO LABEL1
         COND_B                  COND_B      */
 void CProtocolIR::reviseOr(uint32_t i, bool& revised)
@@ -178,19 +178,19 @@ void CProtocolIR::reviseOr(uint32_t i, bool& revised)
     revised = 1;
 }
 
-/*Replace 'ifngoto' with ifgoto (which is recognized in the 
+/*Replace 'ifngoto' with ifgoto (which is recognized in the
 create code process)
 IFNGOTO LABEL_1              IFGOTO LABEL1
     ECOND           =>           NOT ECOND */
 void CProtocolIR::reviseIfngoto(uint32_t i, bool &revised)
-{   
+{
     statements[i].type = ST_IFGOTO;
-    statements[i].reviseNot (statements[i].expr, revised);  
+    statements[i].reviseNot (statements[i].expr, revised);
     revised = 1;
 }
 
 void CStatement::reviseBitnot (CENode*& expr, bool  &revised)
-{    
+{
     CENode* origExpr            = expr;
     expr->type                  = EXOR;
     expr->dyadic.left           = origExpr->monadic;
@@ -219,10 +219,10 @@ void CStatement::reviseNot (CENode*& expr, bool  &revised)
        reviseNot(expr->dyadic.left,  revised);
        reviseNot(expr->dyadic.right, revised);
        break;
-    case ENOT:                                 
+    case ENOT:
        expr = expr->monadic;
        deleteEnode (temp);
-       break;            
+       break;
     default:
        throw CGenericErrorLine (ERR_EXPECTED_COND_NOT, expr->line);
     }
@@ -235,13 +235,13 @@ void CProtocolIR::insertStatement(uint32_t i, CStatement statement)
 {
     std::vector <CStatement>::iterator statementsI;
     statementsI = statements.begin()+i;
-    statements.insert(statementsI, statement); 
+    statements.insert(statementsI, statement);
 }
 
 void CProtocolIR::eraseStatement(uint32_t i)
 {
     std::vector <CStatement>::iterator statementsI;
     statementsI = statements.begin()+i;
-    statements.erase(statementsI); 
+    statements.erase(statementsI);
 }
 

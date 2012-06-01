@@ -1,6 +1,6 @@
 #==========================================================================
 #
-#  Copyright 2009-2012 Freescale Semiconductor, Inc., All Rights Reserved. 
+#  Copyright 2009-2012 Freescale Semiconductor, Inc., All Rights Reserved.
 #
 #  This file contains copyrighted material. Use of this file is restricted
 #  by the provisions of a Freescale Software License Agreement, which has
@@ -79,15 +79,15 @@ fmc : ./FMC.o ./FMCUtils.o ./FMCGenericError.o libfmc.a
 $(objects) : $(headers)
 
 libfmc.a : libfmc.a($(objects))
-    
+
 fmc_config : fmc_config.o
 
 libfm.a : libfm.a(FMCDummyDriver.o)
 
 .PHONY: clean
 clean:
-	rm -f $(other_files) $(objects) 
-    
+	rm -f $(other_files) $(objects)
+
 .PHONY: dist
 dist: clean
 	mkdir -p $(PKG_NAME);

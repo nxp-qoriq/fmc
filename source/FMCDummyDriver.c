@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -115,7 +115,7 @@ FM_PCD_KgSchemeSet( t_Handle h_FmPcd,
 
 
 t_Handle
-FM_PCD_PlcrProfileSet( t_Handle  h_FmPcd,  
+FM_PCD_PlcrProfileSet( t_Handle  h_FmPcd,
                        t_FmPcdPlcrProfileParams *  p_Profile )
 {
     printf( "Calling IOCTL::FM_PCD_PlcrSetProfile %d\n", handle_no + 1 );
@@ -248,8 +248,8 @@ t_Handle
 FM_PCD_ManipNodeSet(t_Handle h_FmPcd, t_FmPcdManipParams *p_FmPcdManipParams)
 {
     printf( "Calling IOCTL::FM_PCD_ManipSetNode %d\n", handle_no + 1 );
-	if ( p_FmPcdManipParams->type == e_FM_PCD_MANIP_REASSEM ) {
-		printf( "rel= %d %d\n", p_FmPcdManipParams->u.reassem.u.ipReassem.relativeSchemeId[0],
+    if ( p_FmPcdManipParams->type == e_FM_PCD_MANIP_REASSEM ) {
+        printf( "rel= %d %d\n", p_FmPcdManipParams->u.reassem.u.ipReassem.relativeSchemeId[0],
                                 p_FmPcdManipParams->u.reassem.u.ipReassem.relativeSchemeId[1] );
     }
     return (t_Handle)++handle_no;

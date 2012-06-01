@@ -207,17 +207,17 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
         cmodel->fman[index].reasm_name[i][FMC_NAME_LEN - 1] = 0;
         oss << ind( indent ) << ".fman[" << index << "].reasm_name[" << i << "] = \"" << model.all_engines[index].reasm_names[i] << "\"," << std::endl;
 
-		EMIT5( fman[, index, ].reasm[, i, ].type = e_FM_PCD_MANIP_REASSEM );
-		EMIT5( fman[, index, ].reasm[, i, ].h_NextManip = 0 );
-		EMIT5( fman[, index, ].reasm[, i, ].u.reassem.hdr = HEADER_TYPE_IPv6 );
+        EMIT5( fman[, index, ].reasm[, i, ].type = e_FM_PCD_MANIP_REASSEM );
+        EMIT5( fman[, index, ].reasm[, i, ].h_NextManip = 0 );
+        EMIT5( fman[, index, ].reasm[, i, ].u.reassem.hdr = HEADER_TYPE_IPv6 );
 
-		EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.maxNumFramesInProcess =,
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.maxNumFramesInProcess =,
             model.all_engines[index].reasm[i].u.reassem.u.ipReassem.maxNumFramesInProcess );
         EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.timeOutMode =,
             model.all_engines[index].reasm[i].u.reassem.u.ipReassem.timeOutMode );
         EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.numOfFramesPerHashEntry[0] =,
             model.all_engines[index].reasm[i].u.reassem.u.ipReassem.numOfFramesPerHashEntry[0] );
-		EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.numOfFramesPerHashEntry[1] =,
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.numOfFramesPerHashEntry[1] =,
             model.all_engines[index].reasm[i].u.reassem.u.ipReassem.numOfFramesPerHashEntry[1] );
         EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.timeoutThresholdForReassmProcess =,
             model.all_engines[index].reasm[i].u.reassem.u.ipReassem.timeoutThresholdForReassmProcess );
@@ -248,78 +248,75 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
         cmodel->fman[index].frag_name[i][FMC_NAME_LEN - 1] = 0;
         oss << ind( indent ) << ".fman[" << index << "].frag_name[" << i << "] = \"" << model.all_engines[index].frag_names[i] << "\"," << std::endl;
 
-		EMIT5( fman[, index, ].frag[, i, ].type = e_FM_PCD_MANIP_FRAG );
-		EMIT5( fman[, index, ].frag[, i, ].h_NextManip = 0 );
-		EMIT5( fman[, index, ].frag[, i, ].u.frag.hdr = HEADER_TYPE_IPv6 );
+        EMIT5( fman[, index, ].frag[, i, ].type = e_FM_PCD_MANIP_FRAG );
+        EMIT5( fman[, index, ].frag[, i, ].h_NextManip = 0 );
+        EMIT5( fman[, index, ].frag[, i, ].u.frag.hdr = HEADER_TYPE_IPv6 );
 
-		EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sizeForFragmentation =,
+        EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sizeForFragmentation =,
             model.all_engines[index].frags[i].u.frag.u.ipFrag.sizeForFragmentation );
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.scratchBpid =,
             (int)model.all_engines[index].frags[i].u.frag.u.ipFrag.scratchBpid );
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.dontFragAction =,
             model.all_engines[index].frags[i].u.frag.u.ipFrag.dontFragAction );
-		EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sgBpidEn =,
+        EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sgBpidEn =,
             model.all_engines[index].frags[i].u.frag.u.ipFrag.sgBpidEn );
-		EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sgBpid =,
+        EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sgBpid =,
             (int)model.all_engines[index].frags[i].u.frag.u.ipFrag.sgBpid );
-		
+
         //indent -= 4;
         //EMIT1( "}," );
     }
 
     OUT_EMPTY;
 
-	EMIT4( fman[, index, ].hdr_count =, model.all_engines[index].headerManips.size() );
+    EMIT4( fman[, index, ].hdr_count =, model.all_engines[index].headerManips.size() );
     for ( unsigned int i = 0; i < model.all_engines[index].headerManips.size(); i++ ) {
         strncpy( cmodel->fman[index].hdr_name[i], model.all_engines[index].headerManips_names[i].c_str(), FMC_NAME_LEN - 1 );
         cmodel->fman[index].hdr_name[i][FMC_NAME_LEN - 1] = 0;
         oss << ind( indent ) << ".fman[" << index << "].hdr_name[" << i << "] = \"" << model.all_engines[index].headerManips_names[i] << "\"," << std::endl;
 
-		EMIT5( fman[, index, ].hdr[, i, ].type = e_FM_PCD_MANIP_HDR );
-		EMIT5( fman[, index, ].hdr[, i, ].h_NextManip = 0 );
-		
-		EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .insrt =,
-			model.all_engines[index].headerManips[i].u.hdr.insrt );
-		EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .rmv =,
-			model.all_engines[index].headerManips[i].u.hdr.rmv );
-		EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .dontParseAfterManip =,
-			model.all_engines[index].headerManips[i].u.hdr.dontParseAfterManip );
+        EMIT5( fman[, index, ].hdr[, i, ].type = e_FM_PCD_MANIP_HDR );
+        EMIT5( fman[, index, ].hdr[, i, ].h_NextManip = 0 );
 
-		if ( model.all_engines[index].headerManips[i].u.hdr.insrt )
-		{
-			EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams, .type =,
-				model.all_engines[index].headerManips[i].u.hdr.insrtParams.type );
-			EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .size =,
-				(int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.size );
-			EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .offset =,
-				(int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.offset );
-			EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .replace =,
-				model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.replace );
+        EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .insrt =,
+            model.all_engines[index].headerManips[i].u.hdr.insrt );
+        EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .rmv =,
+            model.all_engines[index].headerManips[i].u.hdr.rmv );
+        EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .dontParseAfterManip =,
+            model.all_engines[index].headerManips[i].u.hdr.dontParseAfterManip );
 
-			oss << ind( indent ) << ".fman[" << index << "].insertData[" << i << "] = {";
-			for ( unsigned int j = 0; j < (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.size; ++j ) {
-					if ( j != 0 ) {
-						oss << ",";
-					}
-					oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)model.all_engines[index].insertDatas[i].data[j];
-					oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
-					cmodel->fman[index].insertData[i][j] = model.all_engines[index].insertDatas[i].data[j];
-			}
-			oss << " }," << std::endl;
-		}
+        if ( model.all_engines[index].headerManips[i].u.hdr.insrt )
+        {
+            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams, .type =,
+                model.all_engines[index].headerManips[i].u.hdr.insrtParams.type );
+            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .size =,
+                (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.size );
+            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .offset =,
+                (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.offset );
+            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .replace =,
+                model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.replace );
 
-		if ( model.all_engines[index].headerManips[i].u.hdr.rmv )
-		{
-			EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams, .type =,
-				model.all_engines[index].headerManips[i].u.hdr.rmvParams.type );
-			EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams.u.generic, .size =,
-				(int)model.all_engines[index].headerManips[i].u.hdr.rmvParams.u.generic.size );
-			EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams.u.generic, .offset =,
-				(int)model.all_engines[index].headerManips[i].u.hdr.rmvParams.u.generic.offset );
-		}
-		
-        //indent -= 4;
-        //EMIT1( "}," );
+            oss << ind( indent ) << ".fman[" << index << "].insertData[" << i << "] = {";
+            for ( unsigned int j = 0; j < (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.size; ++j ) {
+                    if ( j != 0 ) {
+                        oss << ",";
+                    }
+                    oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)model.all_engines[index].insertDatas[i].data[j];
+                    oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
+                    cmodel->fman[index].insertData[i][j] = model.all_engines[index].insertDatas[i].data[j];
+            }
+            oss << " }," << std::endl;
+        }
+
+        if ( model.all_engines[index].headerManips[i].u.hdr.rmv )
+        {
+            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams, .type =,
+                model.all_engines[index].headerManips[i].u.hdr.rmvParams.type );
+            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams.u.generic, .size =,
+                (int)model.all_engines[index].headerManips[i].u.hdr.rmvParams.u.generic.size );
+            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams.u.generic, .offset =,
+                (int)model.all_engines[index].headerManips[i].u.hdr.rmvParams.u.generic.offset );
+        }
     }
 
     OUT_EMPTY;
@@ -956,11 +953,11 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
     indent -= 4;
     EMIT1( "}," );
 
-	if (node.maxNumOfKeys > 0)
-	{
-		EMIT4( ccnode[, index, ].keysParams.maxNumOfKeys =, node.maxNumOfKeys );
-		EMIT4( ccnode[, index, ].keysParams.maskSupport =, node.maskSupport );
-	}
+    if (node.maxNumOfKeys > 0)
+    {
+        EMIT4( ccnode[, index, ].keysParams.maxNumOfKeys =, node.maxNumOfKeys );
+        EMIT4( ccnode[, index, ].keysParams.maskSupport =, node.maskSupport );
+    }
 
     if ( ( cmodel->ccnode[index].extractCcParams.type != e_FM_PCD_EXTRACT_BY_HDR ) &&
          ( node.extract.nhAction == e_FM_PCD_ACTION_INDEXED_LOOKUP ) ) {
@@ -1051,7 +1048,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
             EMIT6( ccentry_frag[, index, ][, node_num, ] =, node.frag[i] );
         }
 
-		if ( node.header[i] != 0 ) {
+        if ( node.header[i] != 0 ) {
             EMIT6( ccentry_manip[, index, ][, node_num, ] =, node.header[i] );
         }
 

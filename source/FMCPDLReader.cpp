@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -32,19 +32,19 @@ bool CPDLReader::getSoftParse() const
 
 // Aid function to retrieve XML element's attribute
 std::string
-CPDLReader::getAttr( xmlNodePtr pNode, const char* attr ) 
+CPDLReader::getAttr( xmlNodePtr pNode, const char* attr )
 {
     char* pAttr = (char*)xmlGetProp( pNode, (const xmlChar*)attr );
     return (pAttr) ? pAttr : "";
 }
 
 
-void CPDLReader::checkUnknownAttr ( xmlNodePtr pNode, int num, ...) 
+void CPDLReader::checkUnknownAttr ( xmlNodePtr pNode, int num, ...)
 {
     va_list listPointer;
     _xmlAttr * attributes = pNode->properties;
     std::set <const xmlChar*, MyXMLCharComparator> allowedAttr;
-        
+
     va_start(listPointer, num);
     for(signed int i = 0; i < num; i++ )
         allowedAttr.insert((const xmlChar*)va_arg(listPointer, const xmlChar*));
@@ -54,11 +54,11 @@ void CPDLReader::checkUnknownAttr ( xmlNodePtr pNode, int num, ...)
         return;
 
     while (pNode->properties)
-    {            
-        if (allowedAttr.find(pNode->properties->name) == 
+    {
+        if (allowedAttr.find(pNode->properties->name) ==
             allowedAttr.end())
-            CGenericErrorLine::printWarning(WARN_UNKNOWN_ATTRIBUTE, 
-                xmlGetLineNo(pNode), (char*)pNode->properties->name, 
+            CGenericErrorLine::printWarning(WARN_UNKNOWN_ATTRIBUTE,
+                xmlGetLineNo(pNode), (char*)pNode->properties->name,
                 (char*)pNode->name);
         pNode->properties=pNode->properties->next;
     }
@@ -100,7 +100,7 @@ CPDLReader::parseNetPDL( std::string filename )
     if ( 0 == doc ) {   // Was the parsing successful?
         throw CGenericError(ERR_CANT_OPEN_FILE, filename );
     }
-    
+
     // Get the root node
     xmlNodePtr cur = xmlDocGetRootElement( doc );
     if ( 0 == cur ) {   // Is the document empty?
@@ -145,7 +145,7 @@ CPDLReader::parseNetPDL( std::string filename )
         }
         // other
         else {
-            CGenericErrorLine::printWarning(WARN_UNEXPECTED_NODE, 
+            CGenericErrorLine::printWarning(WARN_UNEXPECTED_NODE,
                                           xmlGetLineNo(cur), (char*)cur->name);
         }
 
@@ -170,17 +170,17 @@ CPDLReader::parseProtocol( CProtocol* protocol, xmlNodePtr pNode )
     }
 
     // Get known attributes
-    protocol->name            = getAttr( pNode, "name" );    
+    protocol->name            = getAttr( pNode, "name" );
     protocol->longname        = getAttr( pNode, "longname" );
     protocol->showsumtemplate = getAttr( pNode, "showsumtemplate" );
     protocol->comment         = getAttr( pNode, "comment" );
     protocol->description     = getAttr( pNode, "description" );
     protocol->line            = xmlGetLineNo(pNode);
 
-    checkUnknownAttr(pNode, 6, "name", "longname", "showsumtemplate", 
+    checkUnknownAttr(pNode, 6, "name", "longname", "showsumtemplate",
                                "comment", "description", "prevproto");
-    
-    // In softparse get prevproto    
+
+    // In softparse get prevproto
     if (getSoftParse())
     {
         std::string prevprotonames = getAttr( pNode, "prevproto" );
@@ -203,14 +203,14 @@ CPDLReader::parseProtocol( CProtocol* protocol, xmlNodePtr pNode )
         }
         protocol->prevproto.push_back( stripBlanks( prevprotonames ) );
     }
-    
+
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
-        // execute-code 
+        // execute-code
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"execute-code" ) ) {
             if (getSoftParse())
-                parseExecute (protocol, cur); 
+                parseExecute (protocol, cur);
         }
         // format
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"format" ) ) {
@@ -228,7 +228,7 @@ CPDLReader::parseProtocol( CProtocol* protocol, xmlNodePtr pNode )
         }
         // other
         else {
-            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE, 
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
                                              xmlGetLineNo(cur), (char*)cur->name );
         }
 
@@ -309,12 +309,12 @@ CPDLReader::parseBlock( CProtocol* protocol, xmlNodePtr pNode )
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"switch" ) ) {
         }
         // comment
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) || 
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ||
                   !xmlStrcmp( cur->name, (const xmlChar*)"text"    )){
         }
         // other
         else {
-            CGenericErrorLine::printWarning(WARN_UNEXPECTED_NODE, 
+            CGenericErrorLine::printWarning(WARN_UNEXPECTED_NODE,
                                           xmlGetLineNo(cur), (char*)cur->name);
         }
 
@@ -409,13 +409,13 @@ CPDLReader::parseField( CField* field, xmlNodePtr pNode )
     field->enddiscard   = getAttr( pNode, "enddiscard" );
 
     /*Check for errors*/
-    if (field->type == "") 
+    if (field->type == "")
         throw CGenericErrorLine(ERR_MISSING_ATTRIBUTE, xmlGetLineNo(pNode),
                                 "type", "field", field->name);
-    if (field->size == "") 
+    if (field->size == "")
         throw CGenericErrorLine(ERR_MISSING_ATTRIBUTE, xmlGetLineNo(pNode),
                                 "size", "field", field->name);
-    if (field->name == "") 
+    if (field->name == "")
         throw CGenericErrorLine(ERR_MISSING_ATTRIBUTE, xmlGetLineNo(pNode),
                                 "name", "field");
     if (field->type != "bit" && field->type != "fixed")
@@ -472,22 +472,22 @@ CPDLReader::parseField( CField* field, xmlNodePtr pNode )
 /////////////////////////////////////////////////////////////////////////////
 void
 CPDLReader::parseExecute( CProtocol* protocol, xmlNodePtr pNode )
-{	
+{
     // Make sure we process the right node
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"execute-code" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
     checkUnknownAttr(pNode, 0);
-    
+
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
         // init
-        if ( !xmlStrcmp( cur->name, (const xmlChar*)"init" ) ) 
+        if ( !xmlStrcmp( cur->name, (const xmlChar*)"init" ) )
             CGenericError::printWarning(WARN_UNSUPPORTED, (char*)cur->name);
         // before
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"before" ) ) {		
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"before" ) ) {
             CExecuteSection executeSection(BEFORE);
             parseExecuteSection (&executeSection, cur);
             protocol->executeCode.executeSections.push_back (executeSection);
@@ -526,48 +526,48 @@ CPDLReader::parseExecuteSection( CExecuteSection* executeSection, xmlNodePtr pNo
         executeSection->line            = xmlGetLineNo(pNode);
         executeSection->when            = getAttr(pNode, "when" );
         executeSection->confirm         = getAttr(pNode, "confirm" );
-        executeSection->confirmCustom   = getAttr(pNode, "confirmcustom" );    
-        
+        executeSection->confirmCustom   = getAttr(pNode, "confirmcustom" );
+
         checkUnknownAttr(pNode, 3, "when", "confirm", "confirmcustom");
-                                   
+
     }
 
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
         // assign
-        if ( !xmlStrcmp( cur->name, (const xmlChar*)"assign-variable" ) ) {			
-            CExecuteExpression executeExpression(ASSIGN);	
+        if ( !xmlStrcmp( cur->name, (const xmlChar*)"assign-variable" ) ) {
+            CExecuteExpression executeExpression(ASSIGN);
             parseExecuteAssign (&executeExpression.assignInstr, cur);
             executeSection->executeExpressions.push_back (executeExpression);
         }
         // action
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"action" ) ) {
-            CExecuteExpression executeExpression(ACTION);	
+            CExecuteExpression executeExpression(ACTION);
             parseExecuteAction (&executeExpression.actionInstr, cur);
             executeSection->executeExpressions.push_back (executeExpression);
         }
         // if
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"if" ) ) {
-            CExecuteExpression executeExpression(IF);	
+            CExecuteExpression executeExpression(IF);
             parseExecuteIf (&executeExpression.ifInstr, cur);
             executeSection->executeExpressions.push_back (executeExpression);
         }
         // loop
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"loop" ) ) {
-            CExecuteExpression executeExpression(LOOP);	
+            CExecuteExpression executeExpression(LOOP);
             parseExecuteLoop (&executeExpression.loopInstr, cur);
             executeSection->executeExpressions.push_back (executeExpression);
         }
         // inline
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"inline" ) ) {
-            CExecuteExpression executeExpression(INLINE);	
+            CExecuteExpression executeExpression(INLINE);
             parseExecuteInline (&executeExpression.inlineInstr, cur);
             executeSection->executeExpressions.push_back (executeExpression);
         }
         //switch
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"switch" ) ) {
-            CExecuteExpression executeExpression(SWITCH);	
+            CExecuteExpression executeExpression(SWITCH);
             parseExecuteSwitch (&executeExpression.switchInstr, cur);
             executeSection->executeExpressions.push_back (executeExpression);
         }
@@ -598,7 +598,7 @@ CPDLReader::parseExecuteAssign( CExecuteAssign* executeAssign, xmlNodePtr pNode 
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"assign-variable" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
-    
+
     executeAssign->name     = getAttr(pNode, "name" );
     executeAssign->value    = getAttr(pNode, "value" );
     executeAssign->fwoffset = getAttr(pNode, "fwoffset" );
@@ -620,7 +620,7 @@ CPDLReader::parseExecuteAssign( CExecuteAssign* executeAssign, xmlNodePtr pNode 
 /////////////////////////////////////////////////////////////////////////////
 void
 CPDLReader::parseExecuteIf( CExecuteIf* executeIf, xmlNodePtr pNode )
-{	
+{
 //     Make sure we process the right node
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"if" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
@@ -634,7 +634,7 @@ CPDLReader::parseExecuteIf( CExecuteIf* executeIf, xmlNodePtr pNode )
     if (executeIf->expr == "")
         throw CGenericErrorLine(ERR_MISSING_ATTRIBUTE, executeIf->line,
                                 "expr", "if");
-    
+
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
@@ -662,7 +662,7 @@ CPDLReader::parseExecuteIf( CExecuteIf* executeIf, xmlNodePtr pNode )
                                           xmlGetLineNo(cur), (char*)cur->name);
         }
         cur = cur->next;
-    }            
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -671,7 +671,7 @@ CPDLReader::parseExecuteIf( CExecuteIf* executeIf, xmlNodePtr pNode )
 /////////////////////////////////////////////////////////////////////////////
 void
 CPDLReader::parseExecuteLoop( CExecuteLoop* executeLoop, xmlNodePtr pNode )
-{	
+{
 //     Make sure we process the right node
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"loop" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
@@ -686,7 +686,7 @@ CPDLReader::parseExecuteLoop( CExecuteLoop* executeLoop, xmlNodePtr pNode )
     if (executeLoop->type == "")
         throw CGenericErrorLine(ERR_MISSING_ATTRIBUTE, executeLoop->line,
                                 "type", "loop");
-                                
+
     if (executeLoop->type != "while")
         throw CGenericErrorLine(ERR_UNSUPPORTED_LOOP_TYPE, executeLoop->line,
                                 executeLoop->type);
@@ -694,7 +694,7 @@ CPDLReader::parseExecuteLoop( CExecuteLoop* executeLoop, xmlNodePtr pNode )
     if (executeLoop->expr == "")
         throw CGenericErrorLine(ERR_MISSING_ATTRIBUTE, executeLoop->line,
                                 "expr", "loop");
-    
+
     // Parse children nodes
     CExecuteSection executeSection(EMPTY);
     parseExecuteSection (&executeSection, pNode, 1);
@@ -707,7 +707,7 @@ CPDLReader::parseExecuteLoop( CExecuteLoop* executeLoop, xmlNodePtr pNode )
 /////////////////////////////////////////////////////////////////////////////
 void
 CPDLReader::parseExecuteInline(CExecuteInline* executeInline, xmlNodePtr pNode )
-{	
+{
 //     Make sure we process the right node
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"inline" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
@@ -718,7 +718,7 @@ CPDLReader::parseExecuteInline(CExecuteInline* executeInline, xmlNodePtr pNode )
 
     checkUnknownAttr(pNode, 1, "data");
 
-    /* This code can be used if we decide that it's more convenient to 
+    /* This code can be used if we decide that it's more convenient to
        read inline asm for the xml content instead of attribute
     if (executeInline->data == "")
     {
@@ -728,7 +728,7 @@ CPDLReader::parseExecuteInline(CExecuteInline* executeInline, xmlNodePtr pNode )
     if (executeInline->data == "")
         throw CGenericErrorLine(ERR_MISSING_ATTRIBUTE, executeInline->line,
                                 "data", "inline");
-    
+
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
@@ -742,7 +742,7 @@ CPDLReader::parseExecuteInline(CExecuteInline* executeInline, xmlNodePtr pNode )
                                           xmlGetLineNo(cur), (char*)cur->name);
         }
         cur = cur->next;
-    }            
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -751,7 +751,7 @@ CPDLReader::parseExecuteInline(CExecuteInline* executeInline, xmlNodePtr pNode )
 /////////////////////////////////////////////////////////////////////////////
 void
 CPDLReader::parseExecuteSwitch( CExecuteSwitch* executeSwitch, xmlNodePtr pNode )
-{	
+{
 //     Make sure we process the right node
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"switch" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
@@ -765,15 +765,15 @@ CPDLReader::parseExecuteSwitch( CExecuteSwitch* executeSwitch, xmlNodePtr pNode 
     if (executeSwitch->expr == "")
         throw CGenericErrorLine(ERR_MISSING_ATTRIBUTE, executeSwitch->line,
                                 "expr", "switch");
-    
+
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
         // case
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"case" ) ) {
             if (executeSwitch->defaultCaseValid)
-                throw CGenericErrorLine(ERR_SWITCH_EARLY_DEFAULT, 
-                                    executeSwitch->line);    
+                throw CGenericErrorLine(ERR_SWITCH_EARLY_DEFAULT,
+                                    executeSwitch->line);
             CExecuteCase executeCase;
             parseExecuteCase (&executeCase, cur);
             executeSwitch->cases.push_back (executeCase);
@@ -795,7 +795,7 @@ CPDLReader::parseExecuteSwitch( CExecuteSwitch* executeSwitch, xmlNodePtr pNode 
                                           xmlGetLineNo(cur), (char*)cur->name);
         }
         cur = cur->next;
-    }            
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -804,7 +804,7 @@ CPDLReader::parseExecuteSwitch( CExecuteSwitch* executeSwitch, xmlNodePtr pNode 
 /////////////////////////////////////////////////////////////////////////////
 void
 CPDLReader::parseExecuteCase( CExecuteCase* executeCase, xmlNodePtr pNode )
-{	
+{
 //     Make sure we process the right node
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"case" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
@@ -819,7 +819,7 @@ CPDLReader::parseExecuteCase( CExecuteCase* executeCase, xmlNodePtr pNode )
     if (executeCase->value == "")
         throw CGenericErrorLine(ERR_MISSING_ATTRIBUTE, executeCase->line,
                                 "value", "case");
-    
+
     /*Inside the case we have regular code just like any other section*/
     CExecuteSection executeSection(EMPTY);
     parseExecuteSection (&executeSection, pNode, 1);
@@ -839,12 +839,12 @@ CPDLReader::parseExecuteAction( CExecuteAction* executeAction, xmlNodePtr pNode 
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"action" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
-    
+
     executeAction->type             = getAttr(pNode, "type" );
     executeAction->advance          = getAttr(pNode, "advance" );
     executeAction->confirm          = getAttr(pNode, "confirm" );
     executeAction->confirmCustom    = getAttr(pNode, "confirmcustom" );
-    executeAction->nextproto        = getAttr(pNode, "nextproto" );    
+    executeAction->nextproto        = getAttr(pNode, "nextproto" );
     executeAction->line             = xmlGetLineNo(pNode);
 
     checkUnknownAttr(pNode, 5, "type", "advance", "confirm", "confirmcustom",
@@ -852,6 +852,6 @@ CPDLReader::parseExecuteAction( CExecuteAction* executeAction, xmlNodePtr pNode 
 
     if (executeAction->type == "")
         throw CGenericErrorLine(ERR_MISSING_ATTRIBUTE, executeAction->line,
-                                "type", "action");    
+                                "type", "action");
 }
 

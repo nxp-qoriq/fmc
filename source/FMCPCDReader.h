@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -31,12 +31,12 @@ public:
     void parsePolicy( CPolicy* policy, xmlNodePtr pNode );
     void parsePolicer( CPolicer* policer, xmlNodePtr pNode );
     void parseDistOrder( CPolicy* policy, xmlNodePtr pNode );
-	void parseManipulations( xmlNodePtr pNode );
-	void parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode );
-	void parseReassembly( CReassembly* reassembly, xmlNodePtr pNode );
-	void parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode );
-	void parseHeaderInsert( CHeaderInsert* headerInsert, xmlNodePtr pNode );
-	void parseHeaderRemove( CHeaderRemove* headerRemove, xmlNodePtr pNode );
+    void parseManipulations( xmlNodePtr pNode );
+    void parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode );
+    void parseReassembly( CReassembly* reassembly, xmlNodePtr pNode );
+    void parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode );
+    void parseHeaderInsert( CHeaderInsert* headerInsert, xmlNodePtr pNode );
+    void parseHeaderRemove( CHeaderRemove* headerRemove, xmlNodePtr pNode );
 
 protected:
     static std::string getAttr( xmlNodePtr pNode, const char* attr );

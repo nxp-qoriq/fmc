@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -17,8 +17,8 @@
 void CCode::createCode (CIR IR)
 {
     CExecuteCode executeCode;
-    uint32_t i, j; 
-    /*grab current name in case more labels need to be added*/    
+    uint32_t i, j;
+    /*grab current name in case more labels need to be added*/
 
     for (i = 0; i < IR.protocolsIRs.size(); i++)
     {
@@ -34,22 +34,22 @@ void CCode::createCode (CIR IR)
         dumpAsm();
     if (codeFile)
         dumpCode();
-    
+
     /*revise*/
     std::string reviseMsg = std::string(50,'-') + "\n" + std::string(18,'-') +
-     "After Revision" + std::string(18,'-') + "\n" + std::string(50,'-')+"\n"; 
+     "After Revision" + std::string(18,'-') + "\n" + std::string(50,'-')+"\n";
 
     reviseEntireCode();
     prepareEntireCode();
     if (asmFile && debugAsm)
-        *asmFile << reviseMsg;        
+        *asmFile << reviseMsg;
     if (asmFile)
         dumpAsm();
     if (codeFile)
     {
         *codeFile << reviseMsg;
         dumpCode();
-    }    
+    }
 }
 
 void CCode::processStatement (CStatement statement, CProtocolCode& code)
@@ -57,49 +57,49 @@ void CCode::processStatement (CStatement statement, CProtocolCode& code)
     std::vector <CLabel> labels;
     CLabel returnLabel;
     bool foundChksum = 0;
-    switch(statement.type) { 
-        case ST_EXPRESSION: 
-            /*chksum uses wr0 wr1 and some bytes in gpr2[0:7] therefore it must  
-              be processed first*/            
+    switch(statement.type) {
+        case ST_EXPRESSION:
+            /*chksum uses wr0 wr1 and some bytes in gpr2[0:7] therefore it must
+              be processed first*/
             findAndProcessChecksum(statement.expr, code, foundChksum);
             processExpression (statement.expr,code);
             break;
-        case ST_IFGOTO:            
+        case ST_IFGOTO:
             if (statement.expr->dyadic.right->type==EINTCONST)
                 statement.expr->dyadic.left->reg.type = R_WR0;
             findAndProcessChecksum(statement.expr, code, foundChksum);
             processExpression (statement.expr, code);
             processIf(statement.expr, statement.label, code);
             break;
-        case ST_INLINE:                        
+        case ST_INLINE:
             processInline(statement.text, code);
             break;
-        case ST_GOTO: 
+        case ST_GOTO:
             processJump(statement, code);
             break;
-        case ST_LABEL: 
+        case ST_LABEL:
             addInstr (createLABEL(newLabelOp(statement.label)), code);
             break;
-        case ST_SWITCH:             
+        case ST_SWITCH:
             processSwitch(statement.expr, statement.switchTable, code);
             break;
         case ST_SECTIONEND:
             processEndSection(statement, code);
             break;
-    }        
+    }
     chksumStored = 0;
 }
 
-/*Process the endSection Statement. 
-  If this is the end of the last section there is a need to execute CLM, 
-  advance HB and jump out of softparse. 
+/*Process the endSection Statement.
+  If this is the end of the last section there is a need to execute CLM,
+  advance HB and jump out of softparse.
   If we are between offsets we just need to advance the HB*/
 void CCode::processEndSection (CStatement statement, CProtocolCode& code)
-{    
+{
     /*Confirm custom protocol by modifying LCV*/
     if (!statement.flags.lastStatement)
         statement.flags.confirmLCV_DEFAULT = 0;
-    processLCV(statement.flags, code); 
+    processLCV(statement.flags, code);
 
     /*Confirm original protocol by modifying LCV*/
     if (statement.flags.confirm)
@@ -110,13 +110,13 @@ void CCode::processEndSection (CStatement statement, CProtocolCode& code)
     {
         processExpression (statement.expr, code);
         addInstr(createSET_WO_BY_WR(newRegOp(statement.expr->reg)), code);
-        addInstr (createADVANCE_HB_BY_WO(),  code);     
+        addInstr (createADVANCE_HB_BY_WO(),  code);
     }
     /* Jump after last section*/
-    else 
+    else
     {
         bool jmpHxs = 0;
-        if (statement.label.protocol != PT_RETURN && 
+        if (statement.label.protocol != PT_RETURN &&
             statement.label.protocol != PT_END_PARSE)
         {
             processExpression(statement.expr, code);
@@ -124,7 +124,7 @@ void CCode::processEndSection (CStatement statement, CProtocolCode& code)
             jmpHxs = 1;
         }
         addInstr(createJMP(newHxsOp(jmpHxs),newLabelOp(statement.label)),code);
-    }      
+    }
 }
 
 void CCode::processLCV(CStatementFlags statementFlags, CProtocolCode& code)
@@ -141,11 +141,11 @@ void CCode::processLCV(CStatementFlags statementFlags, CProtocolCode& code)
     else if (statementFlags.confirmLCV_DEFAULT)
         val = LCV_DEFAULT;
     if (val!=0)
-        addInstr(createOR_IV_LCV(newValueOp(val)), code); 
+        addInstr(createOR_IV_LCV(newValueOp(val)), code);
 }
 
 void CCode::processJump (CStatement statement, CProtocolCode& code)
-{    
+{
     bool jmpHxs = 0;
     CLabel label = statement.label;
 
@@ -154,7 +154,7 @@ void CCode::processJump (CStatement statement, CProtocolCode& code)
 
     /* If we're jumping to a outside this protocol*/
     if (statement.flags.externJump)
-    {        
+    {
         if (statement.flags.confirm)
             addInstr (createCLM(), code);
         if (statement.flags.advanceJump)
@@ -163,8 +163,8 @@ void CCode::processJump (CStatement statement, CProtocolCode& code)
             addInstr(createSET_WO_BY_WR(newRegOp(statement.expr->reg)), code);
             jmpHxs = 1;
         }
-    }        
-        
+    }
+
     if      (label.protocol == PT_NEXT_ETH)
         addInstr(createJMP_PROTOCOL_ETH(), code);
     else if (label.protocol == PT_NEXT_IP)
@@ -180,56 +180,56 @@ void CCode::processIf (CENode* expression, CLabel label, CProtocolCode& code)
     if (expression->dyadic.right->type==EINTCONST)
     {
         compareInt = 1;
-        value      = expression->dyadic.right->intval; 
+        value      = expression->dyadic.right->intval;
     }
-    
+
     /*Create a compare instruction according to the specific operator*/
     if (expression->type == EEQU)
     {
         if (compareInt)
-            addInstr(createCOMPARE_WR0_TO_IV(newLabelOp(label), 
+            addInstr(createCOMPARE_WR0_TO_IV(newLabelOp(label),
                      newCondOp(CO_EQU), newValueOp(value)), code);
-        else            
-            addInstr(createCOMPARE_WORKING_REGS(newLabelOp(label), 
+        else
+            addInstr(createCOMPARE_WORKING_REGS(newLabelOp(label),
                      newCondOp(CO_EQU)), code);
     }
     else if (expression->type == ENOTEQU)
     {
-        if (compareInt)            
-            addInstr (createCOMPARE_WR0_TO_IV(newLabelOp(label), 
+        if (compareInt)
+            addInstr (createCOMPARE_WR0_TO_IV(newLabelOp(label),
                       newCondOp(CO_NOTEQU), newValueOp(value)) ,code);
-        else            
-            addInstr (createCOMPARE_WORKING_REGS(newLabelOp(label), 
+        else
+            addInstr (createCOMPARE_WORKING_REGS(newLabelOp(label),
                       newCondOp(CO_NOTEQU)), code);
     }
     else if (expression->type == EGREATEREQU)
     {
-        /*No assemble instruction exists for WR0 >= imm*/        
-        addInstr (createCOMPARE_WORKING_REGS(newLabelOp(label), 
+        /*No assemble instruction exists for WR0 >= imm*/
+        addInstr (createCOMPARE_WORKING_REGS(newLabelOp(label),
                   newCondOp(CO_GREATEREQU)), code);
     }
     else if (expression->type == ELESSEQU)
     {
-        /*No assemble instruction exists for WR0 <= imm*/        
-        addInstr (createCOMPARE_WORKING_REGS(newLabelOp(label), 
+        /*No assemble instruction exists for WR0 <= imm*/
+        addInstr (createCOMPARE_WORKING_REGS(newLabelOp(label),
                   newCondOp(CO_LESSEQU)), code);
     }
     else if (expression->type == EGREATER)
     {
-        if (compareInt)        
-            addInstr (createCOMPARE_WR0_TO_IV(newLabelOp(label), 
+        if (compareInt)
+            addInstr (createCOMPARE_WR0_TO_IV(newLabelOp(label),
                       newCondOp(CO_GREATER),newValueOp(value)), code);
         else
-            addInstr (createCOMPARE_WORKING_REGS(newLabelOp(label), 
+            addInstr (createCOMPARE_WORKING_REGS(newLabelOp(label),
                       newCondOp(CO_GREATER)),code);
     }
     else if (expression->type == ELESS)
     {
         if (compareInt)
-            addInstr(createCOMPARE_WR0_TO_IV(newLabelOp(label), 
+            addInstr(createCOMPARE_WR0_TO_IV(newLabelOp(label),
                      newCondOp(CO_LESS), newValueOp(value)), code);
         else
-            addInstr (createCOMPARE_WORKING_REGS(newLabelOp(label), 
+            addInstr (createCOMPARE_WORKING_REGS(newLabelOp(label),
                       newCondOp(CO_LESS)), code);
     }
 }
@@ -245,25 +245,25 @@ void CCode::processSwitch (CENode* expression, CSwitchTable* switchTable, CProto
     int labelsSize = switchTable->labels.size();
 
     /*The case instructions expects the switch expr in WR0*/
-    expression->reg.type = R_WR0;   
+    expression->reg.type = R_WR0;
     processExpression (expression, code);
-    
+
     /*Check for errors in table*/
     if ((valuesSize==0) || (labelsSize>4) || (valuesSize !=  labelsSize))
          throw CGenericError (ERR_INTERNAL_SP_ERROR, "switch error");
-    
+
     /*Insert up to 4 case values into WR1 for the case instruction*/
     for (int i=valuesSize-1; i>=0; i--)
         /*pad with zero when inserting the value*/
         if (i==valuesSize-1)
             addInstr(createLOAD_BITS_IV_TO_WR (newRegOp(R_WR1), newShiftOp(0),
                     newValueOp(switchTable->values[i]), newValueOp(0)), code);
-        else 
+        else
             addInstr(createLOAD_BITS_IV_TO_WR (newRegOp(R_WR1), newShiftOp(1),
                     newValueOp(switchTable->values[i]), newValueOp(16)), code);
-    
+
     /* Find the correct opcode*/
-    Opcode op; 
+    Opcode op;
     switch (valuesSize)
     {
     case 1:
@@ -280,45 +280,45 @@ void CCode::processSwitch (CENode* expression, CSwitchTable* switchTable, CProto
         if (switchTable->lastDefault)
             op = CASE1_DJ_WR_TO_WR;
         else
-            op = CASE2_DC_WR_TO_WR;                
+            op = CASE2_DC_WR_TO_WR;
         break;
     case 3:
         if (switchTable->lastDefault)
-            op = CASE2_DJ_WR_TO_WR;                
-        else 
+            op = CASE2_DJ_WR_TO_WR;
+        else
             op = CASE3_DC_WR_TO_WR;
         break;
     case 4:
         if (switchTable->lastDefault)
             op = CASE3_DJ_WR_TO_WR;
-        else                 
+        else
             op = CASE4_DC_WR_TO_WR;
-        break;        
-    }  
+        break;
+    }
     /*Create the instruction*/
-    addInstr(createCaseInstr(op, 0, switchTable->labels) ,code);    
+    addInstr(createCaseInstr(op, 0, switchTable->labels) ,code);
 }
 
 void CCode::processExpression (CENode* expression, CProtocolCode& code)
 {
-    if (expression->type == EASS)       
+    if (expression->type == EASS)
         processAssign (expression, code);
     else if (expression->type == ECHECKSUM)
         processChecksum(expression, code);
-    else if (expression->isDyadic()) 
-        processWROperation (expression, code);        
-    
+    else if (expression->isDyadic())
+        processWROperation (expression, code);
+
     else if (expression->type == EOBJREF)
-        processObject (expression, code);  
+        processObject (expression, code);
     else if (expression->type == EINTCONST)
         processInt (expression, code);
-    else 
-        throw CGenericError (ERR_INTERNAL_SP_ERROR, 
+    else
+        throw CGenericError (ERR_INTERNAL_SP_ERROR,
                              "expression error");
 }
 
 void CCode::processChecksum (CENode* expression, CProtocolCode& code)
-{    
+{
     /*Case 1, we already processed checksum (using the findAndProcessChecksum
       function), and we now only need to access the stored data*/
     if (chksumStored)
@@ -333,16 +333,16 @@ void CCode::processChecksum (CENode* expression, CProtocolCode& code)
     }
 
     /*Case 2: Checksum has not been calculated yet
-      The checksum node is dyadic, the left node holds the initial checksum 
+      The checksum node is dyadic, the left node holds the initial checksum
       result (which can be the runningSum for example). The right node hold
-      the FW section on which checksum should be calculated. The left node 
-      of the right node holds the offset of the FW, and the right node of 
+      the FW section on which checksum should be calculated. The left node
+      of the right node holds the offset of the FW, and the right node of
       the right node holds the FW section's size (both values are in bytes).*/
     CENode* initialResultNode = expression->dyadic.left;
     CENode* offsetNode  = expression->dyadic.right->dyadic.left;
     CENode* sizeNode    = expression->dyadic.right->dyadic.right;
 
-    CObject size    = getAndAllocateGPR2 (5,5); 
+    CObject size    = getAndAllocateGPR2 (5,5);
     CObject res     = getAndAllocateGPR2 (6,7);
     CObject fw      = CObject (OB_FW, CLocation(0,63));
     CObject shortFw = CObject (OB_FW, CLocation(0,7));
@@ -351,7 +351,7 @@ void CCode::processChecksum (CENode* expression, CProtocolCode& code)
     CLabel label3   = CLabel(CIR().createUniqueName()+"_EVEN");
     CLabel label4   = CLabel(CIR().createUniqueName());
     CLabel label5   = CLabel(CIR().createUniqueName());
-    
+
     /*Initialize checksum*/
     if (offsetNode->type != EINTCONST ||
         offsetNode->intval != 0)
@@ -366,8 +366,8 @@ void CCode::processChecksum (CENode* expression, CProtocolCode& code)
     addInstr(createSTORE_WR_TO_RA(newObjOp(&res), newRegOp(
                                   initialResultNode->reg)), code);
 
-    /*Start the main loop*/    
-    addInstr(createLABEL(newLabelOp(label)), code);        
+    /*Start the main loop*/
+    addInstr(createLABEL(newLabelOp(label)), code);
     /*OPTION 1: Check if less than 8 bytes are left to load from the FW*/
     addInstr(createLOAD_BYTES_RA_TO_WR(newRegOp(R_WR0), newShiftOp(0),
                                        newObjOp(&size)), code);
@@ -375,13 +375,13 @@ void CCode::processChecksum (CENode* expression, CProtocolCode& code)
                                      newValueOp(7)), code);
     addInstr(createZERO_WR(newRegOp(R_WR1)), code);
     /*Minor loop, load final bytes from FW one at a time*/
-    addInstr(createLABEL(newLabelOp(label2)), code);    
+    addInstr(createLABEL(newLabelOp(label2)), code);
     // We should place NOPs  before each Load_Bits_FW_to_WR to
     // ensure that the effects of stale instructions are cleaned
     addInstr(createNOP(), code);
     addInstr(createLOAD_BITS_FW_TO_WR (newRegOp(R_WR1), newShiftOp(1),
                                        newObjOp(&shortFw)), code);
-    addInstr(createSUB_WR_IV_TO_WR(newRegOp(R_WR0), newRegOp(R_WR0), 
+    addInstr(createSUB_WR_IV_TO_WR(newRegOp(R_WR0), newRegOp(R_WR0),
                                    newValueOp(1)), code);
     addInstr(createADD_SV_TO_WO(newValueOp(1)), code);
     addInstr(createCOMPARE_WR0_TO_IV(newLabelOp(label2), newCondOp(CO_GREATER),
@@ -390,21 +390,21 @@ void CCode::processChecksum (CENode* expression, CProtocolCode& code)
     to the left (in order to remain aligned with the previous bytes)*/
     addInstr(createLOAD_BYTES_RA_TO_WR(newRegOp(R_WR0), newShiftOp(0),
                                        newObjOp(&size)), code);
-    addInstr(createBITWISE_WR_IV_TO_WR(newRegOp(R_WR0), newRegOp(R_WR0), 
+    addInstr(createBITWISE_WR_IV_TO_WR(newRegOp(R_WR0), newRegOp(R_WR0),
                                        newBitOp(BO_AND), newValueOp(1)), code);
     addInstr(createCOMPARE_WR0_TO_IV(newLabelOp(label3), newCondOp(CO_EQU),
-                                     newValueOp(0)), code);    
+                                     newValueOp(0)), code);
     addInstr(createLOAD_BITS_IV_TO_WR(newRegOp(R_WR1), newShiftOp(1),
                                        newValueOp(0), newValueOp(8)), code);
     /*Process the final check sum*/
     addInstr(createLABEL(newLabelOp(label3)), code);
     addInstr(createLOAD_BYTES_RA_TO_WR(newRegOp(R_WR0), newShiftOp(0),
-                                       newObjOp(&res)), code);    
+                                       newObjOp(&res)), code);
     addInstr(createONES_COMP_WR1_TO_WR0(), code);
     addInstr(createJMP(newHxsOp(0), newLabelOp(label5)), code);
 
-    /*OPTION 2: We still have 8 or more bytes left*/ 
-    addInstr(createLABEL(newLabelOp(label4)), code);    
+    /*OPTION 2: We still have 8 or more bytes left*/
+    addInstr(createLABEL(newLabelOp(label4)), code);
     /*check sum process*/
     // We should place NOPs  before each Load_Bits_FW_to_WR to
     // ensure that the effects of stale instructions are cleaned
@@ -421,20 +421,20 @@ void CCode::processChecksum (CENode* expression, CProtocolCode& code)
       if not return to beginning of main loop*/
     addInstr(createLOAD_BYTES_RA_TO_WR(newRegOp(R_WR0), newShiftOp(0),
                                        newObjOp(&size)), code);
-    addInstr(createSUB_WR_IV_TO_WR(newRegOp(R_WR0), newRegOp(R_WR0), 
+    addInstr(createSUB_WR_IV_TO_WR(newRegOp(R_WR0), newRegOp(R_WR0),
                                    newValueOp(8)), code);
     addInstr(createSTORE_WR_TO_RA(newObjOp(&size), newRegOp(R_WR0)), code);
     addInstr(createCOMPARE_WR0_TO_IV(newLabelOp(label), newCondOp(CO_GREATER),
-                                     newValueOp(0)), code);    
+                                     newValueOp(0)), code);
     /*After loop load checksum result*/
     addInstr(createLOAD_BYTES_RA_TO_WR(newRegOp(R_WR0), newShiftOp(0),
                                        newObjOp(&res)), code);
     addInstr(createJMP(newHxsOp(0), newLabelOp(label5)), code);
-    
+
     /*After checksum process init WO */
     addInstr(createLABEL(newLabelOp(label5)), code);
     addInstr(createLOAD_SV_TO_WO(newValueOp(0)), code);
-    
+
     expression->reg.type = R_WR0;
     freeGPR2(5,7);
 }
@@ -450,12 +450,12 @@ void CCode::findAndProcessChecksum(CENode* expr, CProtocolCode& code, bool &foun
                  " - can't calculate checksum twice in the same expression");
         else
         {
-            processChecksum(expr, code);        
+            processChecksum(expr, code);
             CObject ob = getAndAllocateGPR2(6,7);
             addInstr(createSTORE_WR_TO_RA(newObjOp(&ob),
                                           newRegOp(expr->reg)), code);
             found           = 1;
-            chksumStored    = 1;        
+            chksumStored    = 1;
         }
     }
     if (expr->isDyadic())
@@ -468,34 +468,34 @@ void CCode::findAndProcessChecksum(CENode* expr, CProtocolCode& code, bool &foun
 }
 
 void CCode::processInt (CENode* expression, CProtocolCode& code)
-{        
+{
     if (expression->reg.type == R_EMPTY)
         expression->reg.type = R_WR1;
-    addInstr(createLOAD_BITS_IV_TO_WR (newRegOp(expression->reg), 
-            newShiftOp(expression->flags.concat), 
+    addInstr(createLOAD_BITS_IV_TO_WR (newRegOp(expression->reg),
+            newShiftOp(expression->flags.concat),
             newValueOp(expression->intval), newValueOp(0)), code);
 }
 
 void CCode::processObject (CENode* expression, CProtocolCode& code)
-{        
+{
     if (expression->reg.type == R_EMPTY)
         expression->reg.type = R_WR1;
     bool concat = expression->flags.concat;
-    CReg reg = expression->reg; 
+    CReg reg = expression->reg;
 
     /*Find the object and load it to a register*/
     if (expression->objref->type == OB_RA)
     {
-        addInstr(createLOAD_BYTES_RA_TO_WR(newRegOp(reg), newShiftOp(concat), 
+        addInstr(createLOAD_BYTES_RA_TO_WR(newRegOp(reg), newShiftOp(concat),
                  newObjOp(expression->objref)), code);
     }
     else if (expression->objref->type == OB_PA)
     {
-        addInstr(createLOAD_BYTES_PA_TO_WR(newRegOp(reg), newShiftOp(concat), 
+        addInstr(createLOAD_BYTES_PA_TO_WR(newRegOp(reg), newShiftOp(concat),
                  newObjOp(expression->objref)), code);
     }
     else if (expression->objref->type == OB_FW)
-    {   
+    {
         int addWO = 0;
         if (expression->objref->location.end >= 128)
         {
@@ -517,23 +517,23 @@ void CCode::processObject (CENode* expression, CProtocolCode& code)
 }
 
 void CCode::processAssign (CENode* expression, CProtocolCode& code)
-{           
+{
     bool rightInt = 0;
     if (expression->dyadic.right->type == EINTCONST)
         rightInt = 1;
-    else 
+    else
         processExpression (expression->dyadic.right, code);
 
     CENode* left   = expression->dyadic.left;
     CENode* right  = expression->dyadic.right;
- 
+
     if (left->type == EOBJREF && left->objref->type == OB_RA)
     {
         if (rightInt)
-            addInstr(createSTORE_IV_TO_RA(newObjOp(left->objref), 
+            addInstr(createSTORE_IV_TO_RA(newObjOp(left->objref),
                      newValueOp(right->intval)), code);
         else
-            addInstr(createSTORE_WR_TO_RA(newObjOp(left->objref), 
+            addInstr(createSTORE_WR_TO_RA(newObjOp(left->objref),
                      newRegOp(right->reg)), code);
     }
     if (left->type == EOBJREF && left->objref->type == OB_WO)
@@ -551,58 +551,58 @@ void CCode::processConcat(CENode* expr, CProtocolCode& code)
 {
     /*Right side is int or object
     For this option, we don't need to perform any special operation, only
-    to set a specific bit when we load the object/int in the right node. 
-    Therefore we only process the left node and turn on the the 
-    concat flag before processing the right node*/    
+    to set a specific bit when we load the object/int in the right node.
+    Therefore we only process the left node and turn on the the
+    concat flag before processing the right node*/
     processExpression (expr->dyadic.left, code);
     expr->dyadic.right->reg = expr->dyadic.left->reg;
-    expr->reg = expr->dyadic.left->reg;        
+    expr->reg = expr->dyadic.left->reg;
     expr->dyadic.right->flags.concat = 1;
     processExpression (expr->dyadic.right, code);
     return;
 }
 
 void CCode::processWROperation (CENode* expr, CProtocolCode& code)
-{           
+{
     CReg leftReg, reg, rightReg;
     bool stored       = 0;   /*first value is spilled*/
     uint64_t rightVal = 0;   /*right reg value*/
     CObject obj;
-    
-    /*If there is a condition, R_WR0 must come second in assembler and only WR0 can 
+
+    /*If there is a condition, R_WR0 must come second in assembler and only WR0 can
       be compared to IV.
       ADDCARRY uses the ONES_COMP_WR1_TO_WR0 which forces us
       to store the result in WR0*/
     if (expr->isCond() || expr->type==EADDCARRY)
-    {        
+    {
         expr->reg.type               = R_WR0;
-        expr->dyadic.right->reg.type = R_WR1;        
+        expr->dyadic.right->reg.type = R_WR1;
     }
-    expr->dyadic.left->reg = expr->reg;    
-  
+    expr->dyadic.left->reg = expr->reg;
+
     if (expr->type == ESHLAND)
     {
         processConcat(expr, code);
         return;
     }
 
-    /* In some cases, if the right node is int, we do not need to copy it 
-    to a register, and can use an addi/subi/comparei... 
+    /* In some cases, if the right node is int, we do not need to copy it
+    to a register, and can use an addi/subi/comparei...
     assembly instruction instead. */
     if (expr->flags.rightInt)
-    {   
-        rightVal  = expr->dyadic.right->intval;        
+    {
+        rightVal  = expr->dyadic.right->intval;
         processExpression (expr->dyadic.left, code);
     }
     else
-    {   
-        processExpression(expr->first(),code);        
+    {
+        processExpression(expr->first(),code);
         if (expr->second()->weight > 1)
-        {                 
+        {
             /*Spill*/
             obj = getAndAllocateGPR2(0,7);
-            addInstr(createSTORE_WR_TO_RA(newObjOp(&obj), 
-                        newRegOp(expr->first()->reg)), code);            
+            addInstr(createSTORE_WR_TO_RA(newObjOp(&obj),
+                        newRegOp(expr->first()->reg)), code);
             stored   = 1;
         }
         expr->second()->reg = expr->first()->reg.other();
@@ -615,79 +615,79 @@ void CCode::processWROperation (CENode* expr, CProtocolCode& code)
             freeGPR2(0,7);
         }
     }
-    
+
     if (expr->reg.type == R_EMPTY)
-        expr->reg = expr->dyadic.left->reg;      
-    
+        expr->reg = expr->dyadic.left->reg;
+
     /* In case of cond processIf will take it from here*/
     if (expr->isCond())
         return;
-    
+
     /*Create the insturctions according to the specific operation*/
     rightReg = expr->dyadic.right->reg;
     leftReg  = expr->dyadic.left->reg;
-    reg      = expr->reg; 
+    reg      = expr->reg;
     switch (expr->type)
     {
-        case EADD:            
+        case EADD:
             /*This code can be used to pad with zeros the left 32 bits before
             add/sub operations
             addInstr(createBITWISE_WR_IV_TO_WR(newRegOp(reg), newRegOp(reg),
                      newBitOp(BO_AND), newValueOp(0x00000000ffffffff)), code);*/
             if (expr->flags.rightInt)
-                addInstr(createADD_WR_IV_TO_WR(newRegOp(reg), 
+                addInstr(createADD_WR_IV_TO_WR(newRegOp(reg),
                          newRegOp(leftReg), newValueOp(rightVal)), code);
             else
-                addInstr(createADD_WR_WR_TO_WR(newRegOp(reg), 
-                         newRegOp(leftReg), newRegOp(rightReg)), code);             
+                addInstr(createADD_WR_WR_TO_WR(newRegOp(reg),
+                         newRegOp(leftReg), newRegOp(rightReg)), code);
             break;
         case ESUB:
             if (expr->flags.rightInt)
-                addInstr(createSUB_WR_IV_TO_WR(newRegOp(reg), 
-                         newRegOp(leftReg), newValueOp(rightVal)), code); 
+                addInstr(createSUB_WR_IV_TO_WR(newRegOp(reg),
+                         newRegOp(leftReg), newValueOp(rightVal)), code);
             else
-                addInstr(createSUB_WR_WR_TO_WR(newRegOp(reg), 
-                         newRegOp(leftReg), newRegOp(rightReg)), code); 
+                addInstr(createSUB_WR_WR_TO_WR(newRegOp(reg),
+                         newRegOp(leftReg), newRegOp(rightReg)), code);
             break;
-        case EADDCARRY:            
-                addInstr(createONES_COMP_WR1_TO_WR0(),code);             
+        case EADDCARRY:
+                addInstr(createONES_COMP_WR1_TO_WR0(),code);
             break;
         case EBITAND:
             if (expr->flags.rightInt)
                 addInstr(createBITWISE_WR_IV_TO_WR(newRegOp(reg),
-                         newRegOp(leftReg), newBitOp(BO_AND), 
+                         newRegOp(leftReg), newBitOp(BO_AND),
                          newValueOp(rightVal)), code);
             else
-                addInstr(createBITWISE_WR_WR_TO_WR(newRegOp(reg), 
+                addInstr(createBITWISE_WR_WR_TO_WR(newRegOp(reg),
                          newBitOp(BO_AND)), code);
             break;
         case EBITOR:
             if (expr->flags.rightInt)
                 addInstr(createBITWISE_WR_IV_TO_WR(newRegOp(reg),
-                         newRegOp(leftReg) ,newBitOp(BO_OR), 
+                         newRegOp(leftReg) ,newBitOp(BO_OR),
                          newValueOp(rightVal)), code);
             else
-                addInstr(createBITWISE_WR_WR_TO_WR (newRegOp(reg), 
+                addInstr(createBITWISE_WR_WR_TO_WR (newRegOp(reg),
                             newBitOp(BO_OR)), code);
             break;
         case EXOR:
             if (expr->flags.rightInt)
                 addInstr(createBITWISE_WR_IV_TO_WR(newRegOp(reg),
-                         newRegOp(leftReg), newBitOp(BO_XOR), 
+                         newRegOp(leftReg), newBitOp(BO_XOR),
                          newValueOp(rightVal)), code);
             else
-                addInstr(createBITWISE_WR_WR_TO_WR(newRegOp(reg), 
+                addInstr(createBITWISE_WR_WR_TO_WR(newRegOp(reg),
                          newBitOp(BO_XOR)), code);
             break;
         case ESHL:
-            addInstr(createSHIFT_LEFT_WR_BY_SV(newRegOp(reg), 
+            addInstr(createSHIFT_LEFT_WR_BY_SV(newRegOp(reg),
                      newValueOp(rightVal)), code);
             break;
         case ESHR:
-            addInstr(createSHIFT_RIGHT_WR_BY_SV(newRegOp(reg), 
+            addInstr(createSHIFT_RIGHT_WR_BY_SV(newRegOp(reg),
                      newValueOp(rightVal)), code);
             break;
-        default: 
+        default:
             throw CGenericError (ERR_INTERNAL_SP_ERROR, "wrong enode type");
     }
 }
@@ -700,7 +700,7 @@ void CCode::addInstr(CInstruction instr, CProtocolCode& code)
 /*----------------------------GPR2 functions----------------------------*/
 CObject CCode::getAndFreeGPR2(uint8_t start, uint8_t end)
 {
-    CObject obj = CObject(OB_RA, CLocation(start+8,end+8)); 
+    CObject obj = CObject(OB_RA, CLocation(start+8,end+8));
     freeGPR2(start, end);
     return obj;
 }
@@ -711,7 +711,7 @@ CObject CCode::getAndAllocateGPR2(uint8_t start, uint8_t end, int line)
         throw CGenericErrorLine (ERR_COMPLEX_EXPR, line);
     for (uint8_t i=start; i<= end; i++)
         gpr2Used |= (1<<i);
-    CObject obj = CObject(OB_RA, CLocation(start+8,end+8)); 
+    CObject obj = CObject(OB_RA, CLocation(start+8,end+8));
     return obj;
 }
 
@@ -735,43 +735,43 @@ bool CCode::GPR2Used(uint8_t start, uint8_t end)
 /*  See note regarding these functions in the .h file*/
 
 CInstruction CCode::createCOMPARE_WR0_TO_IV     (CLabelOperand* opA, CCondOperand*  opB,    CValueOperand* opC)
-{   
-    CInstruction instr(COMPARE_WR0_TO_IV,    opA, newRegOp(R_WR0), opB, opC); 
+{
+    CInstruction instr(COMPARE_WR0_TO_IV,    opA, newRegOp(R_WR0), opB, opC);
     instr.operands[1]->flags.used = 1;
     return instr;
 }
 
 CInstruction CCode::createCOMPARE_WORKING_REGS  (CLabelOperand* opA, CCondOperand*  opB)
-{ 
-    CInstruction instr(COMPARE_WORKING_REGS, opA, newRegOp(R_WR0), 
-                                             opB, newRegOp(R_WR1)); 
+{
+    CInstruction instr(COMPARE_WORKING_REGS, opA, newRegOp(R_WR0),
+                                             opB, newRegOp(R_WR1));
     instr.operands[1]->flags.used = 1;
     instr.operands[3]->flags.used = 1;
     return instr;
 }
-    
+
 
 CInstruction CCode::createLABEL                 (CLabelOperand* opA)
     { return CInstruction(LABEL,                opA); }
 
 CInstruction CCode::createJMP                   (CHxsOperand*   opA, CLabelOperand* opB)
-{ 
-    CInstruction instr(JMP, opA, opB); 
+{
+    CInstruction instr(JMP, opA, opB);
     instr.operands[0]->flags.used = opA->hxsOp;
     return instr;
 }
 
 CInstruction CCode::createJMP_PROTOCOL_ETH      ()
-{   
-    CInstruction instr(JMP_PROTOCOL_ETH, newHxsOp(1)); 
+{
+    CInstruction instr(JMP_PROTOCOL_ETH, newHxsOp(1));
     instr.operands[0]->flags.used= 1;
     return instr;
 }
 
 
 CInstruction CCode::createJMP_PROTOCOL_IP       ()
-{   
-    CInstruction instr(JMP_PROTOCOL_IP, newHxsOp(1)); 
+{
+    CInstruction instr(JMP_PROTOCOL_IP, newHxsOp(1));
     instr.operands[0]->flags.used= 1;
     return instr;
 }
@@ -781,21 +781,21 @@ CInstruction CCode::createOR_IV_LCV             (CValueOperand* opA)
 
 CInstruction CCode::createSTORE_IV_TO_RA        (CObjOperand*   opA, CValueOperand* opB)
 {
-    CInstruction instr(STORE_IV_TO_RA,       opA, opB); 
+    CInstruction instr(STORE_IV_TO_RA,       opA, opB);
     instr.operands[0]->flags.defined= 1;
     return instr;
 }
 
 CInstruction CCode::createSTORE_WR_TO_RA        (CObjOperand*   opA, CRegOperand*   opB)
-{ 
-    CInstruction instr(STORE_WR_TO_RA,       opA, opB); 
+{
+    CInstruction instr(STORE_WR_TO_RA,       opA, opB);
     instr.operands[0]->flags.defined= 1;
     instr.operands[1]->flags.used   = 1;
     return instr;
 }
 
 CInstruction CCode::createLOAD_BYTES_RA_TO_WR   (CRegOperand* opA, CShiftOperand* opB,      CObjOperand*    opC)
-{ 
+{
     CInstruction instr(LOAD_BYTES_RA_TO_WR, opA, opB, opC);
     instr.operands[0]->flags.defined= 1;
     instr.operands[0]->flags.used   = opB->shiftOp;
@@ -804,7 +804,7 @@ CInstruction CCode::createLOAD_BYTES_RA_TO_WR   (CRegOperand* opA, CShiftOperand
 }
 
 CInstruction CCode::createLOAD_BYTES_PA_TO_WR   (CRegOperand*   opA, CShiftOperand* opB,    CObjOperand*    opC)
-{ 
+{
     CInstruction instr(LOAD_BYTES_PA_TO_WR, opA, opB, opC);
     instr.operands[0]->flags.defined= 1;
     instr.operands[0]->flags.used   = opB->shiftOp;
@@ -813,7 +813,7 @@ CInstruction CCode::createLOAD_BYTES_PA_TO_WR   (CRegOperand*   opA, CShiftOpera
 }
 
 CInstruction CCode::createLOAD_BITS_FW_TO_WR    (CRegOperand*   opA, CShiftOperand* opB,    CObjOperand*    opC)
-{ 
+{
     CInstruction instr(LOAD_BITS_FW_TO_WR, opA, opB, opC);
     instr.operands[0]->flags.defined= 1;
     instr.operands[0]->flags.used  = opB->shiftOp;
@@ -822,23 +822,23 @@ CInstruction CCode::createLOAD_BITS_FW_TO_WR    (CRegOperand*   opA, CShiftOpera
 }
 
 CInstruction CCode::createLOAD_BITS_IV_TO_WR    (CRegOperand* opA, CShiftOperand*   opB,    CValueOperand*  opC, CValueOperand* opD)
-{ 
-    CInstruction instr(LOAD_BITS_IV_TO_WR, opA, opB, opC, opD);    
+{
+    CInstruction instr(LOAD_BITS_IV_TO_WR, opA, opB, opC, opD);
     instr.operands[0]->flags.defined= 1;
     instr.operands[0]->flags.used   = opB->shiftOp;
     return instr;
 }
 
 CInstruction CCode::createZERO_WR               (CRegOperand* opA)
-{ 
-    CInstruction instr(ZERO_WR, opA); 
+{
+    CInstruction instr(ZERO_WR, opA);
     instr.operands[0]->flags.defined= 1;
     return instr;
 }
 
 CInstruction CCode::createADD_WR_WR_TO_WR       (CRegOperand*   opA, CRegOperand*   opB,    CRegOperand*    opC)
-{ 
-    CInstruction instr(ADD_WR_WR_TO_WR,      opA, opB, opC); 
+{
+    CInstruction instr(ADD_WR_WR_TO_WR,      opA, opB, opC);
     instr.operands[0]->flags.defined= 1;
     instr.operands[1]->flags.used   = 1;
     instr.operands[2]->flags.used   = 1;
@@ -846,8 +846,8 @@ CInstruction CCode::createADD_WR_WR_TO_WR       (CRegOperand*   opA, CRegOperand
 }
 
 CInstruction CCode::createSUB_WR_WR_TO_WR       (CRegOperand*   opA, CRegOperand*   opB,    CRegOperand*    opC)
-{ 
-    CInstruction instr(SUB_WR_WR_TO_WR,      opA, opB, opC); 
+{
+    CInstruction instr(SUB_WR_WR_TO_WR,      opA, opB, opC);
     instr.operands[0]->flags.defined= 1;
     instr.operands[1]->flags.used   = 1;
     instr.operands[2]->flags.used   = 1;
@@ -855,16 +855,16 @@ CInstruction CCode::createSUB_WR_WR_TO_WR       (CRegOperand*   opA, CRegOperand
 }
 
 CInstruction CCode::createADD_WR_IV_TO_WR       (CRegOperand*   opA, CRegOperand*   opB,    CValueOperand*  opC)
-{ 
-    CInstruction instr(ADD_WR_IV_TO_WR,      opA, opB, opC); 
+{
+    CInstruction instr(ADD_WR_IV_TO_WR,      opA, opB, opC);
     instr.operands[0]->flags.defined= 1;
     instr.operands[1]->flags.used   = 1;
     return instr;
 }
 
 CInstruction CCode::createSUB_WR_IV_TO_WR       (CRegOperand*   opA, CRegOperand*   opB,    CValueOperand*  opC)
-{ 
-    CInstruction instr(SUB_WR_IV_TO_WR,      opA, opB, opC); 
+{
+    CInstruction instr(SUB_WR_IV_TO_WR,      opA, opB, opC);
     instr.operands[0]->flags.defined= 1;
     instr.operands[1]->flags.used   = 1;
     return instr;
@@ -872,28 +872,28 @@ CInstruction CCode::createSUB_WR_IV_TO_WR       (CRegOperand*   opA, CRegOperand
 
 CInstruction CCode::createSHIFT_LEFT_WR_BY_SV   (CRegOperand*   opA, CValueOperand* opB)
 {
-    CInstruction instr(SHIFT_LEFT_WR_BY_SV, opA, opB); 
+    CInstruction instr(SHIFT_LEFT_WR_BY_SV, opA, opB);
     instr.operands[0]->flags.defined = 1;
     instr.operands[0]->flags.used    = 1;
     return instr;
 }
 
 CInstruction CCode::createSHIFT_RIGHT_WR_BY_SV  (CRegOperand*   opA, CValueOperand* opB)
-{ 
-    CInstruction instr(SHIFT_RIGHT_WR_BY_SV, opA, opB); 
+{
+    CInstruction instr(SHIFT_RIGHT_WR_BY_SV, opA, opB);
     instr.operands[0]->flags.defined = 1;
     instr.operands[0]->flags.used    = 1;
     return instr;
 }
 
 CInstruction CCode::createBITWISE_WR_WR_TO_WR   (CRegOperand*   opA, CBitOperand*   opB)
-{ 
+{
     CInstruction instr(BITWISE_WR_WR_TO_WR, opA, newRegOp(R_WR0),
                                             opB, newRegOp(R_WR1));
     instr.operands[0]->flags.defined= 1;
     instr.operands[1]->flags.used   = 1;
     instr.operands[3]->flags.used   = 1;
-    return instr; 
+    return instr;
 }
 
 CInstruction CCode::createBITWISE_WR_IV_TO_WR   (CRegOperand*   opA, CRegOperand*   opB,    CBitOperand*    opC,    CValueOperand* opD)
@@ -901,39 +901,39 @@ CInstruction CCode::createBITWISE_WR_IV_TO_WR   (CRegOperand*   opA, CRegOperand
     CInstruction instr(BITWISE_WR_IV_TO_WR, opA, opB, opC, opD);
     instr.operands[0]->flags.defined= 1;
     instr.operands[1]->flags.used   = 1;
-    return instr; 
+    return instr;
 }
 
 CInstruction CCode::createLOAD_SV_TO_WO         (CValueOperand* opA)
 {
-    CInstruction instr(LOAD_SV_TO_WO, newRegOp(R_WO),  opA);    
+    CInstruction instr(LOAD_SV_TO_WO, newRegOp(R_WO),  opA);
     instr.operands[0]->flags.defined= 1;
-    return instr; 
+    return instr;
 }
 
 CInstruction CCode::createADD_SV_TO_WO          (CValueOperand* opA)
 {
-    CInstruction instr(ADD_SV_TO_WO, newRegOp(R_WO),  opA);    
+    CInstruction instr(ADD_SV_TO_WO, newRegOp(R_WO),  opA);
     instr.operands[0]->flags.defined= 1;
     instr.operands[0]->flags.used   = 1;
-    return instr; 
+    return instr;
 }
 
 CInstruction CCode::createSET_WO_BY_WR          (CRegOperand*   opA)
 {
-    CInstruction instr(SET_WO_BY_WR, newRegOp(R_WO),  opA);    
+    CInstruction instr(SET_WO_BY_WR, newRegOp(R_WO),  opA);
     instr.operands[0]->flags.defined= 1;
     instr.operands[1]->flags.used   = 1;
-    return instr; 
+    return instr;
 }
 
 CInstruction CCode::createADD_WO_BY_WR          (CRegOperand*   opA)
-{ 
-    CInstruction instr(ADD_WO_BY_WR, newRegOp(R_WO),  opA);    
+{
+    CInstruction instr(ADD_WO_BY_WR, newRegOp(R_WO),  opA);
     instr.operands[0]->flags.defined= 1;
     instr.operands[0]->flags.used   = 1;
     instr.operands[1]->flags.used   = 1;
-    return instr; 
+    return instr;
 }
 
 CInstruction CCode::createCLM                   ()
@@ -943,16 +943,16 @@ CInstruction CCode::createADVANCE_HB_BY_WO      ()
 {
     CInstruction instr(ADVANCE_HB_BY_WO, newRegOp(R_WO));
     instr.operands[0]->flags.used = 1;
-    return instr; 
+    return instr;
 }
 
 CInstruction CCode::createONES_COMP_WR1_TO_WR0  ()
-{ 
+{
     CInstruction instr(ONES_COMP_WR1_TO_WR0, newRegOp(R_WR0), newRegOp(R_WR1));
     instr.operands[0]->flags.used   = 1;
     instr.operands[0]->flags.defined= 1;
     instr.operands[1]->flags.used   = 1;
-    return instr; 
+    return instr;
 }
 
 CInstruction CCode::createNOP                   ()
@@ -963,20 +963,20 @@ CInstruction CCode::createInlineInstr           (CTextOperand*  opA)
 
 
 /*A special function for the case instr since it can hold up to 8 operands.
-  The four hxs operands are calculated according to the second argument in 
-  the function (according to specific bits), and the labels are taken from the 
+  The four hxs operands are calculated according to the second argument in
+  the function (according to specific bits), and the labels are taken from the
   third argument*/
 CInstruction CCode::createCaseInstr (Opcode op, uint8_t hxses, std::vector <CLabel> labels)
-{    
+{
     CInstruction instruction (op);
     instruction.operands.push_back(newRegOp(R_WR0));
     instruction.operands[0]->flags.used = 1;
     if (op==CASE1_DJ_WR_TO_WR || op==CASE2_DC_WR_TO_WR)
-        instruction.noperands = 5; 
+        instruction.noperands = 5;
     else if (op==CASE2_DJ_WR_TO_WR || op==CASE3_DC_WR_TO_WR)
-        instruction.noperands = 7; 
+        instruction.noperands = 7;
     else if (op==CASE3_DJ_WR_TO_WR || op==CASE4_DC_WR_TO_WR)
-        instruction.noperands = 9; 
+        instruction.noperands = 9;
     for (unsigned int i=0; i<instruction.noperands/2; i++)
     {
         CHxsOperand     *hxsOperand;
@@ -997,7 +997,7 @@ CInstruction CCode::createCaseInstr (Opcode op, uint8_t hxses, std::vector <CLab
 }
 
 /* ---------------------------- create operands ---------------*/
-CLabelOperand* CCode::newLabelOp (CLabel label1) 
+CLabelOperand* CCode::newLabelOp (CLabel label1)
 {
     CLabelOperand* labelOp  = new CLabelOperand();
     labelOp->label          = label1;
@@ -1005,44 +1005,44 @@ CLabelOperand* CCode::newLabelOp (CLabel label1)
     return labelOp;
 }
 
-CObjOperand* CCode::newObjOp (CObject *object1) 
+CObjOperand* CCode::newObjOp (CObject *object1)
 {
     CObjOperand* objOp  = new CObjOperand();
-    objOp->object       = *object1;    
+    objOp->object       = *object1;
     objOp->kind         = OT_OBJ;
     return objOp;
 }
 
-CRegOperand* CCode::newRegOp (RegType type1) 
+CRegOperand* CCode::newRegOp (RegType type1)
 {
     CRegOperand*  regOp     = new CRegOperand();
     regOp->reg              = CReg(type1);
-    regOp->kind             = OT_REG; 
+    regOp->kind             = OT_REG;
     return regOp;
 }
 
-CRegOperand* CCode::newRegOp (CReg reg1) 
+CRegOperand* CCode::newRegOp (CReg reg1)
 {
     return newRegOp(reg1.type);
 }
 
-CCondOperand* CCode::newCondOp (CondOperator condOp1) 
+CCondOperand* CCode::newCondOp (CondOperator condOp1)
 {
-    CCondOperand*  condOp   = new CCondOperand();    
+    CCondOperand*  condOp   = new CCondOperand();
     condOp->condOperator    = condOp1;
     condOp->kind            = OT_CONDOP;
     return condOp;
 }
 
-CBitOperand* CCode::newBitOp (BitOperator bitOp1) 
+CBitOperand* CCode::newBitOp (BitOperator bitOp1)
 {
-    CBitOperand*  bitOp     = new CBitOperand();    
+    CBitOperand*  bitOp     = new CBitOperand();
     bitOp->bitOperator      = bitOp1;
     bitOp->kind             = OT_BITOP;
     return bitOp;
 }
 
-CHxsOperand* CCode::newHxsOp    (bool hxsOp1) 
+CHxsOperand* CCode::newHxsOp    (bool hxsOp1)
 {
     CHxsOperand* hxsOp      = new CHxsOperand();
     hxsOp->hxsOp            = hxsOp1;
@@ -1050,7 +1050,7 @@ CHxsOperand* CCode::newHxsOp    (bool hxsOp1)
     return hxsOp;
 }
 
-CShiftOperand* CCode::newShiftOp    (bool shiftOp1) 
+CShiftOperand* CCode::newShiftOp    (bool shiftOp1)
 {
     CShiftOperand* shiftOp  = new CShiftOperand();
     shiftOp->shiftOp        = shiftOp1;
@@ -1066,7 +1066,7 @@ CTextOperand*  CCode::newTextOp      (std::string text1)
     return textOp;
 }
 
-CValueOperand* CCode::newValueOp     (uint64_t valueOp1) 
+CValueOperand* CCode::newValueOp     (uint64_t valueOp1)
 {
     CValueOperand* valueOp  = new CValueOperand();
     valueOp->value          = valueOp1;
@@ -1098,17 +1098,17 @@ CInstruction::CInstruction(Opcode op, COperand* operandA, COperand* operandB, CO
     }
 }
 
-std::string CInstruction::getOpcodeName() 
+std::string CInstruction::getOpcodeName()
 {
-    std::map <Opcode, std::string>::iterator iterator;    
-    std::map <Opcode, std::string> opcodeNames;    
+    std::map <Opcode, std::string>::iterator iterator;
+    std::map <Opcode, std::string> opcodeNames;
 
     opcodeNames[LOAD_BYTES_RA_TO_WR]    = "LOAD_BYTES_RA_TO_WR";
     opcodeNames[LOAD_BITS_FW_TO_WR]     = "LOAD_BITS_FW_TO_WR";
     opcodeNames[LOAD_BITS_IV_TO_WR]     = "LOAD_BITS_IV_TO_WR";
     opcodeNames[ZERO_WR]                = "ZERO_WR";
     opcodeNames[STORE_IV_TO_RA]         = "STORE_IV_TO_RA";
-    opcodeNames[STORE_WR_TO_RA]         = "STORE_WR_TO_RA";    
+    opcodeNames[STORE_WR_TO_RA]         = "STORE_WR_TO_RA";
     opcodeNames[ADD_WR_WR_TO_WR]        = "ADD_WR_WR_TO_WR";
     opcodeNames[ADD_WR_IV_TO_WR]        = "ADD_WR_IV_TO_WR";
     opcodeNames[SUB_WR_WR_TO_WR]        = "SUB_WR_WR_TO_WR";
@@ -1124,26 +1124,26 @@ std::string CInstruction::getOpcodeName()
     opcodeNames[CASE3_DJ_WR_TO_WR]      = "CASE3_DJ_WR_TO_WR";
     opcodeNames[CASE4_DC_WR_TO_WR]      = "CASE4_DC_WR_TO_WR";
     opcodeNames[LABEL]                  = "LABEL";
-    opcodeNames[JMP]                    = "JMP";    
-    opcodeNames[JMP_PROTOCOL_ETH]       = "JMP_PROTOCOL_ETH";    
-    opcodeNames[JMP_PROTOCOL_IP]        = "JMP_PROTOCOL_IP";    
-    opcodeNames[OR_IV_LCV]              = "OR_IV_LCV";    
-    opcodeNames[ONES_COMP_WR1_TO_WR0]   = "ONES_COMP_WR1_TO_WR0";     
-    opcodeNames[COMPARE_WORKING_REGS]   = "COMPARE_WORKING_REGS";     
-    opcodeNames[COMPARE_WR0_TO_IV]      = "COMPARE_WR0_TO_IV";     
+    opcodeNames[JMP]                    = "JMP";
+    opcodeNames[JMP_PROTOCOL_ETH]       = "JMP_PROTOCOL_ETH";
+    opcodeNames[JMP_PROTOCOL_IP]        = "JMP_PROTOCOL_IP";
+    opcodeNames[OR_IV_LCV]              = "OR_IV_LCV";
+    opcodeNames[ONES_COMP_WR1_TO_WR0]   = "ONES_COMP_WR1_TO_WR0";
+    opcodeNames[COMPARE_WORKING_REGS]   = "COMPARE_WORKING_REGS";
+    opcodeNames[COMPARE_WR0_TO_IV]      = "COMPARE_WR0_TO_IV";
     opcodeNames[CLM]                    = "CLM";
     opcodeNames[ADVANCE_HB_BY_WO]       = "ADVANCE_HB_BY_WO";
     opcodeNames[LOAD_SV_TO_WO]          = "LOAD_SV_TO_WO";
     opcodeNames[ADD_SV_TO_WO]           = "ADD_SV_TO_WO";
     opcodeNames[SET_WO_BY_WR]           = "SET_WO_BY_WR";
     opcodeNames[ADD_WO_BY_WR]           = "ADD_WO_BY_WR";
-    opcodeNames[INLINE_INSTR]           = "INLINE_INSTR";        
-    opcodeNames[NOP]                    = "NOP";        
-    
+    opcodeNames[INLINE_INSTR]           = "INLINE_INSTR";
+    opcodeNames[NOP]                    = "NOP";
+
     iterator = opcodeNames.find(opcode);
     if (iterator == opcodeNames.end())
         return "";
-    else 
+    else
         return opcodeNames[opcode];
 }
 
@@ -1156,7 +1156,7 @@ void CInstruction::checkError(int num...)
     va_start(listPointer, num);
     for(signed int i = 0; i < num; i++ )
     {
-        type = (OpType)va_arg(listPointer, int);        
+        type = (OpType)va_arg(listPointer, int);
         if (type != operands[i]->kind)
             throw CGenericError (ERR_INTERNAL_SP_ERROR, "wrong argument type");
     }
@@ -1165,7 +1165,7 @@ void CInstruction::checkError(int num...)
 
 bool CInstruction::canJump() const
 {
-    return (opcode==CASE1_DJ_WR_TO_WR || opcode==CASE1_DJ_WR_TO_WR      || 
+    return (opcode==CASE1_DJ_WR_TO_WR || opcode==CASE1_DJ_WR_TO_WR      ||
             opcode==CASE2_DJ_WR_TO_WR || opcode==CASE3_DC_WR_TO_WR      ||
             opcode==CASE3_DJ_WR_TO_WR || opcode==CASE4_DC_WR_TO_WR      ||
             opcode==COMPARE_WR0_TO_IV || opcode==COMPARE_WORKING_REGS   ||
@@ -1196,14 +1196,14 @@ CReg COperand::getReg() const
     }
     else if (kind==OT_HXS)
         return CHxsOperand::reg;
-    else 
+    else
         throw CGenericError(ERR_INTERNAL_SP_ERROR);
 }
 
 CRegOperand* COperand::getRegOp() const
 {
     const CRegOperand* ro = dynamic_cast<const CRegOperand*>(this);
-    return const_cast <CRegOperand*> (ro);    
+    return const_cast <CRegOperand*> (ro);
 }
 
 bool COperand::hasReg() const
@@ -1224,9 +1224,9 @@ void   COperand::setUsed(const bool val)
 std::string CBitOperand::getOperandName () const
 {
     switch (bitOperator) {
-        case BO_AND:        return "&"; 
-        case BO_OR:         return "|"; 
-        case BO_XOR:        return "XOR"; 
+        case BO_AND:        return "&";
+        case BO_OR:         return "|";
+        case BO_XOR:        return "XOR";
     }
     return "R_ERROR";
 }
@@ -1234,12 +1234,12 @@ std::string CBitOperand::getOperandName () const
 std::string CCondOperand::getOperandName () const
 {
     switch (condOperator) {
-        case CO_EQU:        return "=="; 
-        case CO_NOTEQU:     return "!="; 
-        case CO_GREATER:    return ">"; 
+        case CO_EQU:        return "==";
+        case CO_NOTEQU:     return "!=";
+        case CO_GREATER:    return ">";
         case CO_LESS:       return "<";
-        case CO_GREATEREQU: return ">="; 
-        case CO_LESSEQU:    return "<="; 
+        case CO_GREATEREQU: return ">=";
+        case CO_LESSEQU:    return "<=";
     }
     return "R_ERROR";
 }
@@ -1248,9 +1248,9 @@ CReg CHxsOperand::reg = CReg(R_WO);
 
 std::string CHxsOperand::getOperandName () const
 {
-    if (hxsOp) 
+    if (hxsOp)
         return "HXS";
-    else 
+    else
         return "";
 }
 
@@ -1258,7 +1258,7 @@ std::string CLabelOperand::getOperandName () const
 {
     if (!label.isProto)
         return label.name;
-    else 
+    else
         return label.getProtocolOutputName();
 }
 
@@ -1286,9 +1286,9 @@ std::string CLabel::getProtocolOutputName ()  const
         case PT_NEXT_IP:    return "PT_NEXT_IP";
         case PT_RETURN:     return "RETURN_HXS";
         case PT_END_PARSE:  return "END_PARSE";
-        default:    throw CGenericError 
+        default:    throw CGenericError
                     (ERR_INTERNAL_SP_ERROR,"Wrong protocol type");
-    }    
+    }
 }
 
 std::string CObjOperand::getOperandName () const
@@ -1303,9 +1303,9 @@ std::string CRegOperand::getOperandName () const
 
 std::string CShiftOperand::getOperandName () const
 {
-    if (shiftOp) 
+    if (shiftOp)
         return "<<";
-    else 
+    else
         return "";
 }
 

@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -25,13 +25,13 @@ using namespace std;
 
 
 void softparser (CTaskDef *task, std::string filePath, unsigned int baseAddress)
-{    
-    CIR 					newIR;
-    CCode 					newCode;
-    std::string  			currentPath, fileNoExt, fileName, parsePath, dumpPath;
-    std::string             headerPath;
-    unsigned char 			binary1[CODE_SIZE] = {0};
-    fmsp_label_list_t 	    *labels, *labelsIter;
+{
+    CIR               newIR;
+    CCode             newCode;
+    std::string       currentPath, fileNoExt, fileName, parsePath, dumpPath;
+    std::string       headerPath;
+    unsigned char     binary1[CODE_SIZE] = {0};
+    fmsp_label_list_t *labels, *labelsIter;
 
     /*init tables*/
     RA::Instance().initRA();
@@ -39,23 +39,23 @@ void softparser (CTaskDef *task, std::string filePath, unsigned int baseAddress)
     /* set paths*/
     int m       = filePath.find(".xml");
     fileNoExt   = filePath.substr(0,m);
-    dumpPath    = fileNoExt+".dump";    
+    dumpPath    = fileNoExt+".dump";
     parsePath   = fileNoExt+".parsed";
     headerPath  = "softparse.h";
 
     if (DEBUG_SP)
     {
         newIR.  setDumpIr  (fileNoExt+".ir");
-        newCode.setDumpCode(fileNoExt+".code");           
+        newCode.setDumpCode(fileNoExt+".code");
         newCode.setDumpAsm (fileNoExt+".asm");
         newCode.setDebugAsm(1);
-        task->dumpSpParsed (parsePath);   
+        task->dumpSpParsed (parsePath);
     }
 
     /*Parse, create IR and create asm*/
     newIR.createIR          (task);
     newCode.createCode      (newIR);
-    
+
     /*assemble*/
     unsigned int actualCodeSize = assemble((char*)newCode.getAsmOutput().c_str(), binary1, &labels, DEBUG_SP, baseAddress);
 
@@ -67,8 +67,8 @@ void softparser (CTaskDef *task, std::string filePath, unsigned int baseAddress)
     task->spr.setBinary(binary1, sizeof(binary1));
     task->spr.setExtensions(extns);
     task->spr.setSize(actualCodeSize);
-        
-    task->spr.dumpHeader(headerPath); 
+
+    task->spr.dumpHeader(headerPath);
 
     /* Free memory*/
     while (labels)
@@ -79,7 +79,7 @@ void softparser (CTaskDef *task, std::string filePath, unsigned int baseAddress)
         labels      = labelsIter;
     }
     newIR.deleteIR();
-    task->deleteExecute();   
+    task->deleteExecute();
     newCode.deleteCode();
 }
 
@@ -91,7 +91,7 @@ unsigned int assemble (char* asmResult, unsigned char* binary, fmsp_label_list_t
     asmOptions.program_space_base_address = baseAddress;
     asmOptions.suppress_warnings = 0;
     asmOptions.warnings_are_errors = 0;
-    
+
     fmsp_error_code_t errorS =
         fmsp_assemble(asmResult, binary, &localLabels, &asmOptions, NULL);
     *labels = localLabels;
@@ -108,20 +108,20 @@ unsigned int assemble (char* asmResult, unsigned char* binary, fmsp_label_list_t
         }
     }
     /*Last 4 instructions must be zero*/
-    else if(binary[CODE_SIZE-1] || binary[CODE_SIZE-2] ||  
+    else if(binary[CODE_SIZE-1] || binary[CODE_SIZE-2] ||
             binary[CODE_SIZE-3] || binary[CODE_SIZE-4] ||
-            binary[CODE_SIZE-5] || binary[CODE_SIZE-6] ||  
+            binary[CODE_SIZE-5] || binary[CODE_SIZE-6] ||
             binary[CODE_SIZE-7] || binary[CODE_SIZE-8])
-        throw CGenericError (ERR_TOO_MANY_INSTR, 
+        throw CGenericError (ERR_TOO_MANY_INSTR,
                      "Generated code should be 1-4 instructions shorter. ");
 
     return asmOptions.result_code_size;
 }
 
-void createExtensions (std::vector<CExtension> &extns, CCode code, fmsp_label_list_t *labels) 
+void createExtensions (std::vector<CExtension> &extns, CCode code, fmsp_label_list_t *labels)
 {
     fmsp_label_list_t *labelsIter;
-    for (unsigned int i=0; i<code.protocolsCode.size(); i++)  
+    for (unsigned int i=0; i<code.protocolsCode.size(); i++)
     {
         labelsIter = labels;
         while (labelsIter) {
@@ -131,7 +131,7 @@ void createExtensions (std::vector<CExtension> &extns, CCode code, fmsp_label_li
                                       code.protocolsCode[i].protocol.prevproto,
                                       labelsIter->byte_position);
                 extns.push_back(extension);
-                break;                  
+                break;
             }
             labelsIter = labelsIter->next_p;
         }
@@ -144,15 +144,15 @@ void CSoftParseResult::setBinary(const uint8_t binary1[], const uint32_t size)
 {
     for (unsigned int i=0; i<size; i++)
         this->p_Code[i] = binary1[i];
-        
+
 }
- 
+
 void CSoftParseResult::setBaseAddresss(const uint16_t baseAddress1)
 {
     this->base = baseAddress1;
 }
 
-void CSoftParseResult::setEnable      (const bool val)
+void CSoftParseResult::setEnable(const bool val)
 {
     this->softParseEnabled = 1;
 }
@@ -183,38 +183,38 @@ void CSoftParseResult::setExtensions(const std::vector <CExtension> extns)
 
 void CSoftParseResult::dumpHeader(std::string path) const
 {
-    std::ofstream dumpFile; 
+    std::ofstream dumpFile;
     dumpFile.open(path.c_str(), std::ios::out);
     dumpFile.setf(std::ios::uppercase);
     unsigned int i,j;
 
     dumpFile << "#define SOFT_PARSE_CODE                                    \\"
     << endl  << "{                                                          \\"
-    << endl  <<	"    TRUE,                               /*Override*/       \\"
-    << endl  <<	"    " << size
-             <<         ",                               /*Size*/           \\"
+    << endl  << "    TRUE,                               /*Override*/       \\"
+    << endl  << "    " << size
+             << ",                               /*Size*/           \\"
     << endl  << "    " << "0x" << std::hex << base
-             <<         ",                               /*Base*/           \\"
+             << ",                               /*Base*/           \\"
     << endl  << "    (uint8_t *)&(uint8_t[]){            /*Code*/           \\"
     << endl;
-    
+
     for (j=0, i=2*(base-ASSEMBLER_BASE); ( i < CODE_SIZE-4 ) && ( j < size ); i++, j++)
-    {        
+    {
         if (j%10 == 0 || i==2*(base-ASSEMBLER_BASE))
             dumpFile << "        ";
         dumpFile << "0x";
         if (p_Code[i]<0x10)
-            dumpFile << "0";        
-        dumpFile << std::hex << (int)p_Code[i];   
+            dumpFile << "0";
+        dumpFile << std::hex << (int)p_Code[i];
         if (i+1!=CODE_SIZE)
             dumpFile << ",";
         if ( ( (j+1)%10==0 ) || ( i+1==CODE_SIZE ) || ( j+1 >= size ) )
-            dumpFile << " \\" << std::endl; 
-    }   
-    
+            dumpFile << " \\" << std::endl;
+    }
+
     dumpFile << "    },                                                     \\"
     << endl  << "    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},  /*swPrsParams*/    \\"
-    << endl  << "    " << (int)numOfLabels 
+    << endl  << "    " << (int)numOfLabels
              <<      ",                                  /*numOfLabels*/    \\"
     << endl  << "    {                                                      \\"
     << endl;
@@ -226,7 +226,7 @@ void CSoftParseResult::dumpHeader(std::string path) const
                  <<              ",                       /*offset*/         \\"
         << endl  << "            " << externProtoName(labelsTable[i].prevType[0])
                  <<              ",           /*prevProto*/      \\"
-        << endl  << "            " << (int)labelsTable[i].indexPerHdr 
+        << endl  << "            " << (int)labelsTable[i].indexPerHdr
                  <<              ",                           /*index*/          \\"
         << endl  << "        },                                                 \\"
         << endl;
@@ -237,11 +237,11 @@ void CSoftParseResult::dumpHeader(std::string path) const
 }
 
 /*Find the protocol name which should be used in the softpare.h file*/
-std::string CSoftParseResult::externProtoName(const ProtoType type) 
+std::string CSoftParseResult::externProtoName(const ProtoType type)
 {
     std::map< ProtoType, std::string >::iterator protocolsLabelsIterator;
     std::map< ProtoType, std::string> protocolsLabels;
-    
+
     protocolsLabels[PT_ETH]       = "HEADER_TYPE_ETH";
     protocolsLabels[PT_LLC_SNAP]  = "HEADER_TYPE_SNAP";
     protocolsLabels[PT_VLAN]      = "HEADER_TYPE_VLAN";

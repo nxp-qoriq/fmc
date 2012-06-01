@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009-2012, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009-2012, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -74,11 +74,11 @@ private:
 class DefaultGroup
 {
 public:
-	e_FmPcdKgKnownFieldsDfltTypes type;
-    std::string					  typeStr;
-    
+    e_FmPcdKgKnownFieldsDfltTypes type;
+    std::string                   typeStr;
+
     e_FmPcdKgExtractDfltSelect    select;
-    std::string					  selectStr;
+    std::string                      selectStr;
 };
 
 class ExtractData
@@ -86,10 +86,10 @@ class ExtractData
 public:
     e_FmPcdExtractType type;
     std::string        typeStr;
-    
+
     e_FmPcdExtractFrom src;
     std::string        srcStr;
-    
+
     unsigned int offset;
     unsigned int size;
     unsigned int mask;
@@ -148,13 +148,13 @@ public:
     std::vector < ExtractData > combines; ///<
                                         ///< 'extracted Or' fields
 
-	std::vector < DefaultGroup > defaults; ///< Default groups
+    std::vector < DefaultGroup > defaults; ///< Default groups
 
     unsigned int qbase;                 ///< Queue base
     unsigned int qcount;                ///< Number of queues
 
-	uint32_t privateDflt0;				///< Scheme default register 0
-	uint32_t privateDflt1;				///< Scheme default register 1
+    uint32_t privateDflt0;              ///< Scheme default register 0
+    uint32_t privateDflt1;              ///< Scheme default register 1
 
     uint8_t      relativeSchemeId;      ///< Scheme index for the containing port
     unsigned int hashShift;             ///< Hash value shift
@@ -215,9 +215,9 @@ public:
 public:
     std::string name;                   ///< Node name
 
-	unsigned int maxNumOfKeys;			///< Max number of keys
+    unsigned int maxNumOfKeys;          ///< Max number of keys
 
-	bool maskSupport;					///< Reservation of memory for key masks
+    bool maskSupport;                   ///< Reservation of memory for key masks
 
     ExtractData extract;                ///< Extract parameters
 
@@ -232,7 +232,7 @@ public:
     std::vector< CCData >       masks;  ///< The list of masks corresponding to data entries
     std::vector< CCNextEngine > nextEngines;
     std::vector< unsigned int > frag;
-	std::vector< unsigned int > header;
+    std::vector< unsigned int > header;
     std::vector< unsigned int > indices;
 
     CCNextEngine nextEngineOnMiss;
@@ -248,7 +248,7 @@ class Policer : public FMBlock
 {
 public:
     std::string name;
-    
+
     e_FmPcdPlcrAlgorithmSelection algorithm;
     std::string                   algorithmStr;
     e_FmPcdPlcrColorMode          colorMode;
@@ -261,7 +261,7 @@ public:
 
     e_FmPcdPlcrRateMode rateMode;
     std::string         rateModeStr;
-    
+
     unsigned int comittedInfoRate;
     unsigned int comittedBurstSize;
     unsigned int peakOrAccessiveInfoRate;
@@ -309,7 +309,7 @@ public:
                                         ///< Class. nodes used by this port
     std::vector< unsigned int > cctrees; ///<
                                         ///< Root CC nodes
-	std::vector< unsigned int > hdrmanips; ///<
+    std::vector< unsigned int > hdrmanips; ///<
                                         ///< Header manip for CC nodes
     std::map< Protocol,
         std::pair< unsigned int, DistinctionUnitElement > > protocols; ///<
@@ -332,7 +332,7 @@ public:
 
 #ifndef P1023
 
-	class CInsertData
+    class CInsertData
     {
     public:
         unsigned char data[FM_PCD_MAX_SIZE_OF_KEY];
@@ -340,12 +340,12 @@ public:
 
     std::vector< t_FmPcdManipParams > reasm;
     std::vector< std::string >        reasm_names;
-    
+
     std::vector< t_FmPcdManipParams > frags;
     std::vector< std::string >        frag_names;
 
-	std::vector< t_FmPcdManipParams > headerManips;
-	std::vector< CInsertData >		  insertDatas;
+    std::vector< t_FmPcdManipParams > headerManips;
+    std::vector< CInsertData >        insertDatas;
     std::vector< std::string >        headerManips_names;
 #endif /* P1023 */
 };
@@ -403,7 +403,7 @@ class CFMCModel
 public:
     /// Default constructor
     CFMCModel();
-    
+
     /// Create model by building the internal database
     bool createModel( CTaskDef* m_pTaskDef );
 

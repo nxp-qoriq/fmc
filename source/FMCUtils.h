@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -35,13 +35,13 @@ char mytolower(char c);
 
 
 // A helper functor for XML names comparison
-struct MyXMLCharComparator 
-{ 
-   bool operator()(const xmlChar * A, const xmlChar * B) const 
-   { 
-       return (std::string((char*)A) < std::string((char*)B)); 
-   } 
-} ; 
+struct MyXMLCharComparator
+{
+   bool operator()(const xmlChar * A, const xmlChar * B) const
+   {
+       return (std::string((char*)A) < std::string((char*)B));
+   }
+} ;
 
 
 // Class definitions
@@ -59,7 +59,7 @@ template <typename T> class IntBits
     {
         uint32_t      count = 0;
         T            mask  = 1;
-        
+
         for ( unsigned int i = 0; i < 8*sizeof( T ); ++i, mask <<= 1 ) {
             if ( val & mask ) {
                 ++count;

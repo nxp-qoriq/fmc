@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -23,7 +23,7 @@
 #include <fstream>
 
 /* For strtoull */
-#include <stdlib.h>    
+#include <stdlib.h>
 #ifdef _MSC_VER
 #define snprintf _snprintf
 #define strtoull _strtoui64
@@ -47,7 +47,7 @@ typedef std::map< std::string, unsigned int >           CConstants;
 typedef std::map< std::string, unsigned int >::iterator CConstantsIter;
 
 
-typedef enum ExecuteInstructionType { 
+typedef enum ExecuteInstructionType {
     IF,
     LOOP,
     ACTION,
@@ -56,17 +56,17 @@ typedef enum ExecuteInstructionType {
     SWITCH
 } ExecuteInstructionType;
 
-typedef enum ExecuteSectionType { 
-    INIT, 
-    BEFORE, 
-    AFTER, 
-    VERIFY, 
+typedef enum ExecuteSectionType {
+    INIT,
+    BEFORE,
+    AFTER,
+    VERIFY,
     EMPTY /* EMPTY is used when the ExecuteSection class is accessed because
              of IN statement and not due to a new section*/
 } ExecuteSectionType;
 
 
-typedef enum ProtoType { 
+typedef enum ProtoType {
     PT_ETH,
     PT_LLC_SNAP,
     PT_VLAN,
@@ -112,7 +112,7 @@ class CField
     std::string comment;
     std::string align;
     std::string enddiscard;
-      
+
     std::vector< CField > fields;
 };
 
@@ -145,10 +145,10 @@ class CExecuteSection : public CConfirmCustomExtractor
   public:
     std::vector< CExecuteExpression> executeExpressions;
     ExecuteSectionType               type;
-    std::string                      when; 
+    std::string                      when;
     std::string                      confirm;
     std::string                      confirmCustom;
-    int                              line;    
+    int                              line;
 
     CExecuteSection     () : line(NO_LINE) {};
     CExecuteSection     (ExecuteSectionType type1) : type(type1), line(NO_LINE) {};
@@ -162,7 +162,7 @@ class CExecuteSection : public CConfirmCustomExtractor
 class CExecuteAssign : public CConfirmCustomExtractor
 {
   public:
-    std::string     name; 
+    std::string     name;
     std::string     value;
     std::string     fwoffset;
     int             line;
@@ -176,9 +176,9 @@ class CExecuteAssign : public CConfirmCustomExtractor
 class CExecuteAction : public CConfirmCustomExtractor
 {
   public:
-    std::string     type; 
-    std::string     value; 
-    std::string     nextproto; 
+    std::string     type;
+    std::string     value;
+    std::string     nextproto;
     std::string     advance;
     std::string     confirm;
     std::string     confirmCustom;
@@ -192,12 +192,12 @@ class CExecuteAction : public CConfirmCustomExtractor
 
 class CExecuteLoop : public CConfirmCustomExtractor
 {
-  public: 
+  public:
     std::string      type;
-    std::string      expr; 
+    std::string      expr;
     CExecuteSection  loopBody;
     int              line;
-    
+
     CExecuteLoop  () :                  line(NO_LINE) {}
     CExecuteLoop  (std::string expr1) : expr(expr1), line(NO_LINE) {}
     void dumpLoop (std::ofstream &outFile, uint8_t spaces);
@@ -207,14 +207,14 @@ class CExecuteLoop : public CConfirmCustomExtractor
 
 class CExecuteIf : public CConfirmCustomExtractor
 {
-  public: 
-    std::string      expr; 
+  public:
+    std::string      expr;
     CExecuteSection  ifTrue;
     CExecuteSection  ifFalse;
     int              line;
     bool             ifTrueValid;
     bool             ifFalseValid;
-    
+
     CExecuteIf  () :                  ifTrueValid( false ), ifFalseValid( false ), line(NO_LINE) {}
     CExecuteIf  (std::string expr1) : ifTrueValid( false ), ifFalseValid( false ), expr(expr1), line(NO_LINE) {}
     void dumpIf (std::ofstream &outFile, uint8_t spaces);
@@ -224,10 +224,10 @@ class CExecuteIf : public CConfirmCustomExtractor
 
 class CExecuteInline : public CConfirmCustomExtractor
 {
-  public: 
+  public:
     std::string      data;
     int              line;
-    
+
     CExecuteInline  () :                  data(""),    line(NO_LINE) {}
     CExecuteInline  (std::string data1) : data(data1), line(NO_LINE) {}
     void dumpInline (std::ofstream &outFile, uint8_t spaces);
@@ -252,13 +252,13 @@ class CExecuteCase : public CConfirmCustomExtractor
 
 class CExecuteSwitch : public CConfirmCustomExtractor
 {
-  public: 
-    std::string                     expr; 
+  public:
+    std::string                     expr;
     std::vector <CExecuteCase>      cases;
     CExecuteSection                 defaultCase;
     int                             line;
     bool                            defaultCaseValid;
-    
+
     CExecuteSwitch     () : defaultCaseValid( false ), line(NO_LINE) {};
     void dumpSwitch    (std::ofstream &outFile, uint8_t spaces);
 
@@ -268,13 +268,13 @@ class CExecuteSwitch : public CConfirmCustomExtractor
 class CExecuteExpression : public CConfirmCustomExtractor
 {
   public:
-    ExecuteInstructionType type;	
-    CExecuteAction         actionInstr;   
-    CExecuteAssign         assignInstr; 
-    CExecuteIf             ifInstr; 
-    CExecuteLoop           loopInstr; 
-    CExecuteInline         inlineInstr; 
-    CExecuteSwitch         switchInstr; 
+    ExecuteInstructionType type;
+    CExecuteAction         actionInstr;
+    CExecuteAssign         assignInstr;
+    CExecuteIf             ifInstr;
+    CExecuteLoop           loopInstr;
+    CExecuteInline         inlineInstr;
+    CExecuteSwitch         switchInstr;
 
     CExecuteExpression() {}
     CExecuteExpression(ExecuteInstructionType type1): type(type1) {}
@@ -334,11 +334,11 @@ class CProtocol
     static short ProtocolLayer(ProtoType      pt);
 };
 
-class CLabel 
-{							
-  public:      
+class CLabel
+{
+  public:
     bool            isProto;    //  label is a protocol
-    std::string		name;		//	label name
+    std::string     name;       //  label name
     ProtoType       protocol;   //  protocol type
 
     CLabel() :                  isProto(0)                 {}
@@ -353,30 +353,30 @@ class CExtension
 public:
     std::vector< ProtoType >   prevType;
     std::vector< std::string > prevNames;
-    uint32_t    position;
-    uint8_t		indexPerHdr;
+    uint32_t position;
+    uint8_t  indexPerHdr;
 
     CExtension() : position(0), indexPerHdr(0) {}
-    CExtension(std::vector< ProtoType >& types, std::vector< std::string >& names, uint32_t pos) : 
+    CExtension(std::vector< ProtoType >& types, std::vector< std::string >& names, uint32_t pos) :
         prevType(types), prevNames(names), position(pos), indexPerHdr(0) {}
 };
 
-const int ASSEMBLER_BASE = 0x20; 
-const int CODE_SIZE      = 0x7C0; 
+const int ASSEMBLER_BASE = 0x20;
+const int CODE_SIZE      = 0x7C0;
 
-class CSoftParseResult 
+class CSoftParseResult
 {
 public:
     bool                     softParseEnabled;
-    bool                	 override1;                   /**< FALSE to invoke a check that nothing else 
-                                                             was loaded to this address, including 
+    bool                     override1;                   /**< FALSE to invoke a check that nothing else
+                                                             was loaded to this address, including
                                                              internal patched.
                                                              TRUE to override any existing code.*/
     uint32_t                 size;                       /**< SW parser code size */
     uint16_t                 base;                       /**< SW parser base (in instruction counts!
                                                              muat be larger than 0x20)*/
     uint8_t                  p_Code[CODE_SIZE];          /**< SW parser code */
-    uint32_t                 swPrsDataParams[16];            
+    uint32_t                 swPrsDataParams[16];
                                                          /**< SW parser data (parameters) */
     uint8_t                  numOfLabels;                /**< Number of labels for SW parser. */
     std::vector <CExtension> labelsTable;                /**< SW parser labels table, containing n
@@ -397,8 +397,8 @@ class CFieldRef
   public:
     std::string name;
     std::string header_index;
-	unsigned int offset;
-	unsigned int size;
+    unsigned int offset;
+    unsigned int size;
 };
 
 class CNonHeaderEntry
@@ -441,14 +441,14 @@ class CProtocolRef
 {
   public:
     std::string name;
-	std::string opt;
+    std::string opt;
 };
 
 class CDefaultGroup
 {
   public:
-	std::string type;
-	std::string select;
+    std::string type;
+    std::string select;
 };
 
 
@@ -463,18 +463,18 @@ class CDistribution
     unsigned int qcount;
     unsigned int keyShift;
     bool         symmetricHash;
-	unsigned long dflt0;
-	unsigned long dflt1;
+    unsigned long dflt0;
+    unsigned long dflt1;
 
     std::vector< CFieldRef >     key;
     std::vector< CCombineEntry > combines;
     std::vector< CProtocolRef >  protocols;
-	std::vector< CNonHeaderEntry > nonHeader;
-	std::vector< CDefaultGroup > defaults;
+    std::vector< CNonHeaderEntry > nonHeader;
+    std::vector< CDefaultGroup > defaults;
 
     std::string action;
     std::string actionName;
-	std::string headerManipName;
+    std::string headerManipName;
 };
 
 
@@ -507,36 +507,36 @@ class CFragmentation
 {
   public:
     std::string  name;
-	unsigned int size;
-	unsigned int dontFragAction;
-	unsigned int scratchBpid;
-	unsigned int sgBpid;
-	bool		 sgBpidEn;
+    unsigned int size;
+    unsigned int dontFragAction;
+    unsigned int scratchBpid;
+    unsigned int sgBpid;
+    bool         sgBpidEn;
 };
 
 class CReassembly
 {
   public:
     std::string  name;
-	unsigned int sgBpid;
-	unsigned int maxInProcess;
-	unsigned int dataLiodnOffset;
-	unsigned int dataMemId;
-	unsigned int ipv4minFragSize;
-	unsigned int ipv6minFragSize;
-	unsigned int timeOutMode;
-	unsigned int fqidForTimeOutFrames;
-	unsigned int numOfFramesPerHashEntry[2];
-	unsigned int timeoutThreshold;
+    unsigned int sgBpid;
+    unsigned int maxInProcess;
+    unsigned int dataLiodnOffset;
+    unsigned int dataMemId;
+    unsigned int ipv4minFragSize;
+    unsigned int ipv6minFragSize;
+    unsigned int timeOutMode;
+    unsigned int fqidForTimeOutFrames;
+    unsigned int numOfFramesPerHashEntry[2];
+    unsigned int timeoutThreshold;
 };
 
 class CHeaderInsert
 {
  public:
-	unsigned int size;
-	unsigned int offset;
-	bool replace;
-	char data[MAX_INSERT_SIZE];
+    unsigned int size;
+    unsigned int offset;
+    bool replace;
+    char data[MAX_INSERT_SIZE];
 };
 
 class CHeaderRemove
@@ -550,11 +550,11 @@ class CHeaderManip
 {
  public:
     std::string  name;
-	bool parse;
-	bool insert;
-	bool remove;
-	CHeaderInsert hdrInsert;
-	CHeaderRemove hdrRemove;
+    bool parse;
+    bool insert;
+    bool remove;
+    CHeaderInsert hdrInsert;
+    CHeaderRemove hdrRemove;
 };
 
 class CClassEntry
@@ -564,8 +564,8 @@ class CClassEntry
     char         mask[MAX_CC_KEY];
     std::string  action;
     std::string  actionName;
-	std::string  fragmentationName;
-	std::string  headerManipName;
+    std::string  fragmentationName;
+    std::string  headerManipName;
     unsigned int qbase;
     unsigned int index;
 };
@@ -573,25 +573,25 @@ class CClassEntry
 class CClassKey
 {
 public:
-    bool					   header;
-	bool					   field;
+    bool                       header;
+    bool                       field;
     std::vector< CFieldRef >   fields;
-    CNonHeaderEntry			   nonHeaderEntry;
+    CNonHeaderEntry            nonHeaderEntry;
 };
 
 class CClassification
 {
   public:
-    std::string                name; 
-    CClassKey				   key;
+    std::string                name;
+    CClassKey                  key;
     std::vector< CClassEntry > entries;
     std::string                actionOnMiss;
     std::string                actionNameOnMiss;
-	std::string				   fragmentationNameOnMiss;
+    std::string                fragmentationNameOnMiss;
     unsigned int               qbase;
-	//Preallocation
-	unsigned int			   max;
-	bool					   masks;
+    //Preallocation
+    unsigned int               max;
+    bool                       masks;
 };
 
 
@@ -600,7 +600,7 @@ class CPolicy
   public:
     std::string                name;
     std::vector< std::string > dist_order;
-	std::string				   reassemblyName;
+    std::string                reassemblyName;
 };
 
 
@@ -639,14 +639,14 @@ class CTaskDef
     std::string pcddate;
 
     std::vector< CProtocol >                 protocols;
-    CSoftParseResult                         spr;       
+    CSoftParseResult                         spr;
     std::map< std::string, CDistribution >   distributions;
     std::map< std::string, CClassification > classifications;
     std::map< std::string, CPolicer >        policers;
     std::map< std::string, CPolicy >         policies;
-	std::map< std::string, CFragmentation >  fragmentations;
-	std::map< std::string, CReassembly >     reassemblies;
-	std::map< std::string, CHeaderManip >    headermanips;
+    std::map< std::string, CFragmentation >  fragmentations;
+    std::map< std::string, CReassembly >     reassemblies;
+    std::map< std::string, CHeaderManip >    headermanips;
 
     std::map< std::string, CEngine > engines;
 
@@ -661,7 +661,7 @@ class CTaskDef
                              uint32_t&         bitOffset ) const;
     std::string getShimNoFromCustom( const std::string protocol_name ) const;
 
-    void deleteExecute  ();     
+    void deleteExecute  ();
     void dumpSpParsed   (std::string path);
 
   private:
@@ -669,7 +669,7 @@ class CTaskDef
     bool checkSemanticsClassification( CClassification& clsf );
     bool checkSemanticsDistribution( CDistribution& dist );
     bool checkSemanticsPolicer( CPolicer& plcr );
-	bool checkSemanticsReassembly( CReassembly& reas );
+    bool checkSemanticsReassembly( CReassembly& reas );
     bool checkActionTarget( const std::string action,
                             const std::string actionName,
                             const std::string fromType,

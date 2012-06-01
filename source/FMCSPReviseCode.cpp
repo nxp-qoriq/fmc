@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -30,10 +30,10 @@ void CProtocolCode::reviseProtocolCode()
         for (int i = (signed)instructions.size()-1; i >= 0; i--)
         {
             if (instructions[i].opcode == LOAD_BITS_IV_TO_WR &&
-                instructions[i].operands[2]->getValue() == 0 && 
+                instructions[i].operands[2]->getValue() == 0 &&
                 instructions[i].operands[1]->getOperandName() == "")
-                changed = reviseClear(i);          
-        }      
+                changed = reviseClear(i);
+        }
     }
 }
 
@@ -42,14 +42,14 @@ bool CProtocolCode::removeDoubleDefine()
     int defWR1=1;
     bool changed = 0;
     for (int i = (signed)instructions.size()-1; i >= 0; i--)
-    {        
+    {
         if (instructions[i].opcode == LABEL || instructions[i].canJump())
             defWR1 = 0;
         for (unsigned int j=0; j<instructions[i].noperands; j++)
-        {       
+        {
             COperand* op = instructions[i].operands[j];
             if (!op->hasReg() || op->getReg().type != R_WR1)
-                continue;            
+                continue;
             if      (op->flags.used)
                 defWR1 = 0;
             else if (op->flags.defined)
@@ -57,8 +57,8 @@ bool CProtocolCode::removeDoubleDefine()
                 if (defWR1)
                 {
                     /* This optimization is currently disabled
-                    std::cout << "kill instr number" << i 
-                              << instructions[i].getOpcodeName() << std::endl;                   
+                    std::cout << "kill instr number" << i
+                              << instructions[i].getOpcodeName() << std::endl;
                     eraseInstruction (i);
                     changed = 1;*/
                 }
@@ -71,12 +71,12 @@ bool CProtocolCode::removeDoubleDefine()
                              instructions[i].operands[j]->getReg().getName() <<
                              "used" << std::endl;*/
         }
-    }    
+    }
     return 0;
 }
 
 bool CProtocolCode::reviseClear(uint32_t i)
-{    
+{
     CInstruction clearInstr = CCode::createZERO_WR(CCode::newRegOp(
                               instructions[i].operands[0]->getReg()));
     /*add new instruction and delete old one*/
@@ -89,7 +89,7 @@ void CProtocolCode::insertInstruction(uint32_t i, CInstruction instruction)
 {
     std::vector <CInstruction>::iterator instructionsI;
     instructionsI = instructions.begin()+i;
-    instructions.insert(instructionsI, instruction); 
+    instructions.insert(instructionsI, instruction);
 }
 
 void CProtocolCode::eraseInstruction(uint32_t i)
@@ -97,5 +97,5 @@ void CProtocolCode::eraseInstruction(uint32_t i)
     instructions[i].deleteInstruction();
     std::vector <CInstruction>::iterator instructionsI;
     instructionsI = instructions.begin()+i;
-    instructions.erase(instructionsI); 
+    instructions.erase(instructionsI);
 }

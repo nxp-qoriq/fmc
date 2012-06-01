@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -17,7 +17,7 @@
 uint32_t CIR::currentUniqueName = 0;
 
 /* ------------------------- CreateIR functions ---------------------------*/
-void CIR::createIR(CTaskDef* newTask) 
+void CIR::createIR(CTaskDef* newTask)
 {
     this->task = newTask;
     this->createIR();
@@ -34,13 +34,13 @@ void CIR::createIR ()
     {
         CExecuteCode executeCode  = task->protocols[i].executeCode;
         if (executeCode.executeSections.size())
-        {                        
-            status.currentProtoIndex = count; 
+        {
+            status.currentProtoIndex = count;
 
             /*Insert initial label*/
             CLabel labelP("START_"+task->protocols[i].name);
             CProtocolIR protoIR(labelP, task->protocols[i]);
-            protoIR.ir = this;                             
+            protoIR.ir = this;
             CStatement statement;
             statement.createLabelStatement(labelP);
             protoIR.statements.push_back(statement);
@@ -56,23 +56,23 @@ void CIR::createIR ()
 
             /*Add any special code before user sections if needed*/
             initIRProto(protocolsIRs[count].statements);
-                        
+
             /*Organize sections before parsing them*/
-            uniteSections (executeCode.executeSections);            
-            
+            uniteSections (executeCode.executeSections);
+
             /*Create IR instruction for each section in the protocol*/
             std::vector< CExecuteSection> sections=executeCode.executeSections;
             for (j = 0; j < sections.size(); j++)
                 createIRSection(sections[j], protocolsIRs[count]);
-            /*Mark endsection statement of last statement. 
-              Needed for final jump and to decide on hb advancement*/              
+            /*Mark endsection statement of last statement.
+              Needed for final jump and to decide on hb advancement*/
             protocolsIRs[count].statements.back().flags.lastStatement = 1;
             /*Last statement should confirm by default*/
             if (sections[sections.size()-1].confirm != "no")
-                protocolsIRs[count].statements.back().flags.confirm = 1;    
+                protocolsIRs[count].statements.back().flags.confirm = 1;
             count++;
         }
-    }  
+    }
 
     /*dump IR*/
     if (outFile)
@@ -86,7 +86,7 @@ void CIR::createIR ()
                  << "--------After revision---------" << std::endl
                  << "-------------------------------" << std::endl;
         dumpEntireIR();
-    }    
+    }
 }
 
 /*Add code that should appear before the 'before' and 'after' sections*/
@@ -96,8 +96,8 @@ void CIR::initIRProto(std::vector <CStatement> &statements)
 
     /*  Workaround for HW issue 19895
      The last label of an MPLS stack can direct the parser to begin a soft HXS.
-     If MPLS parsing encountered an error, parsing should be terminated and 
-     not jump to the soft HXS. Currently, the parser does not check the error 
+     If MPLS parsing encountered an error, parsing should be terminated and
+     not jump to the soft HXS. Currently, the parser does not check the error
      status before going to the soft parser.*/
     /*Currently disabled*/
     if (pt == PT_MPLS)
@@ -139,53 +139,53 @@ void CIR::uniteSections (std::vector< CExecuteSection> &executeSections)
         {
             /*Before not allowed when prevproto is otherl3/otherl4*/
             if (pt == PT_OTHER_L3 || pt == PT_OTHER_L4)
-                throw CGenericErrorLine(ERR_BEFORE_OTHER_PREV, 
+                throw CGenericErrorLine(ERR_BEFORE_OTHER_PREV,
                     executeSections[i].line,
                     protocolsIRs[status.currentProtoIndex].protocol.prevproto[0]);
 
             /*'before' not allowed after the 'after' element*/
             if (foundAfter)
-                  throw CGenericErrorLine (ERR_AFTER_BEFORE_BEFORE, 
+                  throw CGenericErrorLine (ERR_AFTER_BEFORE_BEFORE,
                                            executeSections[i].line);
             /*Multiple before elements*/
             if (foundBefore)
             {
-                throw CGenericErrorLine (ERR_MULTIPLE_BEFORE, 
+                throw CGenericErrorLine (ERR_MULTIPLE_BEFORE,
                                          executeSections[i].line);
-                 /* This code unites all befores to one section 
+                 /* This code unites all befores to one section
                  (with only one CLM) - disabled for the time being
-                 std::vector<CExecuteExpression>::iterator dEnd = 
+                 std::vector<CExecuteExpression>::iterator dEnd =
                     firstBefore->executeExpressions.end();
-                std::vector<CExecuteExpression>::iterator sBegin = 
+                std::vector<CExecuteExpression>::iterator sBegin =
                     executeSections[i].executeExpressions.begin();
-                std::vector<CExecuteExpression>::iterator sEnd = 
+                std::vector<CExecuteExpression>::iterator sEnd =
                     executeSections[i].executeExpressions.end();
 
                 firstBefore->executeExpressions.insert (dEnd, sBegin, sEnd);
                 executeSections.erase(executeSections.begin()+i);
-                i--;    */                   
+                i--;    */
             }
             foundBefore = 1;
             firstBefore = &(executeSections[i]);
         }
         else if (executeSections[i].type == AFTER)
         {
-            /*Insert dummy before section unless the previous protocol is 
+            /*Insert dummy before section unless the previous protocol is
               otherl3 or otherl4*/
             if (!foundBefore)
-            {                
+            {
                 if (pt != PT_OTHER_L3 && pt != PT_OTHER_L4)
                 {
                     executeSections.insert(executeSections.begin(),
                                            CExecuteSection(BEFORE));
                     i++;
                 }
-                foundBefore = 1;                
+                foundBefore = 1;
                 continue;
             }
             /*Multiple after elements*/
             if (foundAfter)
-                throw CGenericErrorLine (ERR_MULTIPLE_AFTER, 
+                throw CGenericErrorLine (ERR_MULTIPLE_AFTER,
                                          executeSections[i].line);
             foundAfter = 1;
         }
@@ -196,17 +196,17 @@ void CIR::uniteSections (std::vector< CExecuteSection> &executeSections)
 void CIR::createLCV (std::string confirmCustom, CStatement &stmt, int line)
 {
     stmt.flags.confirmLCV_DEFAULT = 0;
-    if (confirmCustom == "") 
-        stmt.flags.confirmLCV_DEFAULT = 1; 
-    else if (confirmCustom == "shim1") 
-        stmt.flags.confirmLCV1 = 1; 
-    else if (confirmCustom == "shim2") 
+    if (confirmCustom == "")
+        stmt.flags.confirmLCV_DEFAULT = 1;
+    else if (confirmCustom == "shim1")
+        stmt.flags.confirmLCV1 = 1;
+    else if (confirmCustom == "shim2")
         stmt.flags.confirmLCV2 = 1;
 #ifdef FM_SHIM3_SUPPORT
-    else if (confirmCustom == "shim3") 
+    else if (confirmCustom == "shim3")
         stmt.flags.confirmLCV3 = 1;
 #endif /* FM_SHIM3_SUPPORT */
-    else if (confirmCustom == "no") 
+    else if (confirmCustom == "no")
     {
         stmt.flags.confirmLCV_DEFAULT = 0;
         stmt.flags.confirmLCV1 = 0;
@@ -215,30 +215,30 @@ void CIR::createLCV (std::string confirmCustom, CStatement &stmt, int line)
         stmt.flags.confirmLCV3 = 0;
 #endif /* FM_SHIM3_SUPPORT */
     }
-    else   
-        throw CGenericErrorLine (ERR_UNKNOWN_CCUSTOM_OPTION, 
+    else
+        throw CGenericErrorLine (ERR_UNKNOWN_CCUSTOM_OPTION,
                                  line, confirmCustom);
 }
 
 void CIR::createIRSection (CExecuteSection section, CProtocolIR& pIR)
-{    
-    /*Find name of current protocol and headerSize*/    
-    switch(section.type) 
-    {         
+{
+    /*Find name of current protocol and headerSize*/
+    switch(section.type)
+    {
         case BEFORE:
             status.currentAfter = 0;
-            /*The prevHeaderSize in set the defaultHeaderSize which 
+            /*The prevHeaderSize in set the defaultHeaderSize which
               is interperted in yacc differently in the before/after sections*/
             createIRExprValue("$defaultHeaderSize", pIR.prevHeaderSize,
                               section.line, 0);
             break;
-        case AFTER:              
+        case AFTER:
             status.currentAfter = 1;
             createIRExprValue("$defaultHeaderSize", pIR.headerSize,
                               section.line, 0);
 
-            break;                    
-    }        
+            break;
+    }
 
     /*Create IR for each expression*/
     createIRExpressions(section, pIR.statements);
@@ -247,29 +247,29 @@ void CIR::createIRSection (CExecuteSection section, CProtocolIR& pIR)
       - needed for CLM, to update WO and HB*/
     CStatement sStatement;
     sStatement.createSectionEndStatement();
-    switch(section.type) {              
-          /*After the 'before' section we move to the next protocol, 
-          by modifying W0 and adding the EFBEFORE instruction*/ 
-        case BEFORE:              
-            sStatement.expr     = pIR.prevHeaderSize->newDeepCopy();            
+    switch(section.type) {
+          /*After the 'before' section we move to the next protocol,
+          by modifying W0 and adding the EFBEFORE instruction*/
+        case BEFORE:
+            sStatement.expr     = pIR.prevHeaderSize->newDeepCopy();
             sStatement.label    = CLabel(PT_RETURN);
-            break;                       
+            break;
         /*Goto end parse or return hxs after the 'after' section*/
-        case AFTER:               
+        case AFTER:
             sStatement.flags.afterSection   = 1;
-            sStatement.expr                 = pIR.headerSize->newDeepCopy();            
-            sStatement.label                = CLabel(PT_END_PARSE);                        
+            sStatement.expr                 = pIR.headerSize->newDeepCopy();
+            sStatement.label                = CLabel(PT_END_PARSE);
             break;
     }
 
-    /*Update LCV*/    
+    /*Update LCV*/
     createLCV(section.confirmCustom, sStatement, section.line);
 
-    /*Update confirm option, turned off by default for all sections 
+    /*Update confirm option, turned off by default for all sections
       besides the last (last section flag modified in createIR func) */
-    if (section.confirm == "yes") 
+    if (section.confirm == "yes")
         sStatement.flags.confirm = 1;
-    else 
+    else
         sStatement.flags.confirm = 0;
 
     pIR.statements.push_back(sStatement);
@@ -277,7 +277,7 @@ void CIR::createIRSection (CExecuteSection section, CProtocolIR& pIR)
 
 /*This functions creates statements for a section and inserts them in the
   end of the 'statements' vector. Note: this function should only be used
-  for the expression inside the sections and not to analyze the section 
+  for the expression inside the sections and not to analyze the section
   type itself (before, after, etc.)*/
 void CIR::createIRExpressions (CExecuteSection section, std::vector <CStatement> &statements)
 {
@@ -285,7 +285,7 @@ void CIR::createIRExpressions (CExecuteSection section, std::vector <CStatement>
     {
         CExecuteExpression ee = section.executeExpressions[i];
         if      (ee.type == ACTION)
-            createIRAction (ee.actionInstr, statements);            
+            createIRAction (ee.actionInstr, statements);
         else if (ee.type == ASSIGN)
             createIRAssign (ee.assignInstr, statements);
         else if (ee.type == IF)
@@ -302,46 +302,46 @@ void CIR::createIRExpressions (CExecuteSection section, std::vector <CStatement>
 /*Create IR instructions for the switch element*/
 void CIR::createIRSwitch (CExecuteSwitch switchElem, std::vector<CStatement> &statements)
 {
-    std::vector <CStatement>      executeStatments; 
+    std::vector <CStatement>      executeStatments;
     std::vector <CExecuteSection> sections;
     uint8_t countInTable = 0;
     /*Switch with no case*/
     if (switchElem.cases.size() == 0)
         throw CGenericErrorLine(ERR_SWITCH_NO_CASE, switchElem.line,
                                 switchElem.expr);
-    /*finalLStatement is the last label related to the switch, 
-    we'll use finalGStatement to jump there either when we finished checking 
-    all cases (+default) or when we found a case and executed the 
+    /*finalLStatement is the last label related to the switch,
+    we'll use finalGStatement to jump there either when we finished checking
+    all cases (+default) or when we found a case and executed the
     elements inside it*/
-    CStatement switchStatement,trueLStatement,finalGStatement,finalLStatement; 
+    CStatement switchStatement,trueLStatement,finalGStatement,finalLStatement;
     finalLStatement.createLabelStatement(createUniqueName());
-    finalGStatement.createGotoStatement(finalLStatement.label);       
-   
+    finalGStatement.createGotoStatement(finalLStatement.label);
+
     for (unsigned int i=0; i<switchElem.cases.size(); i++)
     {
         uint64_t intValue;
         /*We currently support only int in cases*/
-        if (!stringToInt(switchElem.cases[i].value, intValue, 
+        if (!stringToInt(switchElem.cases[i].value, intValue,
                          switchElem.cases[i].line))
             throw CGenericErrorLine(ERR_CASE_NO_INT, switchElem.cases[i].line,
-                                    switchElem.cases[i].value);        
-        /*We will jump to the trueLStatement label only if the value 
+                                    switchElem.cases[i].value);
+        /*We will jump to the trueLStatement label only if the value
         is in the correct range, the label will appear after all cases*/
         trueLStatement.createLabelStatement(createUniqueName());
-        
-        /*OPTION1: If value is larger than 16 bit we turn this specific 
+
+        /*OPTION1: If value is larger than 16 bit we turn this specific
                    case into an ifInstr*/
         if ((intValue & 0xFFFFFFFFFFFF0000ull) != 0)
         {
             /*If switch table exists add it to statements and initialize it*/
-            if (countInTable) 
-            {   
+            if (countInTable)
+            {
                 statements.push_back(switchStatement);
                 countInTable = 0;
             }
             CStatement statement1;
-            statement1.createIfGotoStatement(trueLStatement.label, 
-                                             switchElem.line);            
+            statement1.createIfGotoStatement(trueLStatement.label,
+                                             switchElem.line);
             CExecuteIf ifInstr1(switchElem.cases[i].value + "== (" +
                                 switchElem.expr +  ")");
             createIRExprValue(ifInstr1.expr, statement1.expr,
@@ -349,23 +349,23 @@ void CIR::createIRSwitch (CExecuteSwitch switchElem, std::vector<CStatement> &st
             statements.push_back(statement1);
         }
 
-        /*OPTION 2: If we have a max value we turn this 
+        /*OPTION 2: If we have a max value we turn this
                     specific case into two ifs */
         else if (!switchElem.cases[i].maxValue.empty())
-        {        
+        {
             /*If switch table exists add it to statements and initialize it*/
-            if (countInTable) 
-            {   
+            if (countInTable)
+            {
                 statements.push_back(switchStatement);
                 countInTable = 0;
             }
             CStatement statement1, statement2, falseLStatement, trueGStatement;
-            CExecuteIf ifInstr1("(" + switchElem.cases[i].value + ") gt (" 
+            CExecuteIf ifInstr1("(" + switchElem.cases[i].value + ") gt ("
                                     + switchElem.expr +  ")");
-            CExecuteIf ifInstr2("(" + switchElem.cases[i].maxValue + ") lt (" 
-                                    + switchElem.expr +  ")");            
-            /*This falseLStatement label will take us back to the switch to 
-            check more cases.*/            
+            CExecuteIf ifInstr2("(" + switchElem.cases[i].maxValue + ") lt ("
+                                    + switchElem.expr +  ")");
+            /*This falseLStatement label will take us back to the switch to
+            check more cases.*/
             falseLStatement.createLabelStatement(createUniqueName());
             trueGStatement.createGotoStatement  (trueLStatement.label);
             /*check if expr value is smaller than allowed value*/
@@ -375,13 +375,13 @@ void CIR::createIRSwitch (CExecuteSwitch switchElem, std::vector<CStatement> &st
             /*check if expr value is larger than max value*/
             createIRExprValue(ifInstr2.expr, statement2.expr,
                                switchElem.cases[i].line);
-            statement2.createIfGotoStatement(falseLStatement.label, NO_LINE);            
+            statement2.createIfGotoStatement(falseLStatement.label, NO_LINE);
             /*Insert both ifs, if we failed in any of them we will jmp
               to falseLStatement, otherwise we will reach trueLStatement*/
             statements.push_back(statement1);
             statements.push_back(statement2);
             statements.push_back(trueGStatement);
-            statements.push_back(falseLStatement);            
+            statements.push_back(falseLStatement);
         }
         else /*OPTION3: Create a switch table*/
         {
@@ -389,45 +389,45 @@ void CIR::createIRSwitch (CExecuteSwitch switchElem, std::vector<CStatement> &st
             if (countInTable == 1) /*new table*/
             {
                 switchStatement.newSwitchStatement(switchElem.line);
-                createIRExprValue (switchElem.expr, 
+                createIRExprValue (switchElem.expr,
                         switchStatement.expr, switchElem.line);
                 if (switchStatement.expr->isCond())
-                    throw CGenericErrorLine(ERR_UNEXPECTED_COND_SWITCH, 
+                    throw CGenericErrorLine(ERR_UNEXPECTED_COND_SWITCH,
                                             switchElem.line, switchElem.expr);
-            }           
+            }
             /*insert values and labels to table*/
             switchStatement.switchTable->values.push_back((uint16_t)intValue);
             switchStatement.switchTable->labels.push_back(trueLStatement.label);
             /*Max table size is four (according to assembly case instruction*/
             if (countInTable == 4 || i+1 == switchElem.cases.size())
-            {   
+            {
                 statements.push_back(switchStatement);
                 countInTable = 0;
             }
         }
-        
-        /*If this case is true we will reach this label and execute 
+
+        /*If this case is true we will reach this label and execute
         the case's instructions*/
         executeStatments.push_back(trueLStatement);
-        createIRExpressions(switchElem.cases[i].ifCase, executeStatments);   
-        /* After the case skip the rest of the statements related to 
+        createIRExpressions(switchElem.cases[i].ifCase, executeStatments);
+        /* After the case skip the rest of the statements related to
            the switch (as if there was a 'break' in c, or 'last' in perl*/
         executeStatments.push_back(finalGStatement);
-    }   /*Finished checking cases*/ 
+    }   /*Finished checking cases*/
 
-    /*If we'll reach the end of the switch without jumping we should execute  
-      the default case, and skip the following statements for 'true' cases*/      
+    /*If we'll reach the end of the switch without jumping we should execute
+      the default case, and skip the following statements for 'true' cases*/
     if (switchElem.defaultCaseValid)
-        createIRExpressions(switchElem.defaultCase, statements);            
+        createIRExpressions(switchElem.defaultCase, statements);
     statements.push_back(finalGStatement);
     /*Insert all the labels, and statements which should be executed
     if one of the cases was true. */
     for (unsigned int i=0; i<executeStatments.size(); i++)
-        statements.push_back(executeStatments[i]);   
+        statements.push_back(executeStatments[i]);
     /*Last label related to switch, jump here when done*/
-    statements.push_back(finalLStatement);    
+    statements.push_back(finalLStatement);
 }
-    
+
 void CIR::createIRInline (CExecuteInline inInstr, std::vector<CStatement> &statements)
 {
     CStatement  inlineStatement;
@@ -438,8 +438,8 @@ void CIR::createIRInline (CExecuteInline inInstr, std::vector<CStatement> &state
 void CIR::createIRIf (CExecuteIf ifInstr, std::vector<CStatement> &statements)
 {
     CStatement  statement, gStatement, lstatement1, lstatement2, lstatement3;
-    CObject     object; 
-    std::string newName, label1Name, label2Name, label3Name, temp;      
+    CObject     object;
+    std::string newName, label1Name, label2Name, label3Name, temp;
 
     /*No if true*/
     if (!ifInstr.ifTrueValid)
@@ -447,23 +447,23 @@ void CIR::createIRIf (CExecuteIf ifInstr, std::vector<CStatement> &statements)
     createIRExprValue (ifInstr.expr, statement.expr, ifInstr.line);
     if (!statement.expr->isCond())
         throw CGenericErrorLine(ERR_EXPECTED_COND, ifInstr.line, ifInstr.expr);
-    
+
     /*Only an ifTrue label*/
     if (!ifInstr.ifFalseValid)
     {
         lstatement1.createLabelStatement(createUniqueName());
         statement.createIfNGotoStatement(lstatement1.label, ifInstr.line);
-        statements.push_back(statement);        
+        statements.push_back(statement);
         createIRExpressions(ifInstr.ifTrue, statements);
         statements.push_back(lstatement1);
     }
 
     /*An ifTrue and ifFalse*/
     else if (ifInstr.ifFalseValid)
-    {        
+    {
         lstatement1.createLabelStatement(createUniqueName());
         statement.createIfGotoStatement(lstatement1.label, ifInstr.line);
-        statements.push_back(statement);        
+        statements.push_back(statement);
         createIRExpressions(ifInstr.ifFalse, statements);
         lstatement2.createLabelStatement(createUniqueName());
         gStatement.createGotoStatement(lstatement2.label);
@@ -477,7 +477,7 @@ void CIR::createIRIf (CExecuteIf ifInstr, std::vector<CStatement> &statements)
 void CIR::createIRLoop (CExecuteLoop loopInstr, std::vector<CStatement> &statements)
 {
     CStatement  statement, gStatement, lstatement1, lstatement2;
-    std::string newName, label1Name, label2Name, label3Name, temp;      
+    std::string newName, label1Name, label2Name, label3Name, temp;
 
     lstatement1.createLabelStatement(createUniqueName());
     statements.push_back(lstatement1);
@@ -496,11 +496,11 @@ void CIR::createIRLoop (CExecuteLoop loopInstr, std::vector<CStatement> &stateme
 void CIR::createIRAction (CExecuteAction action, std::vector<CStatement> &statements)
 {
     CStatement gStatement, eStatement;
-    std::string actionTypeName = action.type;    
+    std::string actionTypeName = action.type;
     ProtoType pt;
-      
+
     if (action.type == "exit")
-    {        
+    {
         std::string labelName;
         /*either exit to a specific protocol or return to HXS*/
         if (action.nextproto.length() != 0)
@@ -517,8 +517,8 @@ void CIR::createIRAction (CExecuteAction action, std::vector<CStatement> &statem
                                 headerSize->newDeepCopy();
         else
             gStatement.expr = protocolsIRs[status.currentProtoIndex].
-                                prevHeaderSize->newDeepCopy();           
-        
+                                prevHeaderSize->newDeepCopy();
+
         /*Update confirm option*/
         if ((action.confirm == "yes") || action.confirm == "")
             gStatement.flags.confirm = 1;
@@ -526,7 +526,7 @@ void CIR::createIRAction (CExecuteAction action, std::vector<CStatement> &statem
             gStatement.flags.confirm = 0;
         else throw CGenericErrorLine (ERR_UNKNOWN_CONFIRM_OPTION, action.line,
                                       action.confirm);
-        
+
         /*Update advance option*/
         if (action.advance == "")
         {
@@ -535,15 +535,15 @@ void CIR::createIRAction (CExecuteAction action, std::vector<CStatement> &statem
             else
                 action.advance = "yes";
         }
-        
-        if (action.advance == "yes") 
+
+        if (action.advance == "yes")
             gStatement.flags.advanceJump = 1;
         else if (action.advance == "no")
-            gStatement.flags.advanceJump = 0;        
-        else 
-            throw CGenericErrorLine (ERR_UNKNOWN_ADVANCE_OPTION, 
+            gStatement.flags.advanceJump = 0;
+        else
+            throw CGenericErrorLine (ERR_UNKNOWN_ADVANCE_OPTION,
                                      action.line, action.advance);
-        
+
         /*Update LCV option*/
         createLCV(action.confirmCustom, gStatement, action.line);
 
@@ -553,20 +553,20 @@ void CIR::createIRAction (CExecuteAction action, std::vector<CStatement> &statem
             throw CGenericErrorLine(ERR_ADVANCE_REQUIRED, action.line,
                                     action.advance);
         if (gStatement.flags.advanceJump && (pt == PT_RETURN))
-            throw CGenericErrorLine(ERR_ADVANCE_NOT_ALLOWED, 
+            throw CGenericErrorLine(ERR_ADVANCE_NOT_ALLOWED,
                                     action.line, action.advance);
 
         /*Workaround for HW bug 19894
-        The Parser maintains the outcome of its parsing activities in a 
-        Parse Result array. Specifically, the layer 4 header fields is captured 
-        in the Layer 4 results (L4R). Upon re-entry to layer 4 parsing, 
-        the L4R need to be cleared in order to reflect the new results 
-        properly. The parser does not clear the L4R upon re-entry. 
-        Note that re-entry is only possible via soft parser, not part of 
+        The Parser maintains the outcome of its parsing activities in a
+        Parse Result array. Specifically, the layer 4 header fields is captured
+        in the Layer 4 results (L4R). Upon re-entry to layer 4 parsing,
+        the L4R need to be cleared in order to reflect the new results
+        properly. The parser does not clear the L4R upon re-entry.
+        Note that re-entry is only possible via soft parser, not part of
         hard parser attachment.
-        Currently we workaround the bug by initializing the l4r field when 
-        jumping from a layer4 extension or to a layer4 protocol. 
-        This covers almost all realistic scenarios and has a relativly minor 
+        Currently we workaround the bug by initializing the l4r field when
+        jumping from a layer4 extension or to a layer4 protocol.
+        This covers almost all realistic scenarios and has a relativly minor
         effect on performance*/
         if ((pt != PT_END_PARSE && pt != PT_RETURN &&
              protocolsIRs[status.currentProtoIndex].protocol.PossibleLayer4())
@@ -583,26 +583,26 @@ void CIR::createIRAction (CExecuteAction action, std::vector<CStatement> &statem
 
         statements.push_back(gStatement);
     }
-    else        
-        throw CGenericErrorLine (ERR_UNSUPPORTED_ACTION, 
+    else
+        throw CGenericErrorLine (ERR_UNSUPPORTED_ACTION,
                                  action.line, actionTypeName);
 }
 
 void CIR::createIRAssign (CExecuteAssign assign, std::vector <CStatement> &statements)
 {
-    CStatement  statement;   
-    
+    CStatement  statement;
+
     /*Special treatment for headerSize, no statements are executed,
       only the internal value is modified*/
     if (insensitiveCompare(assign.name, "$headerSize"))
     {
         if (status.currentAfter)
             createIRExprValue(assign.value,
-                protocolsIRs[status.currentProtoIndex].headerSize, 
+                protocolsIRs[status.currentProtoIndex].headerSize,
                 assign.line, 1);
         else
             createIRExprValue(assign.value,
-                protocolsIRs[status.currentProtoIndex].prevHeaderSize, 
+                protocolsIRs[status.currentProtoIndex].prevHeaderSize,
                 assign.line, 1);
         return;
     }
@@ -622,17 +622,17 @@ void CIR::createIRAssign (CExecuteAssign assign, std::vector <CStatement> &state
     /*Create left side*/
     createIRExprValue(assign.name, statement.expr->dyadic.left, assign.line);
     /*Check that this is a valid assign statement*/
-    if (statement.expr->dyadic.left->type != EOBJREF || 
+    if (statement.expr->dyadic.left->type != EOBJREF ||
         (statement.expr->dyadic.left->objref->type != OB_RA &&
          statement.expr->dyadic.left->objref->type != OB_WO))
-        throw CGenericErrorLine (ERR_UNALLOWED_LVALUE_ASSIGN, 
-                                 assign.line, assign.name);   
-    
+        throw CGenericErrorLine (ERR_UNALLOWED_LVALUE_ASSIGN,
+                                 assign.line, assign.name);
+
     /*Create right side*/
     createIRExprValue(assign.value, statement.expr->dyadic.right, assign.line);
     if (statement.expr->dyadic.right->isCond())
         throw CGenericErrorLine(ERR_UNEXPECTED_COND_ASSIGN, assign.line,
-                                assign.value);  
+                                assign.value);
     statements.push_back(statement);
 
     // In presence of fwoffset, create a new assignment statement
@@ -649,13 +649,13 @@ void CIR::createIRAssign (CExecuteAssign assign, std::vector <CStatement> &state
 
 void CIR::createIRVariable (std::string name, CObject *object, int line)
 {
-    std::string newName = stripDollar (name); 
+    std::string newName = stripDollar (name);
 
     /*First check predefined variable(s)*/
     if (insensitiveCompare(newName, "prevprotoOffset"))
-        findPrevprotoOffset(object, line);          
+        findPrevprotoOffset(object, line);
     /*Then check parse array*/
-    else if (RA::Instance().findNameInRA(newName, object->typeRA, 
+    else if (RA::Instance().findNameInRA(newName, object->typeRA,
                                          object->location, line))
     {
         object->type = OB_RA;
@@ -666,7 +666,7 @@ void CIR::createIRVariable (std::string name, CObject *object, int line)
     }
     else
         throw CGenericErrorLine (ERR_UNRECOGNIZED_OBJECT, line, name);
-    
+
     /*check for errors*/
     if (object->location.end - object->location.start > 7)
         throw CGenericErrorLine (ERR_VAR_TOO_LARGE, line, name);
@@ -674,7 +674,7 @@ void CIR::createIRVariable (std::string name, CObject *object, int line)
 
 void CIR::createIRVariableAccess (std::string name, CObject *object, int line)
 {
-    std::string newName = stripDollar (name); 
+    std::string newName = stripDollar (name);
     uint32_t start, size;
     getBufferInfo (newName, start, size, line, 0);
     if (insensitiveCompare(newName, "PA"))
@@ -685,7 +685,7 @@ void CIR::createIRVariableAccess (std::string name, CObject *object, int line)
             throw CGenericErrorLine (ERR_PA_SIZE_LARGE, line, name);
         object->type = OB_PA;
     }
-    else if (RA::Instance().findNameInRA(newName, object->typeRA, 
+    else if (RA::Instance().findNameInRA(newName, object->typeRA,
                                          object->location, line))
     {
         object->type = OB_RA;
@@ -696,12 +696,12 @@ void CIR::createIRVariableAccess (std::string name, CObject *object, int line)
     }
     else
         throw CGenericErrorLine (ERR_UNRECOGNIZED_OBJECT, line, name);
-  
+
     object->location.start += start;
     /*In case size==0 we return the entire buffer*/
     if (size!=0)
         object->location.end    = object->location.start + size - 1;
-    
+
     if (object->location.end - object->location.start > 7)
         throw CGenericErrorLine (ERR_BUFFER_ACCESS_TOO_LARGE, line, name);
 }
@@ -733,7 +733,7 @@ void CIR::createIRProtocolField (std::string name, CObject *object, int line)
 
     int dotLoc = newName.find(".", 0);
     if (dotLoc == std::string::npos)
-        protocolName = getCurrentProtoName(); 
+        protocolName = getCurrentProtoName();
     else
         protocolName = newName.substr(0, dotLoc);
     newName = newName.substr(dotLoc+1,newName.length());
@@ -742,7 +742,7 @@ void CIR::createIRProtocolField (std::string name, CObject *object, int line)
             " currently working in protocol " + getCurrentProtoName());
 
     findInFW(protocolName, newName, object->location, line);
-    object->type = OB_FW;    
+    object->type = OB_FW;
 }
 
 /*create an expression based on lex/yacc files*/
@@ -758,10 +758,10 @@ void CIR::createIRExprValue (std::string name, CENode*& eNode, int line, int rep
         eNode->deleteENode();
         deleteEnode (eNode);
     }
-    eNode  = getExpressionYacc();    
+    eNode  = getExpressionYacc();
     checkExprValue (eNode, line);
 }
- 
+
 /* ---------------------------------- Useful IR functions-------------------*/
 
 uint32_t CIR::calculateFormatSize (int line)
@@ -771,22 +771,22 @@ uint32_t CIR::calculateFormatSize (int line)
         throw CGenericErrorLine (ERR_INTERNAL_SP_ERROR, line);
     if (!protocolsIRs[status.currentProtoIndex].protocol.GetHeaderSize(ret))
         throw CGenericErrorLine (ERR_HEADER_SIZE_MISSING, line);
-    else 
+    else
         return ret;
 }
 
 void CIR::getBufferInfo (std::string &name, uint32_t &startByte, uint32_t &sizeByte, int line, bool bits)
 {
     std::string oName   = name;
-    int indexLoc        = name.find("[",0);    
+    int indexLoc        = name.find("[",0);
     int midIndexLoc     = name.find(":", 0);
     int endLoc          = name.find("]",0);
     if (midIndexLoc<=indexLoc || endLoc<=midIndexLoc)
         throw CGenericErrorLine (ERR_INVALID_INDEX, line, name);
-    std::istringstream stringS1(name.substr(indexLoc + 1, 
+    std::istringstream stringS1(name.substr(indexLoc + 1,
                                 midIndexLoc - indexLoc - 1));
     stringS1 >> startByte;
-    std::istringstream stringS2(name.substr(midIndexLoc + 1, 
+    std::istringstream stringS2(name.substr(midIndexLoc + 1,
                                 endLoc - midIndexLoc - 1));
     stringS2 >> sizeByte;
     name=name.substr(0,indexLoc);
@@ -811,7 +811,7 @@ void CIR::checkExprValue (CENode* eNode, int line) const
         if (eNode->dyadic.right->type != EINTCONST)
             throw CGenericErrorLine (ERR_SHIFT_BY_IMM, line);
         if (eNode->dyadic.right->type == EINTCONST &&
-            (eNode->dyadic.right->intval < 1 || 
+            (eNode->dyadic.right->intval < 1 ||
              eNode->dyadic.right->intval > 64))
             throw CGenericErrorLine (ERR_SHIFT_BY_VALUE, line);
     }
@@ -847,7 +847,7 @@ void CIR::checkExprValue (CENode* eNode, int line) const
             eNode->dyadic.left->intval  > 0xffff)
                 throw CGenericErrorLine (ERR_CHECKSUM_FIRST, line);
     }
-            
+
     /*Check for errors related to mix of arithmetic/logical operators*/
     if (eNode->isMonadic() || eNode->isDyadic())
     {
@@ -862,7 +862,7 @@ void CIR::checkExprValue (CENode* eNode, int line) const
                (!eNode->dyadic.right->isCond()))
                 throw CGenericErrorLine (ERR_EXPECTED_COND_AND, line);
         }
-        else 
+        else
         {
             if ((eNode->isMonadic() && eNode->monadic->isCond())    ||
                 (eNode->isDyadic()  && eNode->dyadic.left->isCond()) ||
@@ -887,23 +887,23 @@ void CIR::findInFW(std::string protocolName, std::string fieldName, CLocation &l
         uint32_t     bitoffset;
         /*Find the correct protocol*/
         if (insensitiveCompare (task->protocols[i].name, protocolName))
-        {   
+        {
             /*Check if field exists*/
             if (!task->protocols[i].FieldExists(fieldName))
-                throw CGenericErrorLine (ERR_UNRECOGNIZED_FIELD, 
+                throw CGenericErrorLine (ERR_UNRECOGNIZED_FIELD,
                                          line, fieldName);
-            else 
+            else
             {
-                task->protocols[i].GetFieldProperties( fieldName,         
+                task->protocols[i].GetFieldProperties( fieldName,
                                                        bitsize, bitoffset );
                 location.start = bitoffset;
                 location.end = bitoffset+bitsize-1;
                 if (location.end - location.start > 63)
-                    throw CGenericErrorLine (ERR_FIELD_TOO_LARGE, 
+                    throw CGenericErrorLine (ERR_FIELD_TOO_LARGE,
                                              line, fieldName);
                 return;
             }
-        }    
+        }
     }
     throw CGenericErrorLine (ERR_UNRECOGNIZED_OBJECT, line, fieldName);
 }
@@ -912,7 +912,7 @@ std::string CIR::getCurrentProtoName() const
 {
     if (status.currentAfter)
         return protocolsIRs[status.currentProtoIndex].protocol.name;
-    else 
+    else
         return protocolsIRs[status.currentProtoIndex].protocol.prevproto[0];
 }
 
@@ -924,7 +924,7 @@ void CIR::findPrevprotoOffset (CObject *object, int line) const
     object->type = OB_RA;
     RAType lookForRAType;
 
-    switch (pt)    
+    switch (pt)
     {
         case PT_ETH:        lookForRAType = RA_ETHOFFSET;       break;
         case PT_VLAN:       lookForRAType = RA_VLANTCIOFFSET_N; break;
@@ -946,7 +946,7 @@ void CIR::findPrevprotoOffset (CObject *object, int line) const
         default: throw CGenericErrorLine (ERR_INTERNAL_SP_ERROR, line);
     }
 
-    eCode = RA::Instance().findTypeInRA(lookForRAType, object->location); 
+    eCode = RA::Instance().findTypeInRA(lookForRAType, object->location);
     if (!eCode)
         throw CGenericError (ERR_INTERNAL_SP_ERROR);
 }
@@ -955,7 +955,7 @@ void CIR::findPrevprotoOffset (CObject *object, int line) const
 ProtoType CIR::findProtoLabel (std::string nextproto, int line) const
 {
     int i = 0;
-    
+
     std::string newName = stripBlanks (nextproto);
     if (insensitiveCompare(newName, "end_parse") ||
         insensitiveCompare(newName, "none"))
@@ -966,7 +966,7 @@ ProtoType CIR::findProtoLabel (std::string nextproto, int line) const
         return PT_NEXT_ETH;
     else if (insensitiveCompare(newName, "after_ip"))
         return PT_NEXT_IP;
-    else 
+    else
         return findSpecificProtocol(newName, line);
 }
 
@@ -974,9 +974,9 @@ ProtoType CIR::findSpecificProtocol(std::string name, int line) const
 {
     std::map< std::string, ProtoType >::iterator protocolsLabelsIterator;
     std::map< std::string, ProtoType> protocolsLabels;
-    std::string newName = name; 
+    std::string newName = name;
     std::transform(newName.begin(), newName.end(), newName.begin(), mytolower);
-   
+
     protocolsLabels["ethernet"]     = PT_ETH;
     protocolsLabels["llc_snap"]     = PT_LLC_SNAP;
     protocolsLabels["vlan"]         = PT_VLAN;
@@ -1002,9 +1002,9 @@ ProtoType CIR::findSpecificProtocol(std::string name, int line) const
         return protocolsLabels[newName];
 }
 
-std::string CIR::createUniqueName() 
+std::string CIR::createUniqueName()
 {
-    return std::string("LABEL_" + intToString(++currentUniqueName)); 
+    return std::string("LABEL_" + intToString(++currentUniqueName));
 }
 
 CENode* CIR::createENode()
@@ -1023,7 +1023,7 @@ CReg CReg::other()
         return CReg(R_WR0);
     else if (type == R_EMPTY)
         return CReg(R_WR1);
-    else 
+    else
         throw CGenericError (ERR_INTERNAL_SP_ERROR);
 }
 
@@ -1031,10 +1031,10 @@ std::string CReg::getName() const
 {
     switch (type)
     {
-        case R_WR1:  return "WR1"; 
-        case R_WR0:  return "WR0"; 
-        case R_WO:   return "WO"; 
-        default: 
+        case R_WR1:  return "WR1";
+        case R_WR0:  return "WR0";
+        case R_WO:   return "WO";
+        default:
             throw CGenericError (ERR_INTERNAL_SP_ERROR, "wrong register type");
     }
 }
@@ -1064,48 +1064,48 @@ std::string CObject::getName() const
         midChar = ":";
     }
     ss << objTypeName << "[" << std::dec << location.start
-       << midChar << std::dec << location.end << "]";    
+       << midChar << std::dec << location.end << "]";
     ss >> ret;
     return ret;
 }
 
 bool CObject::isMoreThan32 () const
 {
-    if ((type == OB_PA || type == OB_RA) && 
+    if ((type == OB_PA || type == OB_RA) &&
         location.end-location.start>3)
         return 1;
     else if (type == OB_FW &&
              location.end-location.start>31)
          return 1;
-    else 
+    else
         return 0;
 }
 
 bool CObject::isMoreThan16 () const
 {
-    if ((type == OB_PA || type == OB_RA) && 
+    if ((type == OB_PA || type == OB_RA) &&
         location.end-location.start>1)
         return 1;
     else if (type == OB_FW &&
              location.end-location.start>15)
          return 1;
-    else 
+    else
         return 0;
 }
 
 /*------------------------ CENode Section--------------------------------*/
 
-CENode::CENode (ENodeType newType, CENode* unary) 
+CENode::CENode (ENodeType newType, CENode* unary)
 {
     *this = CENode();
     type       = newType;
-    monadic    = unary;	
+    monadic    = unary;
 }
 
-CENode::CENode (ENodeType newType, CENode* left, CENode* right) 
+CENode::CENode (ENodeType newType, CENode* left, CENode* right)
 {
     *this = CENode();
-    type           = newType;    
+    type           = newType;
     dyadic.left    = left;
     dyadic.right   = right;
     dyadic.dir     = 0;
@@ -1117,20 +1117,20 @@ void CENode::createIntENode(uint64_t intval1)
     this->intval    = intval1;
 }
 
-void CENode::newMonadicENode (ENodeType newType) 
+void CENode::newMonadicENode (ENodeType newType)
 {
     this->type      = newType;
     this->monadic   = new CENode;
 }
 
-void CENode::newDyadicENode () 
+void CENode::newDyadicENode ()
 {
     this->dyadic.left   = new CENode;
     this->dyadic.right  = new CENode;
     this->dyadic.dir    = 0;
 }
 
-void CENode::newDyadicENode (ENodeType newType) 
+void CENode::newDyadicENode (ENodeType newType)
 {
     this->newDyadicENode();
     this->type          = newType;
@@ -1158,7 +1158,7 @@ void CENode::newObjectENode (RAType rat)
 {
     this->type      = EOBJREF;
     this->objref    = new CObject(rat);
-    RA::Instance().findTypeInRA(rat, this->objref->location); 
+    RA::Instance().findTypeInRA(rat, this->objref->location);
 }
 
 /*Create a new copy of this ENode*/
@@ -1185,21 +1185,21 @@ bool CENode::isMonadic () const
 {
     if (type == ENOT    || type == EBITNOT)
         return 1;
-    else 
+    else
         return 0;
 }
 
 bool CENode::isDyadic () const
 {
-    if (this->isCondi()     || this->isCondNoti()        
-     || type == EAND        || type == EOR          || type == EXOR       
-     || type == ESHL        || type == ESHR         || type == ESHLAND     
+    if (this->isCondi()     || this->isCondNoti()
+     || type == EAND        || type == EOR          || type == EXOR
+     || type == ESHL        || type == ESHR         || type == ESHLAND
      || type == EADD        || type == EADDCARRY    || type == ESUB
      || type == ECHECKSUM   || type == ECHECKSUM_LOC
-     || type == EBITOR      || type == EBITAND                
+     || type == EBITOR      || type == EBITAND
      || type == EASS        )
         return 1;
-    else 
+    else
         return 0;
 }
 
@@ -1208,7 +1208,7 @@ bool CENode::isCond () const
     if (this->isCondi() || this->isCondNoti() ||
         type == EAND    || type == EOR        || type == ENOT)
         return 1;
-    else 
+    else
         return 0;
 }
 
@@ -1216,7 +1216,7 @@ bool CENode::isCondi () const
 {
     if (type == ELESS || type == EGREATER || type == EEQU || type == ENOTEQU)
         return 1;
-    else 
+    else
         return 0;
 }
 
@@ -1224,7 +1224,7 @@ bool CENode::isCondNoti () const
 {
     if (type == ELESSEQU || type == EGREATEREQU)
         return 1;
-    else 
+    else
         return 0;
 }
 
@@ -1234,18 +1234,18 @@ bool CENode::isMoreThan16 () const
         return 1;
     else if (type == EOBJREF && objref->isMoreThan16())
          return 1;
-    else 
+    else
         return 0;
 }
 
 bool CENode::isMoreThan32 () const
 {
-    if (type == EINTCONST && 
+    if (type == EINTCONST &&
         ((intval & 0xffffffff00000000ull) != 0))
         return 1;
     else if (type == EOBJREF && objref->isMoreThan32())
          return 1;
-    else 
+    else
         return 0;
 }
 
@@ -1255,7 +1255,7 @@ CENode* CENode::first() const
         throw CGenericErrorLine (ERR_INTERNAL_SP_ERROR, line);
     if (dyadic.dir)
         return dyadic.right;
-    else 
+    else
         return dyadic.left;
 }
 
@@ -1265,21 +1265,21 @@ CENode* CENode::second() const
         throw CGenericErrorLine (ERR_INTERNAL_SP_ERROR, line);
     if (dyadic.dir)
         return dyadic.left;
-    else 
+    else
         return dyadic.right;
 }
 
 
 /*------------------------ Global function--------------------------------*/
 
-CENode* newObjectENode() 
+CENode* newObjectENode()
 {
     CENode* node = new CENode;
     node->newObjectENode();
     return node;
 }
 
-CENode* newENode(ENodeType type) 
+CENode* newENode(ENodeType type)
 {
     CENode* node = new CENode;
     node->type = type;
@@ -1319,7 +1319,7 @@ void CStatement::newExpressionStatement (int line1)
 
 void CStatement::newAssignStatement (int line1)
 {
-    newExpressionStatement (line1);    
+    newExpressionStatement (line1);
     this->expr->type = EASS;
 }
 
@@ -1392,10 +1392,10 @@ void CStatement::createGotoStatement (std::string labelName)
 }
 
 void CStatement::createGotoStatement (ProtoType type)
-{    
-    this->type              = ST_GOTO; 
+{
+    this->type              = ST_GOTO;
     this->label             = CLabel (type);
-    this->flags.externJump  = 1;    
+    this->flags.externJump  = 1;
 }
 
 void CStatement::createSectionEndStatement ()
@@ -1521,7 +1521,7 @@ void CIR::deleteIR ()
 
 /*-------------------- RA section------------------------------------*/
 
-void RA::initRA() 
+void RA::initRA()
 {
     RAInInfo["gpr1"]                  = RA_GPR1;
     RAInInfo["gpr2"]                  = RA_GPR2;
@@ -1640,11 +1640,11 @@ void RA::initRA()
 RA::RA () {}
 RA::~RA () {}
 
-bool RA::findTypeInRA (const RAType type, CLocation &location, int line) 
+bool RA::findTypeInRA (const RAType type, CLocation &location, int line)
 {
     if (type == RA_GPR2)
         CGenericErrorLine::printWarning(WARN_GPR2, line);
-    
+
     RATypeIterator = RATypeInfo.find (type);
     if (RATypeIterator == RATypeInfo.end())
         throw CGenericError(ERR_INTERNAL_SP_ERROR);
@@ -1656,7 +1656,7 @@ bool RA::findTypeInRA (const RAType type, CLocation &location, int line)
     }
 }
 
-bool RA::findNameInRA (const std::string name, RAType &type, CLocation &location, int line) 
+bool RA::findNameInRA (const std::string name, RAType &type, CLocation &location, int line)
 {
     std::string newName = name;
     std::transform(newName.begin(), newName.end(), newName.begin(), mytolower);
@@ -1701,31 +1701,31 @@ CIR*         irYacc;
 int*         lineYacc;
 
 void setExpressionYacc(CENode* expr1)
-{   
+{
     exprYacc = expr1;
 }
 
 CENode* getExpressionYacc()
-{   
+{
     return exprYacc;
 }
 
-void setIRYacc(CIR* ir) 
+void setIRYacc(CIR* ir)
 {
     irYacc = ir;
 }
- 
-CIR *getIRYacc() 
+
+CIR *getIRYacc()
 {
     return irYacc;
 }
 
-void setLineYacc(int* line) 
+void setLineYacc(int* line)
 {
     lineYacc = line;
 }
- 
-int *getLineYacc() 
+
+int *getLineYacc()
 {
     return lineYacc;
 }

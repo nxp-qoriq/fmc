@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -16,31 +16,32 @@
 
 void CCode::prepareEntireCode ()
 {
-    uint32_t i, j; 
+    uint32_t i, j;
     asmOutput = ""; codeOutput = "";
 
     for (i = 0; i < protocolsCode.size(); i++)
     {
         for (j = 0; j < protocolsCode[i].instructions.size(); j++)
         {
-            if (j == 0)
+            if (j == 0) {
                 protocolsCode[i].instructions[j].flags.ifFirstLabel = 1;
+            }
             protocolsCode[i].instructions[j].prepareAsm(asmOutput);
-            protocolsCode[i].instructions[j].prepareCode(codeOutput);			
+            protocolsCode[i].instructions[j].prepareCode(codeOutput);
             asmOutput+= "\n";
             codeOutput += "\n";
         }
         codeOutput  += "\n";
         asmOutput   += "\n";
-    }            
+    }
 }
 
 void CInstruction::prepareAsm (std::string &asmOutput)
-{    
+{
     if ((opcode == LABEL) && !flags.ifFirstLabel)
-        asmOutput += "\n";  
-        
-    switch (opcode) 
+        asmOutput += "\n";
+
+    switch (opcode)
     {
         case LOAD_BYTES_RA_TO_WR:
         case LOAD_BYTES_PA_TO_WR:
@@ -53,7 +54,7 @@ void CInstruction::prepareAsm (std::string &asmOutput)
         case LOAD_BITS_IV_TO_WR:
             checkError(4, OT_REG, OT_SHIFT, OT_VAL, OT_VAL);
             asmOutput += operands[0]->getOperandName() + " "
-                      +  operands[1]->getOperandName() + "= " 
+                      +  operands[1]->getOperandName() + "= "
                       +  operands[2]->getOperandName();
             if (operands[3]->getValue())
             {
@@ -68,58 +69,58 @@ void CInstruction::prepareAsm (std::string &asmOutput)
             break;
         case STORE_WR_TO_RA:
             checkError(2, OT_OBJ, OT_REG);
-            asmOutput += operands[0]->getOperandName() + " = " 
-                      +  operands[1]->getOperandName(); 
+            asmOutput += operands[0]->getOperandName() + " = "
+                      +  operands[1]->getOperandName();
             break;
         case STORE_IV_TO_RA:
             checkError(2, OT_OBJ, OT_VAL);
-            asmOutput += operands[0]->getOperandName() + " = " 
+            asmOutput += operands[0]->getOperandName() + " = "
                       +  operands[1]->getOperandName();
-            break;            
+            break;
         case ADD_WR_WR_TO_WR:
             checkError(3, OT_REG, OT_REG, OT_REG);
             asmOutput += operands[0]->getOperandName() + " = " +
-                         operands[1]->getOperandName() + " + " + 
-                         operands[2]->getOperandName(); 
-            break;            
-        case ADD_WR_IV_TO_WR:
-            checkError(3, OT_REG, OT_REG, OT_VAL);
-            asmOutput += operands[0]->getOperandName() + " = " + 
                          operands[1]->getOperandName() + " + " +
                          operands[2]->getOperandName();
-            break;    
+            break;
+        case ADD_WR_IV_TO_WR:
+            checkError(3, OT_REG, OT_REG, OT_VAL);
+            asmOutput += operands[0]->getOperandName() + " = " +
+                         operands[1]->getOperandName() + " + " +
+                         operands[2]->getOperandName();
+            break;
         case SUB_WR_WR_TO_WR:
             checkError(3, OT_REG, OT_REG, OT_REG);
             asmOutput += operands[0]->getOperandName() + " = " +
-                         operands[1]->getOperandName() + " - " + 
-                         operands[2]->getOperandName(); 
+                         operands[1]->getOperandName() + " - " +
+                         operands[2]->getOperandName();
             break;
         case SUB_WR_IV_TO_WR:
             checkError(3, OT_REG, OT_REG, OT_VAL);
-            asmOutput += operands[0]->getOperandName() + " = " + 
+            asmOutput += operands[0]->getOperandName() + " = " +
                          operands[1]->getOperandName() + " - " +
                          operands[2]->getOperandName();
-            break;    
+            break;
         case SHIFT_LEFT_WR_BY_SV:
             checkError(2, OT_REG, OT_VAL);
-            asmOutput += operands[0]->getOperandName() + " << " + 
-                         operands[1]->getOperandName(); 
+            asmOutput += operands[0]->getOperandName() + " << " +
+                         operands[1]->getOperandName();
             break;
         case SHIFT_RIGHT_WR_BY_SV:
             checkError(2, OT_REG, OT_VAL);
-            asmOutput += operands[0]->getOperandName() + " >> " + 
-                         operands[1]->getOperandName(); 
+            asmOutput += operands[0]->getOperandName() + " >> " +
+                         operands[1]->getOperandName();
             break;
         case BITWISE_WR_WR_TO_WR:
             checkError(4, OT_REG, OT_REG, OT_BITOP, OT_REG);
-            asmOutput += operands[0]->getOperandName() + " = " + 
-                         operands[1]->getOperandName() + " " + 
-                         operands[2]->getOperandName() + " " + 
+            asmOutput += operands[0]->getOperandName() + " = " +
+                         operands[1]->getOperandName() + " " +
+                         operands[2]->getOperandName() + " " +
                          operands[3]->getOperandName();
             break;
         case BITWISE_WR_IV_TO_WR:
             checkError(4, OT_REG, OT_REG, OT_BITOP, OT_VAL);
-            asmOutput += operands[0]->getOperandName() + " = " + 
+            asmOutput += operands[0]->getOperandName() + " = " +
                          operands[1]->getOperandName() + " " +
                          operands[2]->getOperandName() + " " +
                          operands[3]->getOperandName();
@@ -130,14 +131,14 @@ void CInstruction::prepareAsm (std::string &asmOutput)
         case CASE3_DC_WR_TO_WR:
         case CASE3_DJ_WR_TO_WR:
         case CASE4_DC_WR_TO_WR:
-            if      (opcode==CASE1_DJ_WR_TO_WR || 
+            if      (opcode==CASE1_DJ_WR_TO_WR ||
                      opcode==CASE2_DC_WR_TO_WR)
                 checkError(5, OT_REG, OT_HXS, OT_LABEL, OT_HXS, OT_LABEL);
-            else if (opcode==CASE2_DJ_WR_TO_WR || 
+            else if (opcode==CASE2_DJ_WR_TO_WR ||
                      opcode==CASE3_DC_WR_TO_WR)
-                checkError(7, OT_REG, OT_HXS, OT_LABEL, OT_HXS, OT_LABEL, 
+                checkError(7, OT_REG, OT_HXS, OT_LABEL, OT_HXS, OT_LABEL,
                               OT_HXS, OT_LABEL);
-            else if (opcode==CASE3_DJ_WR_TO_WR || 
+            else if (opcode==CASE3_DJ_WR_TO_WR ||
                      opcode==CASE4_DC_WR_TO_WR)
                 checkError(9, OT_REG, OT_HXS, OT_LABEL, OT_HXS, OT_LABEL,
                               OT_HXS, OT_LABEL, OT_HXS, OT_LABEL);
@@ -150,21 +151,21 @@ void CInstruction::prepareAsm (std::string &asmOutput)
                 {
                     if ((i==noperands/2-2) && (
                         opcode==CASE1_DJ_WR_TO_WR ||
-                        opcode==CASE2_DJ_WR_TO_WR || 
+                        opcode==CASE2_DJ_WR_TO_WR ||
                         opcode==CASE3_DJ_WR_TO_WR))
                         asmOutput += ":: ";
                     else
                         asmOutput += "| ";
                 }
-            } 
-            break;         
+            }
+            break;
         case LABEL:
             checkError(1, OT_LABEL);
             asmOutput += operands[0]->getOperandName() += ":";
             break;
         case JMP:
             checkError(2, OT_HXS, OT_LABEL);
-            asmOutput += "JMP " + operands[0]->getOperandName()  
+            asmOutput += "JMP " + operands[0]->getOperandName()
                       +  " "    + operands[1]->getOperandName();
             break;
         case JMP_PROTOCOL_ETH:
@@ -189,7 +190,7 @@ void CInstruction::prepareAsm (std::string &asmOutput)
             break;
         case LOAD_SV_TO_WO:
             checkError(2, OT_REG, OT_VAL);
-            asmOutput += operands[0]->getOperandName() + " = " + 
+            asmOutput += operands[0]->getOperandName() + " = " +
                          operands[1]->getOperandName();
             break;
         case ADD_SV_TO_WO:
@@ -199,33 +200,33 @@ void CInstruction::prepareAsm (std::string &asmOutput)
             break;
         case ONES_COMP_WR1_TO_WR0:
             checkError(2, OT_REG, OT_REG);
-            asmOutput += operands[0]->getOperandName() + " = ONESCOMP(" + 
+            asmOutput += operands[0]->getOperandName() + " = ONESCOMP(" +
                          operands[0]->getOperandName() + ", " +
                          operands[1]->getOperandName() + ")";
             break;
         case COMPARE_WORKING_REGS:
             checkError(4, OT_LABEL, OT_REG, OT_CONDOP, OT_REG);
-            asmOutput += "JMP " + operands[0]->getOperandName() + " IF " 
-                                + operands[1]->getOperandName() + " " 
-                                + operands[2]->getOperandName() + " " 
+            asmOutput += "JMP " + operands[0]->getOperandName() + " IF "
+                                + operands[1]->getOperandName() + " "
+                                + operands[2]->getOperandName() + " "
                                 + operands[3]->getOperandName();
             break;
         case COMPARE_WR0_TO_IV:
             checkError(4, OT_LABEL, OT_REG, OT_CONDOP, OT_VAL);
-            asmOutput += "JMP " + operands[0]->getOperandName() + " IF " 
+            asmOutput += "JMP " + operands[0]->getOperandName() + " IF "
                                 + operands[1]->getOperandName() + " "
-                                + operands[2]->getOperandName() + " " 
+                                + operands[2]->getOperandName() + " "
                                 + operands[3]->getOperandName();
             break;
         case ADD_WO_BY_WR:
             checkError(2, OT_REG, OT_REG);
             asmOutput += operands[0]->getOperandName() + " += " +
-                         operands[1]->getOperandName();  
+                         operands[1]->getOperandName();
             break;
         case SET_WO_BY_WR:
             checkError(2, OT_REG, OT_REG);
-            asmOutput += operands[0]->getOperandName() + " = " + 
-                         operands[1]->getOperandName();  
+            asmOutput += operands[0]->getOperandName() + " = " +
+                         operands[1]->getOperandName();
             break;
         case INLINE_INSTR:
             checkError(1, OT_TEXT);
@@ -233,25 +234,25 @@ void CInstruction::prepareAsm (std::string &asmOutput)
             break;
         case NOP:
             checkError(0);
-            asmOutput += "NOP";  
+            asmOutput += "NOP";
             break;
-    } 
+    }
     /*Add space after 'before' section*/
-    if (opcode == ADVANCE_HB_BY_WO) 
-        asmOutput += "\n";  
+    if (opcode == ADVANCE_HB_BY_WO)
+        asmOutput += "\n";
 }
 
 void CInstruction::prepareCode (std::string &codeOutput)
 {
-    codeOutput += getOpcodeName() + ": " 
+    codeOutput += getOpcodeName() + ": "
                +  std::string(25 - getOpcodeName().length(), ' ');
     for (unsigned int i=0; i < noperands; i++)
     {
         std::string temp;
         temp = operands[i]->getOperandName();
-        if (temp.length() < 15) 
+        if (temp.length() < 15)
             codeOutput += temp + std::string(15 - temp.length(), ' ');
-        else 
+        else
             codeOutput += temp;
     }
 }
@@ -271,26 +272,26 @@ void CCode::deletePaths()
 }
 
 void CCode::setDumpCode (std::string path)
-{   
+{
     if (codeFile)
         delete codeFile;
     codeFile = new std::ofstream;
-    codeFile->open(path.c_str(), std::ios::out);  
+    codeFile->open(path.c_str(), std::ios::out);
 }
 
 void CCode::setDumpAsm (std::string path)
-{   
+{
     if (asmFile)
         delete asmFile;
     asmFile = new std::ofstream;
-    asmFile->open(path.c_str(), std::ios::out);    
+    asmFile->open(path.c_str(), std::ios::out);
 }
 
 void CCode::dumpAsm ()
 {
     if (asmFile)
         *asmFile << asmOutput;
-    else throw CGenericError (ERR_INTERNAL_SP_ERROR, 
+    else throw CGenericError (ERR_INTERNAL_SP_ERROR,
                               "Can't dump assembly code");
 }
 

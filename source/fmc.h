@@ -1,7 +1,7 @@
 /* ============================================================================
  *
  * Copyright (c) 2009-2012, Freescale Semiconductor, Inc.
- * 
+ *
  * MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -81,9 +81,9 @@ typedef struct fmc_fman_t {
     char               frag_name[FMC_MANIP_MAX][FMC_NAME_LEN];
     t_Handle           frag_handle[FMC_MANIP_MAX];
 
-	unsigned int       hdr_count;
+    unsigned int       hdr_count;
     t_FmPcdManipParams hdr[FMC_MANIP_MAX];
-	uint8_t			   insertData[FMC_MANIP_MAX][FMC_INSERT_MAX];
+    uint8_t            insertData[FMC_MANIP_MAX][FMC_INSERT_MAX];
     char               hdr_name[FMC_MANIP_MAX][FMC_NAME_LEN];
     t_Handle           hdr_handle[FMC_MANIP_MAX];
 #endif /* P1023 */
@@ -112,7 +112,7 @@ typedef struct fmc_port_t {
     unsigned int         ccroot_count;
     unsigned int         ccroot[FMC_CC_NODES_NUM];
 #ifndef P1023
-	unsigned int         ccroot_manip[FMC_CC_NODES_NUM];
+    unsigned int         ccroot_manip[FMC_CC_NODES_NUM];
 #endif /* P1023 */
 
     unsigned int         reasm_index;
@@ -130,7 +130,7 @@ typedef enum fmc_apply_order_e {
     FMCPolicer
 } fmc_apply_order_e;
 
-    
+
 typedef struct fmc_apply_order_t {
     fmc_apply_order_e   type;
     unsigned int        index;
@@ -164,15 +164,15 @@ typedef struct fmc_model_t {
                                                  [FM_PCD_MAX_SIZE_OF_KEY];
     unsigned int             ccentry_action_index[FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned char            ccentry_frag        [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
-	unsigned char            ccentry_manip       [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
+    unsigned char            ccentry_manip       [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned int             ccmiss_action_index [FMC_CC_NODES_NUM];
-                                     
+
     unsigned int             policer_count; ///< Number of used policers
     char                     policer_name        [FMC_PLC_NUM][FMC_NAME_LEN];
     t_FmPcdPlcrProfileParams policer             [FMC_PLC_NUM];
     t_Handle                 policer_handle      [FMC_PLC_NUM];
     unsigned int             policer_action_index[FMC_PLC_NUM][3];
-    
+
     unsigned int             ao_count;               ///< Number of 'apply order' elements
     fmc_apply_order          ao[FMC_FMAN_NUM*FMC_PORTS_PER_FMAN*(FMC_SCHEMES_NUM+FMC_CC_NODES_NUM)];
 } fmc_model;

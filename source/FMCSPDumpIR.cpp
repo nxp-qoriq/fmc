@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -15,15 +15,15 @@
 #include "FMCSPIR.h"
 
 void CIR::setDumpIr (std::string path)
-{   
+{
     if (outFile)
         delete outFile;
     outFile = new std::ofstream;
-    outFile->open(path.c_str(), std::ios::out);    
+    outFile->open(path.c_str(), std::ios::out);
 }
 
 void CIR::deleteDumpPath ()
-{   
+{
     if (outFile)
     {
         delete outFile;
@@ -34,7 +34,7 @@ void CIR::deleteDumpPath ()
 void CIR::dumpEntireIR () const
 {
     CExecuteCode executeCode;
-    uint32_t i; 
+    uint32_t i;
     if (!outFile)
         return;
     for (i = 0; i < protocolsIRs.size(); i++)
@@ -46,7 +46,7 @@ void CProtocolIR::dumpProtocol(std::ofstream &outFile, uint8_t spaces) const
     outFile << "PROTOCOL " << protocol.name << " - " << protocol.longname
              << std::endl;
     for (unsigned int i = 0; i < statements.size(); i++)
-        statements[i].dumpStatement(outFile, spaces+2);			
+        statements[i].dumpStatement(outFile, spaces+2);
     outFile << "END PROTOCOL " << protocol.name << std::endl << std::endl;
 }
 
@@ -54,72 +54,72 @@ void CStatement::dumpStatement (std::ofstream &outFile, uint8_t spaces) const
 {
     uint32_t i;
     std::string labelName = "";
-    switch(type) { 
-        case ST_EXPRESSION: 
+    switch(type) {
+        case ST_EXPRESSION:
             outFile << std::string(spaces, ' ') << "EXPRESSION - " <<std::endl;
             expr->dumpExpression(outFile, spaces+2);
             break;
-        case ST_IFGOTO: 
-            outFile << std::string(spaces, ' ') << "IFGOTO "  
+        case ST_IFGOTO:
+            outFile << std::string(spaces, ' ') << "IFGOTO "
                     << label.name << std::endl;
             expr->dumpExpression(outFile, spaces+2);
             break;
-        case ST_IFNGOTO: 
+        case ST_IFNGOTO:
             outFile << std::string(spaces, ' ') << "IFNGOTO " << label.name
                     << std::endl;
             expr->dumpExpression(outFile, spaces+2);
             break;
-        case ST_INLINE: 
+        case ST_INLINE:
             outFile << std::string(spaces, ' ') << "INLINE " << std::endl;
             outFile << std::string(spaces+2, ' ') << text    << std::endl;
             break;
-        case ST_LABEL: 
+        case ST_LABEL:
             outFile << std::endl << label.name << ":" << std::endl;
             break;
-        case ST_GOTO:              
+        case ST_GOTO:
             label.isProto? labelName = label.getProtocolOutputName() :
                            labelName = label.name;
-            outFile << std::string(spaces, ' ') << "GOTO " 
+            outFile << std::string(spaces, ' ') << "GOTO "
                     << labelName << std::endl;
             break;
-        case ST_SWITCH: 
-            outFile <<  std::string(spaces, ' '); 
-            outFile << *(switchTable) << std::endl; 
+        case ST_SWITCH:
+            outFile <<  std::string(spaces, ' ');
+            outFile << *(switchTable) << std::endl;
             expr->dumpExpression(outFile, spaces+2);
             for (i=0; i<switchTable->values.size(); i++)
             {
-                if (i==switchTable->values.size()-1 && 
+                if (i==switchTable->values.size()-1 &&
                     switchTable->lastDefault)
                     outFile << std::string(spaces+2, ' ') << "DEFAULT ";
                 else
                     outFile << std::string(spaces+2, ' ') << "CASE ";
-                outFile << switchTable->values[i] << ":  " << 
+                outFile << switchTable->values[i] << ":  " <<
                            switchTable->labels[i].name << std::endl;
             }
             outFile << std::endl;
             break;
-        case ST_SECTIONEND: 
+        case ST_SECTIONEND:
             outFile << std::string(spaces, ' ') << "END_SECTION" ;
             if (flags.afterSection)
                 outFile << " (after)";
-            else 
+            else
                 outFile << " (before)";
-            outFile << std::endl << std::string(spaces+2, ' ') 
+            outFile << std::endl << std::string(spaces+2, ' ')
                     << "headerSize:" << std::endl;
             expr->dumpExpression(outFile, spaces+2);
             outFile << std::endl;
             break;
     }
-    /*if (section.when != "") 
+    /*if (section.when != "")
         outFile << "  (when) - " << section.when;
     if (section.type!=EMPTY)
         outFile << std::endl; */
 }
 
 void CENode::dumpExpression (std::ofstream &outFile, uint8_t spaces) const
-{    
+{
     std::map< ENodeType, std::string > nodeString;
-    std::map <ENodeType, std::string >::iterator iterator;    
+    std::map <ENodeType, std::string >::iterator iterator;
     nodeString[EASS]             = "EASS";
     nodeString[ESUB]             = "ESUB";
     nodeString[EADD]             = "EADD";
@@ -146,14 +146,14 @@ void CENode::dumpExpression (std::ofstream &outFile, uint8_t spaces) const
     nodeString[ENOT]             = "ENOT";
     nodeString[ECHECKSUM]        = "ECHECKSUM";
     nodeString[ECHECKSUM_LOC]    = "ECHECKSUM_LOC";
-    
+
     iterator = nodeString.find (type);
     if (iterator == nodeString.end())
         outFile << std::string(spaces, ' ') << "UNKNOWN NAME" << std::endl;
-    else    
+    else
         outFile << std::string(spaces, ' ') << nodeString[type] << " (w-" <<
                    weight << ")";
-        
+
     if (isDyadic())
     {
         outFile << std::endl;
@@ -174,13 +174,13 @@ void CENode::dumpExpression (std::ofstream &outFile, uint8_t spaces) const
 
 void CENode::dumpInt (std::ofstream &outFile, uint8_t spaces) const
 {
-    outFile << std::string(spaces, ' ') << "[0x" << std::hex 
+    outFile << std::string(spaces, ' ') << "[0x" << std::hex
             << intval << "]" << std::endl;
 }
 
 void CENode ::dumpReg (std::ofstream &outFile, uint8_t spaces) const
 {
-    outFile << std::string(spaces, ' ') << "[" << reg.getName() 
+    outFile << std::string(spaces, ' ') << "[" << reg.getName()
                                         << "]" << std::endl;
 }
 
@@ -218,7 +218,7 @@ void CObject::dumpObject (std::ofstream &outFile, uint8_t spaces) const
     outFile << std::string(spaces, ' ') << "(" << printName << objTypeName;
     if (type == OB_FW || type == OB_RA)
     {
-        outFile << "[" << std::dec << location.start << "," << std::dec << 
+        outFile << "[" << std::dec << location.start << "," << std::dec <<
                    location.end << "]";
     }
     outFile << ")" << std::endl;

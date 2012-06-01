@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -53,7 +53,7 @@ std::string stripDollar( std::string str )
     if (str[0] != '$')
         return str;
     else
-        for(i=1; i < len; i++ ) 
+        for(i=1; i < len; i++ )
             res += str[i];
 
     return res;
@@ -76,17 +76,17 @@ bool insensitiveCompare (std::string str1, std::string str2)
 }
 
 /*convert a string to an integer and check that it's not longer than 8 bytes*/
-bool stringToInt (const std::string &str, uint64_t &n, int line) 
+bool stringToInt (const std::string &str, uint64_t &n, int line)
 {
     int firstOne=0, initZero=0;
     double doub = 0;
 
     /*Boolean*/
     if ( str.substr( 0, 2 ) == "0b" )
-    {        
+    {
         uint64_t mul = 1;
         n = 0;
-        for (unsigned int i = str.length()-1; i>1; i--, mul=mul*2)   
+        for (unsigned int i = str.length()-1; i>1; i--, mul=mul*2)
         {
             if (str[i] == '1')
             {
@@ -102,15 +102,15 @@ bool stringToInt (const std::string &str, uint64_t &n, int line)
             throw CGenericErrorLine(ERR_INTEGER_RANGE, line, str);
 
         return 1;
-    }   
-    else 
+    }
+    else
     {
         std::istringstream ss(str);
-        char c;       
+        char c;
         /*Hexadecimal*/
         if ( str.substr( 0, 2 ) == "0x" )
         {
-            for (unsigned int i = 2; i< str.length(); i++)   
+            for (unsigned int i = 2; i< str.length(); i++)
                 if (str[i] == '0')
                     initZero+=4;
                 else
@@ -122,17 +122,17 @@ bool stringToInt (const std::string &str, uint64_t &n, int line)
             else
                 return 1;
         }
-        else 
+        else
         {
             /*Decimal*/
-            for (unsigned int i = 2; i< str.length(); i++)   
+            for (unsigned int i = 2; i< str.length(); i++)
                 if (str[i] == '0')
                     initZero+=0;
                 else
                     break;
             if (str.length()-initZero > 12)
                 throw CGenericErrorLine(ERR_INTEGER_RANGE, line, str);
-                
+
             if (! (ss >> doub) || ss.get(c))
                 return 0;
             if (doub > 0xffffffff)
@@ -144,7 +144,7 @@ bool stringToInt (const std::string &str, uint64_t &n, int line)
 }
 
 /*Receive a string with a hex value and convert to a string with a dec value*/
-std::string hexToDecString (std::string &str) 
+std::string hexToDecString (std::string &str)
 {
     uint64_t v;
     std::istringstream iss(str);
@@ -154,13 +154,13 @@ std::string hexToDecString (std::string &str)
 
 std::string intToString (uint64_t num)
 {
-    std::stringstream returnString; 
+    std::stringstream returnString;
     returnString << num;
     return returnString.str();
 }
 
 /*Workaround for error when include iostream and calling the tolower func*/
-char mytolower(char c) 
+char mytolower(char c)
 {
     return tolower(static_cast<unsigned char>(c));
 }

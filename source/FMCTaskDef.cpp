@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -21,7 +21,7 @@ bool
 findConseqBits( uint64_t value, uint32_t& size, uint32_t& offset )
 {
     if ( 0 == value ) return false;
-    
+
     bool started = false;
     uint64_t mask = (uint64_t)1 << ( sizeof( value ) * 8 - 1 );
     for ( int i = 0; i < sizeof( value ) * 8; ++i ) {   // start from the left bit
@@ -76,7 +76,7 @@ CTaskDef::checkSemantics()
         res &= checkSemanticsPolicer( plcrIt->second );
     }
 
-	// Check reassemblies
+    // Check reassemblies
     std::map< std::string, CReassembly >::iterator reasIt;
     for ( reasIt = reassemblies.begin(); res && reasIt != reassemblies.end(); ++reasIt ) {
         res &= checkSemanticsReassembly( reasIt->second );
@@ -99,7 +99,7 @@ CTaskDef::checkSemanticsClassification( CClassification& clsf )
     }
     checkActionTarget( clsf.actionOnMiss, clsf.actionNameOnMiss,
                        "classification", clsf.name );
-    
+
     if ( !clsf.key.header                                  &&
         clsf.key.nonHeaderEntry.source == ES_FROM_HASH     &&
         clsf.key.nonHeaderEntry.action == EA_INDEXED_LOOKUP ) {
@@ -109,22 +109,22 @@ CTaskDef::checkSemanticsClassification( CClassification& clsf )
         }
     }
 
-	if (clsf.key.field)
-	{
-		if (clsf.key.fields.size() != 1) {
-			throw CGenericError( ERR_CLSF_FROMFIELD_NO, clsf.name );
-		}
+    if (clsf.key.field)
+    {
+        if (clsf.key.fields.size() != 1) {
+            throw CGenericError( ERR_CLSF_FROMFIELD_NO, clsf.name );
+        }
 
-		if (clsf.key.fields[0].name != "ethernet.type" && clsf.key.fields[0].name != "vlan.tci" ) {
-			throw CGenericError( ERR_CLSF_FROMFIELD_HEADER, clsf.name );
-		}
-	}
+        if (clsf.key.fields[0].name != "ethernet.type" && clsf.key.fields[0].name != "vlan.tci" ) {
+            throw CGenericError( ERR_CLSF_FROMFIELD_HEADER, clsf.name );
+        }
+    }
 
-	if (clsf.key.header)
-	{
-		if (clsf.key.fields.size() > 3)
-			throw CGenericError( ERR_CLSF_EXTRACTION, "you can not have more than 3 extracts", clsf.name );
-	}
+    if (clsf.key.header)
+    {
+        if (clsf.key.fields.size() > 3)
+            throw CGenericError( ERR_CLSF_EXTRACTION, "you can not have more than 3 extracts", clsf.name );
+    }
 
     return true;
 }
@@ -142,7 +142,7 @@ CTaskDef::checkSemanticsDistribution( CDistribution& dist )
             dist.key[i].header_index.clear();
             hdrindex.clear();
         }
-        
+
         if ( !hdrindex.empty() && hdrindex != "1" && hdrindex != "2" &&
              hdrindex != "3" && hdrindex != "last" ) {
             CGenericError::printWarning( WARN_WRONG_HDR_INDEX, "Distribution", dist.name, dist.key[i].name );
@@ -187,7 +187,7 @@ CTaskDef::checkSemanticsDistribution( CDistribution& dist )
             throw CGenericError( ERR_UNRECOGNIZED_FIELD, name );
         }
     }
-    
+
     // Check that a 'distribution' is not a target of 'distribution' action
     if ( dist.action  == "distribution" ) {
         throw CGenericError( ERR_DIST_TRG_IS_DIST, dist.name );
@@ -228,28 +228,28 @@ CTaskDef::checkSemanticsPolicer( CPolicer& plcr )
 bool
 CTaskDef::checkSemanticsReassembly(CReassembly& reas)
 {
-	if ( ( reas.maxInProcess != 0 ) &&
+    if ( ( reas.maxInProcess != 0 ) &&
        ( ( IntBits< unsigned int >( reas.maxInProcess ).count1s() != 1 )))
-	{
-		throw CGenericError( ERR_REAS_MAXINPROCESS, reas.name );
-	}
+    {
+        throw CGenericError( ERR_REAS_MAXINPROCESS, reas.name );
+    }
 
-	if ( reas.ipv6minFragSize < 256)
-	{
-		throw CGenericError( ERR_REAS_IPV6FRAGSIZE, reas.name );
-	}
+    if ( reas.ipv6minFragSize < 256)
+    {
+        throw CGenericError( ERR_REAS_IPV6FRAGSIZE, reas.name );
+    }
 
-	if ( reas.numOfFramesPerHashEntry[0] < 1 || reas.numOfFramesPerHashEntry[0] > 8)
-	{
-		throw CGenericError( ERR_REAS_NUMFRAMESHASH, reas.name );
-	}
+    if ( reas.numOfFramesPerHashEntry[0] < 1 || reas.numOfFramesPerHashEntry[0] > 8)
+    {
+        throw CGenericError( ERR_REAS_NUMFRAMESHASH, reas.name );
+    }
 
-	if ( reas.numOfFramesPerHashEntry[1] < 1 || reas.numOfFramesPerHashEntry[1] > 6)
-	{
-		throw CGenericError( ERR_REAS_NUMFRAMESHASH, reas.name );
-	}
+    if ( reas.numOfFramesPerHashEntry[1] < 1 || reas.numOfFramesPerHashEntry[1] > 6)
+    {
+        throw CGenericError( ERR_REAS_NUMFRAMESHASH, reas.name );
+    }
 
-	return true;
+    return true;
 }
 
 class CNode {
@@ -265,7 +265,7 @@ public:
                 return name < n.name;
         return false;
     }
-    
+
     std::string action;
     std::string name;
 };
@@ -285,10 +285,10 @@ public:
 bool
 CTaskDef::checkLoopDependencies()
 {
-    
+
     std::set< CNode > nodes;
     std::map< CNode, std::set< CNode > > edges;
-    
+
     // For all distributions
     std::map< std::string, CDistribution >::iterator distIt;
     for ( distIt = distributions.begin(); distIt != distributions.end(); ++distIt ) {
@@ -365,7 +365,7 @@ CTaskDef::checkLoopDependencies()
                     ++edgeIt;
                 }
             }
-            
+
             // Delete the node
             nodes.erase( nodeIt );
         }
@@ -373,7 +373,7 @@ CTaskDef::checkLoopDependencies()
 
     if ( !nodes.empty() ) {
         std::set< CNode > parents;
-        
+
         std::map< CNode, std::set< CNode > >::iterator edgeIt;
         for ( edgeIt = edges.begin(); edgeIt != edges.end(); ++edgeIt ) {
             std::set< CNode >::iterator parentIt;
@@ -515,7 +515,7 @@ CTaskDef::getShimNoFromCustom( const std::string protocol_name ) const
     if ( custom_confirms.size() != 0 ) {
         result = *custom_confirms.begin();
     }
-    
+
     return result;
 }
 
@@ -525,7 +525,7 @@ bool
 CProtocol::GetHeaderSize(uint32_t&     size) const
 {
     uint32_t max=0;
-    for (unsigned int i=0; i<fields.size(); i++)   
+    for (unsigned int i=0; i<fields.size(); i++)
     {
         uint32_t bitsize=0, bitOffset;
         if (!GetFieldProperties(fields[i].name, bitsize, bitOffset))
@@ -546,14 +546,14 @@ CProtocol::FieldExists( const std::string fieldname) const
     std::vector< CField >::const_iterator fieldit;
     for ( fieldit = fields.begin();
           fieldit != fields.end();
-          ++fieldit ) 
+          ++fieldit )
     {
-        if ( fieldit->name == fieldname ) 
+        if ( fieldit->name == fieldname )
             return 1;
     }
     return 0;
 }
-    
+
 bool
 CProtocol::GetFieldProperties( const std::string fieldname,
                                uint32_t&         bitsize,
@@ -572,11 +572,11 @@ CProtocol::GetFieldProperties( const std::string fieldname,
     for ( fieldit = fields.begin();
           fieldit != fields.end();
           ++fieldit ) {
-        
+
         // Only 'fixed' and 'bit' field definitions are supported
         uint32_t fsize   = std::strtoul( fieldit->size.c_str(), 0, 0 ) * 8;
         uint32_t foffset = 0;
-        
+
         if ( fieldit->type == "fixed" ) {
             bitoffset  += prev_size;
             bitsize     = fsize;
@@ -597,7 +597,7 @@ CProtocol::GetFieldProperties( const std::string fieldname,
             /*If the last bit in the mask is one we move to the next byte range*/
             if (strtoull( fieldit->mask.c_str(), 0, 0 )& 0x1)
                 prev_last_bit_mask_one = true;
-            else 
+            else
                 prev_last_bit_mask_one = false;
         }
 
@@ -624,7 +624,7 @@ bool CProtocol::PossibleLayer4() const
 }
 
 /*Return true if the specified protocol could be a layer 4 protocol*/
-bool CProtocol::PossibleLayer4(ProtoType pt) 
+bool CProtocol::PossibleLayer4(ProtoType pt)
 {
     if ((CProtocol::ProtocolLayer(pt) == 4) || (pt==PT_NEXT_IP))
         return true;
@@ -638,7 +638,7 @@ short CProtocol::ProtocolLayer() const
 }
 
 /*Returns layer number (2/3/4) for known protocols and 0 otherwise*/
-short CProtocol::ProtocolLayer(ProtoType      pt) 
+short CProtocol::ProtocolLayer(ProtoType      pt)
 {
     switch (pt) {
         case    PT_ETH:
@@ -698,7 +698,7 @@ void CExecuteSection::deleteSection()
                         deleteSection();
                     executeExpression.switchInstr.cases[j].ifCaseValid = false;
                 }
-            }   
+            }
             if (executeExpression.switchInstr.defaultCaseValid)
             {
                 executeExpression.switchInstr.defaultCase.deleteSection();
@@ -707,9 +707,9 @@ void CExecuteSection::deleteSection()
         }       /*finished switches*/
     }           /*finished expressions*/
                 /*end of function*/
-}               
+}
 
-    
+
 void CTaskDef::deleteExecute()
 {
     uint32_t i, j;
@@ -768,7 +768,7 @@ CExecuteSwitch::getConfirmCustom( std::set< std::string >& custom_confirms ) con
     for ( unsigned int i = 0; i < cases.size(); ++i ) {
         cases[i].getConfirmCustom( custom_confirms );
     }
-    
+
     if ( defaultCaseValid ) {
         defaultCase.getConfirmCustom( custom_confirms );
     }

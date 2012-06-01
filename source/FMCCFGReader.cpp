@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -35,7 +35,7 @@ std::string
 CCFGReader::getXMLElement( xmlNodePtr pNode )
 {
     std::string ret = "";
-    
+
     if ( pNode->children != 0 ) {
         if ( pNode->children->content != 0 ) {
             ret = (const char*)pNode->children->content;
@@ -65,7 +65,7 @@ CCFGReader::parseCfgData( std::string filename )
     LIBXML_TEST_VERSION;
     xmlSetStructuredErrorFunc( &error, errorFuncHandler );
     xmlKeepBlanksDefault(0);
-        
+
     // Parse the XML file
     xmlDocPtr doc = xmlParseFile( filename.c_str() );
 
@@ -76,7 +76,7 @@ CCFGReader::parseCfgData( std::string filename )
     if ( 0 == doc ) {   // Was the parsing successful?
         throw CGenericError( ERR_CANT_OPEN_FILE, filename );
     }
-    
+
     // Get the root node
     xmlNodePtr cur = xmlDocGetRootElement( doc );
     if ( 0 == cur ) {   // Is the document empty?
@@ -177,7 +177,7 @@ CCFGReader::parseEngine( xmlNodePtr pNode )
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
         }
         // other
-        else 
+        else
             CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
 
 

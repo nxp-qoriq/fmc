@@ -1,4 +1,4 @@
-LIBRARY	"libfmc"
+LIBRARY "libfmc"
 EXPORTS
     fmc_compile
     fmc_execute

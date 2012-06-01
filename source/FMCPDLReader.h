@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -28,7 +28,7 @@ public:
     void setSoftParse( bool newSoftParse );
     bool getSoftParse () const;
 
-    void parseProtocol     (CProtocol* protocol, xmlNodePtr pNode );    
+    void parseProtocol     (CProtocol* protocol, xmlNodePtr pNode );
     void parseExecute      (CProtocol* protocol, xmlNodePtr pNode );
     void parseExecuteSection(CExecuteSection* executeSection, xmlNodePtr pNode, bool virtualSection=0);
     void parseExecuteAction(CExecuteAction* executeAction, xmlNodePtr pNode );
@@ -37,12 +37,12 @@ public:
     void parseExecuteIf    (CExecuteIf*     executeIf,     xmlNodePtr pNode );
     void parseExecuteLoop  (CExecuteLoop*   executeLoop,   xmlNodePtr pNode );
     void parseExecuteInline(CExecuteInline* executeInline, xmlNodePtr pNode );
-    void parseExecuteSwitch(CExecuteSwitch* executeSwitch, xmlNodePtr pNode );	
-    void parseFormat       (CProtocol* protocol, xmlNodePtr pNode );    
+    void parseExecuteSwitch(CExecuteSwitch* executeSwitch, xmlNodePtr pNode );
+    void parseFormat       (CProtocol* protocol, xmlNodePtr pNode );
     void parseBlock        (CProtocol* protocol, xmlNodePtr pNode );
     void parseFields       (CProtocol* protocol, xmlNodePtr pNode );
-    void parseField        (CField* field,       xmlNodePtr pNode );    
-    
+    void parseField        (CField* field,       xmlNodePtr pNode );
+
 protected:
     static std::string getAttr( xmlNodePtr pNode, const char* attr );
     static void checkUnknownAttr( xmlNodePtr pNode, int num, ... );

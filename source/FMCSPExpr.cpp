@@ -1,20 +1,20 @@
 /* A Bison parser, made by GNU Bison 2.4.2.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
-   
+
       Copyright (C) 1984, 1989-1990, 2000-2006, 2009-2010 Free Software
    Foundation, Inc.
-   
+
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
@@ -27,7 +27,7 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-   
+
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
@@ -1667,7 +1667,7 @@ yyreduce:
     {
         CENode* eNode  = newENode(EINTCONST);
         stringToInt(parseString, eNode->intval, *getLineYacc());
-        (yyval.node) = eNode; 
+        (yyval.node) = eNode;
     ;}
     break;
 
@@ -1675,8 +1675,8 @@ yyreduce:
 
 /* Line 1464 of yacc.c  */
 #line 117 ".\\FMCSPExpr.y"
-    {   
-        if (getIRYacc()->status.currentAfter)            
+    {
+        if (getIRYacc()->status.currentAfter)
             (yyval.node) = getIRYacc()->protocolsIRs[getIRYacc()->status.currentProtoIndex].
                                     headerSize->newDeepCopy();
         else
@@ -1690,24 +1690,24 @@ yyreduce:
 /* Line 1464 of yacc.c  */
 #line 126 ".\\FMCSPExpr.y"
     {
-        if (getIRYacc()->status.currentAfter)            
+        if (getIRYacc()->status.currentAfter)
         {
-            /*In after section defaultHeaderSize is calculated according to 
+            /*In after section defaultHeaderSize is calculated according to
               the <format> section of the custom protocol*/
             CENode* eNode  = newENode(EINTCONST);
-            if (getIRYacc()->status.currentAfter)            
+            if (getIRYacc()->status.currentAfter)
                 eNode->intval=getIRYacc()->calculateFormatSize(*getLineYacc());
-            (yyval.node) = eNode; 
+            (yyval.node) = eNode;
         }
-        else 
+        else
         {
-            /*in before section 
+            /*in before section
               defaultHeaderSize = nxtHdrOffset - prevProtoOffset*/
             CENode* prevProto = newObjectENode();
-            getIRYacc()->createIRVariable("prevprotoOffset", prevProto->objref, 
+            getIRYacc()->createIRVariable("prevprotoOffset", prevProto->objref,
                                   *getLineYacc());
             CENode* nxtHeader = newObjectENode();
-            getIRYacc()->createIRVariable("NxtHdrOffset", nxtHeader->objref, 
+            getIRYacc()->createIRVariable("NxtHdrOffset", nxtHeader->objref,
                                   *getLineYacc());
             CENode* eNode  = new CENode(ESUB,     nxtHeader, prevProto);
             (yyval.node) = eNode;
@@ -1734,7 +1734,7 @@ yyreduce:
 
 /* Line 1464 of yacc.c  */
 #line 155 ".\\FMCSPExpr.y"
-    { throw CGenericErrorLine(ERR_INVALID_INDEX, 
+    { throw CGenericErrorLine(ERR_INVALID_INDEX,
                                                 *getLineYacc(), parseString);;}
     break;
 
@@ -1777,7 +1777,7 @@ yyreduce:
 #line 174 ".\\FMCSPExpr.y"
     {
     CENode* eNode = newObjectENode();
-    getIRYacc()->createIRVariable(parseString, eNode->objref, 
+    getIRYacc()->createIRVariable(parseString, eNode->objref,
                                   *getLineYacc());
     (yyval.node) = eNode;
  ;}
@@ -1801,7 +1801,7 @@ yyreduce:
 #line 188 ".\\FMCSPExpr.y"
     {
     CENode* eNode = newObjectENode();
-    getIRYacc()->createIRVariableAccess(parseString, eNode->objref, 
+    getIRYacc()->createIRVariableAccess(parseString, eNode->objref,
                                         *getLineYacc());
     (yyval.node) = eNode;
  ;}
@@ -1813,7 +1813,7 @@ yyreduce:
 #line 195 ".\\FMCSPExpr.y"
     {
     CENode* eNode = newObjectENode();
-    getIRYacc()->createIRFWAccess(parseString, eNode->objref, 
+    getIRYacc()->createIRFWAccess(parseString, eNode->objref,
                                   *getLineYacc());
     (yyval.node) = eNode;
  ;}

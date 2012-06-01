@@ -1,6 +1,6 @@
 /* =====================================================================
  *
- *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved. 
+ *  Copyright 2009, 2010, Freescale Semiconductor, Inc., All Rights Reserved.
  *
  *  This file contains copyrighted material. Use of this file is restricted
  *  by the provisions of a Freescale Software License Agreement, which has
@@ -22,13 +22,13 @@ class CProtocolCode;
 class CRegOperand;
 
 typedef enum BitOperator {
-    BO_AND,	
+    BO_AND,
     BO_OR,
     BO_XOR
 } BitOperator;
 
 typedef enum CondOperator {
-    CO_EQU,	
+    CO_EQU,
     CO_NOTEQU,
     CO_GREATEREQU,
     CO_LESSEQU,
@@ -41,11 +41,11 @@ typedef enum OpType {
     OT_CONDOP,
     OT_HXS,
     OT_LABEL,
-    OT_OBJ,	
-    OT_REG,							
+    OT_OBJ,
+    OT_REG,
     OT_SHIFT,
     OT_TEXT,
-    OT_VAL,									
+    OT_VAL,
 } PCodeOpType;
 
 typedef enum Opcode {
@@ -62,17 +62,17 @@ typedef enum Opcode {
     JMP_PROTOCOL_ETH,    // [OT_HXS=1]
     JMP_PROTOCOL_IP,     // [OT_HXS=1]
     OR_IV_LCV,           // OT_VAL
-    STORE_IV_TO_RA,		 // OT_OBJ,         OT_VAL			
-    STORE_WR_TO_RA,		 // OT_OBJ,         OT_REG				
-    LOAD_BYTES_RA_TO_WR, // OT_REG,         OT_SHIFT,       OT_OBJ	
-    LOAD_BYTES_PA_TO_WR, // OT_REG,         OT_SHIFT,       OT_OBJ	
+    STORE_IV_TO_RA,      // OT_OBJ,         OT_VAL
+    STORE_WR_TO_RA,      // OT_OBJ,         OT_REG
+    LOAD_BYTES_RA_TO_WR, // OT_REG,         OT_SHIFT,       OT_OBJ
+    LOAD_BYTES_PA_TO_WR, // OT_REG,         OT_SHIFT,       OT_OBJ
     LOAD_BITS_FW_TO_WR,  // OT_REG,         OT_SHIFT,       OT_OBJ
-    LOAD_BITS_IV_TO_WR,	 // OT_REG,         OT_SHIFT,       OT_VAL,     OT_VAL
+    LOAD_BITS_IV_TO_WR,  // OT_REG,         OT_SHIFT,       OT_VAL,     OT_VAL
     ZERO_WR,             // OT_REG
     ADD_WR_WR_TO_WR,     // OT_REG,         OT_REG,         OT_REG
     SUB_WR_WR_TO_WR,     // OT_REG,         OT_REG,         OT_REG
     ADD_WR_IV_TO_WR,     // OT_REG,         OT_REG,         OT_VAL
-    SUB_WR_IV_TO_WR,	 // OT_REG,         OT_REG,         OT_VAL
+    SUB_WR_IV_TO_WR,     // OT_REG,         OT_REG,         OT_VAL
     SHIFT_LEFT_WR_BY_SV, // OT_REG,         OT_VAL
     SHIFT_RIGHT_WR_BY_SV,// OT_REG,         OT_VAL
     BITWISE_WR_WR_TO_WR, // OT_REG,         [OT_REG=WR0],   OT_BITOP,   [OT_REG=WR1]
@@ -81,10 +81,10 @@ typedef enum Opcode {
     ADD_SV_TO_WO,        // [OT_REG=WO],    OT_VAL
     SET_WO_BY_WR,        // [OT_REG=WO],    OT_REG
     ADD_WO_BY_WR,        // [OT_REG=WO],    OT_REG
-    CLM,                 // 
+    CLM,                 //
     ADVANCE_HB_BY_WO,    // [OT_REG=WO]
     ONES_COMP_WR1_TO_WR0,// [OT_REG=WR0],   [OT_REG=WR1]
-    NOP,                 // 
+    NOP,                 //
     INLINE_INSTR         // OT_TEXT
 } Opcode;
 
@@ -107,7 +107,7 @@ class COpFlags
   public:
     bool    used;
     bool    defined;
-    
+
     COpFlags() : used(0), defined(0) {}
 };
 
@@ -125,7 +125,7 @@ public:
     void                setDef (bool val);
     void                setUsed(bool val);
     virtual std::string getOperandName () const = 0;
-    virtual ~COperand () {} ;    
+    virtual ~COperand () {} ;
 };
 
 class CValueOperand : public COperand
@@ -138,28 +138,28 @@ public:
 class CRegOperand : public COperand
 {
 public:
-    CReg	reg;
+    CReg    reg;
     virtual std::string getOperandName () const;
 };
 
 class CBitOperand : public COperand
 {
 public:
-    BitOperator	bitOperator;
+    BitOperator bitOperator;
     virtual std::string getOperandName () const;
 };
 
 class CCondOperand : public COperand
 {
 public:
-    CondOperator	condOperator;
+    CondOperator condOperator;
     virtual std::string getOperandName () const;
 };
 
 class CLabelOperand : public COperand
 {
 public:
-    CLabel  	label;
+    CLabel label;
     CLabelOperand () {}
     CLabelOperand (CLabel label1) : label(label1) {}
     virtual std::string getOperandName () const;
@@ -168,7 +168,7 @@ public:
 class CObjOperand : public COperand
 {
 public:
-    CObject  	object;
+    CObject object;
     CObjOperand ()  {}
     CObjOperand (CObject newObject) : object(newObject) {}
     virtual std::string getOperandName () const;
@@ -178,7 +178,7 @@ class CHxsOperand : public COperand
 {
 public:
     bool    hxsOp;
-    static  CReg reg; 
+    static  CReg reg;
     virtual std::string getOperandName () const;
 };
 
@@ -212,7 +212,7 @@ class CInstruction
     std::vector <COperand*>         operands;
     CInstructionFlags               flags;
     std::string                     text;
-   
+
     friend class CCode;
     friend class CProtocolCode;
 
@@ -224,7 +224,7 @@ class CInstruction
 
   private:
     CInstruction(Opcode op) : opcode(op), noperands(0) {}
-    CInstruction(Opcode op, COperand* operandA,      COperand* operandB=NULL, 
+    CInstruction(Opcode op, COperand* operandA,      COperand* operandB=NULL,
                             COperand* operandC=NULL, COperand* operandD=NULL);
 
     /* get info*/
@@ -235,9 +235,9 @@ class CInstruction
   private:
     void checkError         (int num...);
     void prepareAsm         (std::string &asmOutput);
-    void prepareCode        (std::string &stringCode);     
- 
-    /*delete / new*/ 
+    void prepareCode        (std::string &stringCode);
+
+    /*delete / new*/
   public:
     void deleteInstruction  ();
 };
@@ -256,68 +256,68 @@ class CProtocolCode {
     void eraseInstruction   (uint32_t i);
 };
 
-class CCode  
+class CCode
 {
   public:
     std::vector <CProtocolCode > protocolsCode;
-  private:  
+  private:
     std::string      asmOutput;
     std::string      codeOutput;
     std::ofstream    *asmFile;
-    std::ofstream    *codeFile;   
+    std::ofstream    *codeFile;
     bool             debugAsm;      //dump the entire asm process
-    bool             chksumStored;  //chksumResult is stored in GPR2    
+    bool             chksumStored;  //chksumResult is stored in GPR2
     uint8_t          gpr2Used;      //GPR2 is currently live
     /*Process IR*/
   public:
-    CCode() : asmFile(0), codeFile(0), debugAsm(0), chksumStored(0), 
+    CCode() : asmFile(0), codeFile(0), debugAsm(0), chksumStored(0),
               gpr2Used(0) {}
     void createCode (CIR IR);
   private:
-    void processStatement  (CStatement statement, CProtocolCode& code);        
+    void processStatement  (CStatement statement, CProtocolCode& code);
     void processAssign     (CENode* expression,   CProtocolCode& code);
     void processEndSection (CStatement statement, CProtocolCode& code);
-    void processIf         (CENode* expression,   CLabel label, CProtocolCode& code);                
-    void processInline     (std::string data,     CProtocolCode& code);                
+    void processIf         (CENode* expression,   CLabel label, CProtocolCode& code);
+    void processInline     (std::string data,     CProtocolCode& code);
     void processJump       (CStatement statement, CProtocolCode& code);
     void processSwitch     (CENode* expression,   CSwitchTable* switchTable, CProtocolCode& code);
     void processWROperation(CENode* expression,   CProtocolCode& code);
     void processChecksum   (CENode* expression,   CProtocolCode& code);
     void processConcat     (CENode* expression,   CProtocolCode& code);
     void processExpression (CENode* expression,   CProtocolCode& code);
-    void processInt        (CENode* expression,   CProtocolCode& code);    
-    void processObject     (CENode* expression,   CProtocolCode& code);    
+    void processInt        (CENode* expression,   CProtocolCode& code);
+    void processObject     (CENode* expression,   CProtocolCode& code);
     void processLCV        (CStatementFlags stmtFlags, CProtocolCode& code);
     void findAndProcessChecksum  (CENode* expr,   CProtocolCode& code, bool &found);
 
-    /* revise / prepare functions */   
-  private:  
+    /* revise / prepare functions */
+  private:
     void prepareEntireCode  ();
     void reviseEntireCode   ();
-    
+
     /* dump functions*/
   public:
     void setDumpCode    (std::string path);
-    void setDumpAsm     (std::string path);    
+    void setDumpAsm     (std::string path);
     void setDebugAsm    (bool bool1);
     void dumpCode       ();
-    void dumpAsm        ();  
+    void dumpAsm        ();
 
     /*result*/
   public:
     std::string getAsmOutput();
 
     /*new/delete functions*/
-  public:    
+  public:
     static CBitOperand*    newBitOp        (BitOperator bitOp1);
-    static CCondOperand*   newCondOp       (CondOperator condOp1);    
-    static CHxsOperand*    newHxsOp        (bool hxsOp1); 
+    static CCondOperand*   newCondOp       (CondOperator condOp1);
+    static CHxsOperand*    newHxsOp        (bool hxsOp1);
     static CLabelOperand*  newLabelOp      (CLabel label1);
     static CObjOperand*    newObjOp        (CObject *object1);
     static CRegOperand*    newRegOp        (CReg reg1);
     static CRegOperand*    newRegOp        (RegType type1);
-    static CShiftOperand*  newShiftOp      (bool shiftOp1);    
-    static CTextOperand*   newTextOp       (std::string text1);    
+    static CShiftOperand*  newShiftOp      (bool shiftOp1);
+    static CTextOperand*   newTextOp       (std::string text1);
     static CValueOperand*  newValueOp      (uint64_t valueOp1);
     void deleteCode ();
   private:
@@ -330,11 +330,11 @@ class CCode
     CObject getAndFreeGPR2    (uint8_t start, uint8_t end);
     CObject getAndAllocateGPR2(uint8_t start, uint8_t end, int line = NO_LINE);
 
-    /*Create instructions. These functions aren't really necessary 
-    (besides createCase) since they all call just call the generic 
-    CInstruction construction. 
-    HOWEVER, they should be used since they prevent errors in compile-time, 
-    by unallowing using the wrong operands in specific instructions*/   
+    /*Create instructions. These functions aren't really necessary
+    (besides createCase) since they all call just call the generic
+    CInstruction construction.
+    HOWEVER, they should be used since they prevent errors in compile-time,
+    by unallowing using the wrong operands in specific instructions*/
   public:
     static CInstruction createCOMPARE_WR0_TO_IV     (CLabelOperand* opA, CCondOperand*  opB,    CValueOperand* opC);
     static CInstruction createCOMPARE_WORKING_REGS  (CLabelOperand* opA, CCondOperand*  opB);
