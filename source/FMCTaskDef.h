@@ -589,9 +589,11 @@ class CClassification
     std::string                actionNameOnMiss;
     std::string                fragmentationNameOnMiss;
     unsigned int               qbase;
-    //Preallocation
+    //Pre-allocation
     unsigned int               max;
     bool                       masks;
+    std::vector< std::string > may_use_action;
+    std::vector< std::string > may_use_actionName;
 };
 
 

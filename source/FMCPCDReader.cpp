@@ -614,7 +614,21 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
         }
         // may-use
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"may-use" ) ) {
-            checkUnknownAttr( cur, 0 );
+            checkUnknownAttr( cur, 0, "" );
+            xmlNodePtr pr = cur->xmlChildrenNode;
+            while ( 0 != pr ) {
+                if ( !xmlStrcmp( pr->name, (const xmlChar*)"action" ) ) {
+                    checkUnknownAttr( pr, 3, "type", "name", "condition" );
+
+                    std::string action     = stripBlanks( getAttr( pr, "type" ) );
+                    std::string actionName = stripBlanks( getAttr( pr, "name" ) );
+                    classification->may_use_action.push_back( action );
+                    classification->may_use_actionName.push_back( actionName );
+                }
+
+                pr = pr->next;
+            }
+
         }
         // queue
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"queue" ) ) {

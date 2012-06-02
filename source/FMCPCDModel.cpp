@@ -1007,6 +1007,41 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         ccNode.nextEngineOnMiss.newFqid = xmlCCNode.qbase;
     }
 
+    for ( unsigned int i = 0; i < xmlCCNode.may_use_action.size(); ++i ) {
+        e_FmPcdEngine action     = getEngineByType( xmlCCNode.may_use_action[i] );
+        std::string   actionName = xmlCCNode.may_use_actionName[i];
+        switch ( action ) {
+        case e_FM_PCD_CC:
+            {
+            unsigned int index =
+                get_ccnode_index( pTaskDef, actionName, ccNode.name, port,
+                                  false );
+            ApplyOrder::Entry n2( ApplyOrder::CCNode, index );
+            applier.add_edge( n1, n2 );
+            break;
+            }
+        case e_FM_PCD_KG:
+            {
+            unsigned int index =
+                get_scheme_index( pTaskDef, actionName, ccNode.name, port,
+                                  true );
+            ApplyOrder::Entry n2( ApplyOrder::Scheme, index );
+            applier.add_edge( n1, n2 );
+            break;
+            }
+        case e_FM_PCD_PLCR:
+            {
+            unsigned int index =
+                get_policer_index( pTaskDef, actionName, ccNode.name, port );
+            ApplyOrder::Entry n2( ApplyOrder::Policer, index );
+            applier.add_edge( n1, n2 );
+            break;
+            }
+        default:
+            {}
+        }
+    }
+
     return ccNode;
 }
 
