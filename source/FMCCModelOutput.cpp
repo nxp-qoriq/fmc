@@ -1014,6 +1014,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
 
     if ( node.extract.nhAction != e_FM_PCD_ACTION_INDEXED_LOOKUP ) {
         EMIT4STR( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.nextEngine =, node.nextEngineOnMiss.nextEngine );
+		EMIT4STR( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.statisticsEn =, node.nextEngineOnMiss.statistics );
         if ( node.nextEngineOnMiss.nextEngine == e_FM_PCD_PLCR ) {
             EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.plcrParams.overrideParams =, 1 );
             EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.plcrParams.sharedProfile =, 1 );
@@ -1094,6 +1095,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
         }
 
         EMIT6STR( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.nextEngine =, node.nextEngines[i].nextEngine );
+		EMIT6STR( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.statisticsEn =, node.nextEngines[i].statistics );
         if ( node.nextEngines[i].nextEngine == e_FM_PCD_PLCR ) {
             EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.overrideParams = 1 );
             EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.sharedProfile = 1 );

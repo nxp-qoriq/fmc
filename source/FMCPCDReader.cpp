@@ -489,6 +489,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
 	classification->statistics				= "none";
 	classification->vspOverrideOnMiss		= false;
 	classification->vspBaseOnMiss			= 0;
+	classification->statisticsOnMiss		= false;
 
     // Get known attributes
     classification->name = getAttr( pNode, "name" );
@@ -606,6 +607,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
             ce.headerManipName   = "";
 			ce.action = "";
 			ce.actionName = "";
+			ce.statistics = false;
 
             // Calculate entry index
             if ( !getAttr( cur, "index" ).empty() ) {
@@ -683,6 +685,11 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                 else if ( !xmlStrcmp( pr->name, (const xmlChar*)"action" ) ) {
                     ce.action     = stripBlanks( getAttr( pr, "type" ) );
                     ce.actionName = stripBlanks( getAttr( pr, "name" ) );
+					std::string text = stripBlanks( getAttr( cur, "statistics" ) );
+					if (text == "yes" || text == "true" || text == "enable")
+						ce.statistics = true;
+					else
+						ce.statistics = false;
                 }
 
                 pr = pr->next;
@@ -705,6 +712,12 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
             }
             classification->actionOnMiss     = stripBlanks( getAttr( cur, "type" ) );
             classification->actionNameOnMiss = stripBlanks( getAttr( cur, "name" ) );
+
+			std::string text = stripBlanks( getAttr( cur, "statistics" ) );
+            if (text == "yes" || text == "true" || text == "enable")
+                classification->statisticsOnMiss = true;
+            else
+                classification->statisticsOnMiss = false;
         }
 		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"vsp" ) ) {
             //VSP for the on-miss case

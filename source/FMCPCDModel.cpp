@@ -999,6 +999,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         ccNode.nextEngines[i].nextEngine        = getEngineByType( xmlCCNode.entries[i].action );
         ccNode.nextEngines[i].nextEngineStr     = getEngineByTypeStr( xmlCCNode.entries[i].action );
         ccNode.nextEngines[i].newFqid           = xmlCCNode.entries[i].qbase;
+		ccNode.nextEngines[i].statistics        = xmlCCNode.entries[i].statistics;
 
 #if (DPAA_VERSION >= 11)
     //Change the VSP
@@ -1074,6 +1075,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     ccNode.nextEngineOnMiss.nextEngine        = getEngineByType( xmlCCNode.actionOnMiss );
     ccNode.nextEngineOnMiss.nextEngineStr     = getEngineByTypeStr( xmlCCNode.actionOnMiss );
     ccNode.nextEngineOnMiss.newFqid           = 0;
+	ccNode.nextEngineOnMiss.statistics		  = xmlCCNode.statisticsOnMiss;
 
 #if (DPAA_VERSION >= 11)
     //Change the VSP

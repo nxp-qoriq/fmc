@@ -582,6 +582,7 @@ class CClassEntry
     char         mask[MAX_CC_KEY];
     std::string  action;
     std::string  actionName;
+	bool		 statistics;
 	std::string  vspName;
 	bool		 vspOverride;
 	unsigned int vspBase;
@@ -613,6 +614,7 @@ class CClassification
     std::string                fragmentationNameOnMiss;
 	std::string				   vspNameOnMiss;
 	bool					   vspOverrideOnMiss;
+	bool					   statisticsOnMiss;
 	unsigned int			   vspBaseOnMiss;
     unsigned int               qbase;
     //Pre-allocation

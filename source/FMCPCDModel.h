@@ -217,6 +217,7 @@ public:
 #if (DPAA_VERSION >= 11)
 		unsigned int	  newRelativeStorageProfileId;
 #endif /* (DPAA_VERSION >= 11) */
+		bool statistics;
     };
     class CCData
     {
