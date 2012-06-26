@@ -39,6 +39,11 @@ protected:
     void output_fmc_policer( const CFMCModel& model, fmc_model_t* cmodel,
                              unsigned int index,
                              std::ostream& oss, size_t indent );
+#if (DPAA_VERSION >= 11)
+	void output_fmc_replicator( const CFMCModel& model, fmc_model_t* cmodel,
+                             unsigned int index,
+                             std::ostream& oss, size_t indent );
+#endif /* (DPAA_VERSION >= 11) */
     void output_fmc_applier( const CFMCModel& model, fmc_model_t* cmodel,
                              unsigned int index,
                              std::ostream& oss, size_t indent );

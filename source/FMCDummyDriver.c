@@ -255,6 +255,15 @@ FM_PCD_ManipNodeSet(t_Handle h_FmPcd, t_FmPcdManipParams *p_FmPcdManipParams)
     return (t_Handle)++handle_no;
 }
 
+#if (DPAA_VERSION >= 11)
+t_Handle
+FM_PCD_FrmReplicSetGroup(t_Handle h_FmPcd, t_FmPcdFrmReplicGroupParams *p_FrmReplicGroupParam)
+{
+    printf( "Calling IOCTL::FM_PCD_FrmReplicSetGroup %d\n", handle_no + 1 );
+    return (t_Handle)++handle_no;
+}
+#endif /* (DPAA_VERSION >= 11) */
+
 
 t_Error
 FM_PCD_ManipNodeDelete(t_Handle h_HdrManipNode)

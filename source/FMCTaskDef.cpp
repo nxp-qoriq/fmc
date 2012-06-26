@@ -410,7 +410,8 @@ CTaskDef::checkActionTarget( const std::string action,
           action != "classification" &&
           action != "distribution"   &&
           action != "drop"           &&
-          action != "policer" ) {
+          action != "policer"		 &&
+		  action != "replicator") {
         throw CGenericError( ERR_UNREC_ACTION_TYPE, action, fromType, from );
     }
 
@@ -431,6 +432,12 @@ CTaskDef::checkActionTarget( const std::string action,
         std::map< std::string, CPolicer >::iterator policerIt = policers.find( actionName );
         if ( policerIt == policers.end() ) {
             throw CGenericError( ERR_POLICER_NOT_FOUND, actionName, from );
+        }
+    }
+	else if ( action == "replicator" ) {
+        std::map< std::string, CReplicator >::iterator replIt = replicators.find( actionName );
+        if ( replIt == replicators.end() ) {
+            throw CGenericError( ERR_REP_NOT_FOUND, actionName, from );
         }
     }
 

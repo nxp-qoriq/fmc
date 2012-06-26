@@ -28,6 +28,7 @@ public:
     void parseClassification( CClassification* classification, xmlNodePtr pNode );
     void parseFieldRef( CFieldRef* fieldref, xmlNodePtr pNode );
     void parseNonHeader( CNonHeaderEntry* nonHeaderEntry, xmlNodePtr pNode );
+	void parseHashTable( CHashTable* hashTable, xmlNodePtr pNode );
     void parsePolicy( CPolicy* policy, xmlNodePtr pNode );
     void parsePolicer( CPolicer* policer, xmlNodePtr pNode );
     void parseDistOrder( CPolicy* policy, xmlNodePtr pNode );
@@ -37,6 +38,8 @@ public:
     void parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode );
     void parseHeaderInsert( CHeaderInsert* headerInsert, xmlNodePtr pNode );
     void parseHeaderRemove( CHeaderRemove* headerRemove, xmlNodePtr pNode );
+	void parseReplicator( CReplicator* replicator, xmlNodePtr pNode );
+	void parseVsp( CVsp* vsp, xmlNodePtr pNode );
 
 protected:
     static std::string getAttr( xmlNodePtr pNode, const char* attr );

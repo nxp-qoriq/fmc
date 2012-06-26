@@ -411,6 +411,14 @@ public:
     unsigned int icIndxMask;
 };
 
+class CHashTable
+{
+public:
+	unsigned int mask;
+	unsigned int hashShift;
+	unsigned int keySize;
+};
+
 class CAction
 {
   public:
@@ -466,6 +474,14 @@ class CDistribution
     unsigned long dflt0;
     unsigned long dflt1;
 
+	bool		 vspoverride;
+	unsigned int vspbase;
+	bool		 vspdirect;
+	unsigned int vspshift;
+	unsigned int vspoffset;
+	unsigned int vspcount;
+
+
     std::vector< CFieldRef >     key;
     std::vector< CCombineEntry > combines;
     std::vector< CProtocolRef >  protocols;
@@ -475,6 +491,7 @@ class CDistribution
     std::string action;
     std::string actionName;
     std::string headerManipName;
+	std::string vspName;
 };
 
 
@@ -555,6 +572,7 @@ class CHeaderManip
     bool remove;
     CHeaderInsert hdrInsert;
     CHeaderRemove hdrRemove;
+	std::string nextManip;
 };
 
 class CClassEntry
@@ -564,6 +582,9 @@ class CClassEntry
     char         mask[MAX_CC_KEY];
     std::string  action;
     std::string  actionName;
+	std::string  vspName;
+	bool		 vspOverride;
+	unsigned int vspBase;
     std::string  fragmentationName;
     std::string  headerManipName;
     unsigned int qbase;
@@ -575,8 +596,10 @@ class CClassKey
 public:
     bool                       header;
     bool                       field;
+	bool					   hashTable;
     std::vector< CFieldRef >   fields;
     CNonHeaderEntry            nonHeaderEntry;
+	CHashTable				   hashTableEntry;
 };
 
 class CClassification
@@ -588,10 +611,14 @@ class CClassification
     std::string                actionOnMiss;
     std::string                actionNameOnMiss;
     std::string                fragmentationNameOnMiss;
+	std::string				   vspNameOnMiss;
+	bool					   vspOverrideOnMiss;
+	unsigned int			   vspBaseOnMiss;
     unsigned int               qbase;
     //Pre-allocation
     unsigned int               max;
     bool                       masks;
+	std::string				   statistics;
     std::vector< std::string > may_use_action;
     std::vector< std::string > may_use_actionName;
 };
@@ -603,6 +630,39 @@ class CPolicy
     std::string                name;
     std::vector< std::string > dist_order;
     std::string                reassemblyName;
+};
+
+class CVsp
+{
+  public:
+    std::string name;
+	bool direct;
+	unsigned int base;
+	unsigned int fqshift;
+	unsigned int vspoffset;
+	unsigned int vspcount;
+};
+
+class CReplicatorEntry
+{
+  public:
+    std::string  action;
+    std::string  actionName;
+    std::string  fragmentationName;
+    std::string  headerManipName;
+	std::string  vspName;
+	bool		 vspOverride;
+	unsigned int vspBase;
+    unsigned int qbase;
+    unsigned int index;
+};
+
+class CReplicator
+{
+  public:
+    std::string                name;
+    std::vector< CReplicatorEntry > entries;
+    unsigned int               max;
 };
 
 
@@ -644,6 +704,8 @@ class CTaskDef
     CSoftParseResult                         spr;
     std::map< std::string, CDistribution >   distributions;
     std::map< std::string, CClassification > classifications;
+	std::map< std::string, CReplicator >	 replicators;
+	std::map< std::string, CVsp >			 vsps;
     std::map< std::string, CPolicer >        policers;
     std::map< std::string, CPolicy >         policies;
     std::map< std::string, CFragmentation >  fragmentations;

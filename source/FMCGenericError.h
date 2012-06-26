@@ -109,6 +109,8 @@ const std::string ERR_POLICY_NOT_FOUND       = "Can't find policy's definition '
 const std::string ERR_DISTR_NOT_FOUND        = "Can't find distribution's definition '%1' referenced by '%2'";
 const std::string ERR_CC_NOT_FOUND           = "Can't find classification's definition '%1' referenced by '%2'";
 const std::string ERR_POLICER_NOT_FOUND      = "Can't find policer's definition '%1' referenced by '%2'";
+const std::string ERR_REP_NOT_FOUND			 = "Can't find replicators's definition '%1' referenced by '%2'";
+const std::string ERR_VSP_NOT_FOUND			 = "Can't find virtual storage profile's definition '%1' referenced by '%2'";
 const std::string ERR_TARGET_IS_ITSELF       = "The %1 '%2' has itself as an action target";
 const std::string ERR_INVALID_ENTRY_DATA     = "Invalid data entry in classification definition '%1'";
 const std::string ERR_DIST_TRG_IS_DIST       = "In the current implementation, 'distribution' can't be "
@@ -211,6 +213,10 @@ const std::string ERR_NH_FIELDREF            = "You cannot have both fieldref an
 const std::string ERR_NH_ONE_ENTRY           = "There can be only 1 nonheader entry for classification %1";
 const std::string ERR_NH_KEY_SIZE            = "Non-header size must be smaller or equal to %1: '%2'";
 
+/* Error in hashtable parameters*/
+const std::string ERR_HT_FIELDREF            = "You cannot have both fieldref and hashtable in the same key for classification %1";
+const std::string ERR_HT_NONHEADER           = "You cannot have both non-header and hashtable in the same key for classification %1";
+const std::string ERR_HT_ONE_ENTRY           = "There can be only 1 hash table entry for classification %1";
 
 const std::string ERR_DIST_HDRINDEX          = "Header index %1 not available for field %2: '%3'"; //ADDED
 const std::string ERR_CLSF_EXTRACTION        = "Extraction not supported (%1): '%2'"; //ADDED

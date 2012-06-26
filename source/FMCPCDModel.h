@@ -35,6 +35,7 @@ const unsigned int MAX_PORTS     = 16;
 const unsigned int MAX_SCHEMES   = 32;
 const unsigned int MAX_POLICERS  = 256;
 const unsigned int MAX_CCNODES   = 256;
+const unsigned int MAX_REPLICATORS = 256;
 const unsigned int MAX_CODE_SIZE = 0x7C0;
 
 
@@ -45,11 +46,13 @@ class CEngine;
 class CPort;
 class CDistribution;
 class CClassification;
+class CReplicator;
 class CPolicer;
 class Engine;
 class Port;
 class Scheme;
 class CCNode;
+class CRepl;
 class Policer;
 class CSoftParseResult;
 
@@ -64,6 +67,7 @@ public:
     static unsigned int assignIndex( std::vector< Port >&    ports );
     static unsigned int assignIndex( std::vector< Scheme >&  schemes );
     static unsigned int assignIndex( std::vector< CCNode >&  ccnodes );
+	static unsigned int assignIndex( std::vector< CRepl >&  repls );
     static unsigned int assignIndex( std::vector< Policer >& policers );
 
 private:
@@ -173,6 +177,11 @@ public:
     std::string       doneActionStr;
     unsigned int      actionHandleIndex;
 
+#if (DPAA_VERSION >= 11)
+	bool overrideStorageProfile; 
+	t_FmPcdKgStorageProfile storageProfile; 
+#endif /* (DPAA_VERSION >= 11) */
+
     std::string   port_signature;
     unsigned int  scheme_index_per_port; // Scheme index for t_Fmc type
 };
@@ -205,6 +214,9 @@ public:
         e_FmPcdDoneAction doneAction;
         std::string       doneActionStr;
         unsigned int      actionHandleIndex;
+#if (DPAA_VERSION >= 11)
+		unsigned int	  newRelativeStorageProfileId;
+#endif /* (DPAA_VERSION >= 11) */
     };
     class CCData
     {
@@ -216,6 +228,8 @@ public:
     std::string name;                   ///< Node name
 
     unsigned int maxNumOfKeys;          ///< Max number of keys
+
+	e_FmPcdCcStatsMode statistics;      ///< Statistics mode (none/frame)
 
     bool maskSupport;                   ///< Reservation of memory for key masks
 
@@ -240,6 +254,38 @@ public:
     std::string   port_signature;
 };
 
+////////////////////////////////////////////////////////////////////////////////
+/// Storage class for Replicator node
+////////////////////////////////////////////////////////////////////////////////
+class CRepl : public FMBlock
+{
+public:
+    class CCNextEngine
+    {
+    public:
+        e_FmPcdEngine     nextEngine;
+        std::string       nextEngineStr;
+        unsigned int      newFqid;
+        e_FmPcdDoneAction doneAction;
+        std::string       doneActionStr;
+        unsigned int      actionHandleIndex;
+#if (DPAA_VERSION >= 11)
+		unsigned int	  newRelativeStorageProfileId;
+#endif /* (DPAA_VERSION >= 11) */
+    };
+ 
+public:
+    std::string name;                   ///< Replicator name
+
+    unsigned int maxNumOfEntries;          ///< Max number of keys
+
+    std::vector< CCNextEngine > nextEngines;
+    std::vector< unsigned int > frag;
+    std::vector< unsigned int > header;
+    std::vector< unsigned int > indices;
+
+    std::string   port_signature;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Storage class for FM Policer entry
@@ -307,6 +353,8 @@ public:
                                         ///< Schemes used by this port
     std::vector< unsigned int > ccnodes; ///<
                                         ///< Class. nodes used by this port
+	std::vector< unsigned int > replicators; ///<
+                                        ///< Class. nodes used by this port
     std::vector< unsigned int > cctrees; ///<
                                         ///< Root CC nodes
     std::vector< unsigned int > hdrmanips; ///<
@@ -357,7 +405,7 @@ public:
 class ApplyOrder
 {
 public:
-    enum Type { None, EngineStart, EngineEnd, PortStart, PortEnd, Scheme, CCNode, CCTree, Policer };
+    enum Type { None, EngineStart, EngineEnd, PortStart, PortEnd, Scheme, CCNode, CCTree, Policer, Replicator };
 
     class Entry {
     public:
@@ -425,11 +473,12 @@ public:
 
 
 public:
-    std::vector< Engine >  all_engines; ///< Engines defined by this configuration
-    std::vector< Port >    all_ports;   ///< Ports defined by this configuration
-    std::vector< Scheme >  all_schemes; ///< Schemes participating in this config
-    std::vector< CCNode >  all_ccnodes; ///< Class. nodes participating in this config
-    std::vector< Policer > all_policers; ///<
+    std::vector< Engine >	all_engines; ///< Engines defined by this configuration
+    std::vector< Port >		all_ports;   ///< Ports defined by this configuration
+    std::vector< Scheme >	all_schemes; ///< Schemes participating in this config
+    std::vector< CCNode >	all_ccnodes; ///< Class. nodes participating in this config
+	std::vector< CRepl >	all_replicators; ///< Replicator nodes participating in this config
+    std::vector< Policer >	all_policers; ///<
                                         ///< Policers participating in this config
     t_FmPcdPrsSwParams swPrs;
     bool               spEnable;
@@ -443,6 +492,7 @@ private:
     Scheme&  createScheme( const CTaskDef* pTaskDef, Port& port, const CDistribution& xmlDist,
                            bool isDirect );
     CCNode&  createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode );
+	CRepl&   createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplicator& xmlRepl );
     Policer& createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& xmlPolicer );
     void     createSoftParse( const CTaskDef* pTaskDef );
 
@@ -450,6 +500,8 @@ private:
                                    std::string from, Port& port, bool isDirect );
     unsigned int get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
                                    std::string from, Port& port, bool isRoot, unsigned int manip = 0 );
+	unsigned int get_replicator_index( const CTaskDef* pTaskDef, std::string name,
+                                   std::string from, Port& port, unsigned int manip = 0 );
     unsigned int get_policer_index( const CTaskDef* pTaskDef, std::string name,
                                     std::string from, Port& port );
 };

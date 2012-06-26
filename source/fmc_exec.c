@@ -110,6 +110,11 @@ fmc_execute( fmc_model* model )
             case FMCCCNode:
                 ret = fmc_exec_ccnode( model, current_engine, model->ao[i].index );
                 break;
+#if (DPAA_VERSION >= 11)
+			case FMCReplicator:
+                ret = fmc_exec_replicator( model, current_engine, model->ao[i].index );
+                break;
+#endif /* (DPAA_VERSION >= 11) */
             case FMCCCTree:
                 ret = fmc_exec_cctree( model, current_engine, model->ao[i].index );
                 break;
@@ -495,11 +500,19 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
                                              model->scheme_handle[action_index];
         }
         else if ( model->ccnode[index].keysParams.keyParams[i]
-                               .ccNextEngineParams.nextEngine == e_FM_PCD_CC ) {
+                               .ccNextEngineParams.nextEngine == e_FM_PCD_CC) {
             model->ccnode[index].keysParams.keyParams[i]
                 .ccNextEngineParams.params.ccParams.h_CcNode =
                                              model->ccnode_handle[action_index];
         }
+#if (DPAA_VERSION >= 11)
+		else if ( model->ccnode[index].keysParams.keyParams[i]
+                .ccNextEngineParams.nextEngine == e_FM_PCD_FR) {
+            model->ccnode[index].keysParams.keyParams[i]
+				.ccNextEngineParams.params.frParams.h_FrmReplic =
+                                             model->ccnode_handle[action_index];
+        }
+#endif /* (DPAA_VERSION >= 11) */
 
 #ifndef P1023
         if ( model->ccentry_frag[index][i] != 0 ) {
@@ -548,6 +561,54 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
 
     return 0;
 }
+
+#if (DPAA_VERSION >= 11)
+/* -------------------------------------------------------------------------- */
+static int
+fmc_exec_replicator( fmc_model* model, unsigned int engine,
+                 unsigned int index )
+{
+    unsigned int i;
+    unsigned int action_index;
+
+    for ( i = 0; i < model->replicator[index].numOfEntries; ++i ) {
+        action_index = model->repentry_action_index[index][i];
+		if ( model->replicator[index].nextEngineParams[i].nextEngine == e_FM_PCD_KG ) {
+            model->replicator[index].nextEngineParams[i].params.kgParams.h_DirectScheme =
+                                             model->scheme_handle[action_index];
+        }
+        else if ( model->replicator[index].nextEngineParams[i].nextEngine == e_FM_PCD_CC) {
+            model->replicator[index].nextEngineParams[i].params.ccParams.h_CcNode =
+                                             model->ccnode_handle[action_index];
+        }
+		else if ( model->replicator[index].nextEngineParams[i].nextEngine == e_FM_PCD_FR) {
+            model->replicator[index].nextEngineParams[i].params.frParams.h_FrmReplic =
+                                             model->replicator_handle[action_index];
+        }
+
+#ifndef P1023
+        if ( model->repentry_frag[index][i] != 0 ) {
+            model->replicator[index].nextEngineParams[i].h_Manip =
+                model->fman[engine].frag_handle[ model->repentry_frag[index][i] - 1 ];
+        }
+
+        if ( model->repentry_manip[index][i] != 0 ) {
+            model->replicator[index].nextEngineParams[i].h_Manip =
+                model->fman[engine].hdr_handle[ model->repentry_manip[index][i] - 1 ];
+        }
+#endif /* P1023 */
+    }
+
+    model->replicator_handle[index] =
+        FM_PCD_FrmReplicSetGroup( model->fman[engine].pcd_handle,
+                          &(model->replicator[index]) );
+
+    if ( model->replicator_handle[index] == 0 ) {
+        return 6;
+    }
+    return 0;
+}
+#endif /* (DPAA_VERSION >= 11) */
 
 
 /* -------------------------------------------------------------------------- */

@@ -50,6 +50,7 @@ extern "C"
 #define FMC_SCHEMES_NUM          32
 #define FMC_SCHEME_PROTOCOLS_NUM 16
 #define FMC_CC_NODES_NUM        256
+#define FMC_REPLICATORS_NUM     256
 #define FMC_PLC_NUM              64
 #define MAX_SP_CODE_SIZE      0x7C0
 #define FMC_MANIP_MAX             8
@@ -127,7 +128,8 @@ typedef enum fmc_apply_order_e {
     FMCScheme,
     FMCCCNode,
     FMCCCTree,
-    FMCPolicer
+    FMCPolicer,
+	FMCReplicator
 } fmc_apply_order_e;
 
 
@@ -167,6 +169,16 @@ typedef struct fmc_model_t {
     unsigned char            ccentry_manip       [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned int             ccmiss_action_index [FMC_CC_NODES_NUM];
 
+#if (DPAA_VERSION >= 11)
+	unsigned int             replicator_count;       ///< Number of used Frame Replicators
+    char                     replicator_name       [FMC_REPLICATORS_NUM][FMC_NAME_LEN];
+    t_Handle                 replicator_handle     [FMC_REPLICATORS_NUM];
+    t_FmPcdFrmReplicGroupParams      replicator    [FMC_REPLICATORS_NUM];
+    unsigned int             repentry_action_index [FMC_REPLICATORS_NUM][FM_PCD_MAX_NUM_OF_REPS];
+    unsigned char            repentry_frag         [FMC_REPLICATORS_NUM][FM_PCD_MAX_NUM_OF_REPS];
+    unsigned char            repentry_manip        [FMC_REPLICATORS_NUM][FM_PCD_MAX_NUM_OF_REPS];
+#endif /* (DPAA_VERSION >= 11) */
+   
     unsigned int             policer_count; ///< Number of used policers
     char                     policer_name        [FMC_PLC_NUM][FMC_NAME_LEN];
     t_FmPcdPlcrProfileParams policer             [FMC_PLC_NUM];

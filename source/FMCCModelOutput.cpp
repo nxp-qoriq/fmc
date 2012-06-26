@@ -153,6 +153,15 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
         OUT_EMPTY;
         output_fmc_ccnode( model, cmodel, i, oss, indent );
     }
+	OUT_EMPTY;
+#if (DPAA_VERSION >= 11)
+    // Output Replicators
+    EMIT2( replicator_count =, model.all_replicators.size() )
+    for ( unsigned int i = 0; i < cmodel->replicator_count; ++i ) {
+        OUT_EMPTY;
+        output_fmc_replicator( model, cmodel, i, oss, indent );
+    }
+#endif /* (DPAA_VERSION >= 11) */
     OUT_EMPTY;
     // Output policers
     EMIT2( policer_count =, model.all_policers.size() )
@@ -254,8 +263,10 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sizeForFragmentation =,
             model.all_engines[index].frags[i].u.frag.u.ipFrag.sizeForFragmentation );
+#if (DPAA_VERSION == 10)
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.scratchBpid =,
             (int)model.all_engines[index].frags[i].u.frag.u.ipFrag.scratchBpid );
+#endif /* (DPAA_VERSION == 10) */
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.dontFragAction =,
             model.all_engines[index].frags[i].u.frag.u.ipFrag.dontFragAction );
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sgBpidEn =,
@@ -491,6 +502,24 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
     unsigned int useHash = sch.key.empty() ? 0 : 1;
     EMIT4( scheme[, index, ].useHash =,  useHash );
     EMIT4( scheme[, index, ].baseFqid =, sch.qbase );
+
+#if (DPAA_VERSION >= 11)
+	EMIT4( scheme[, index, ].overrideStorageProfile =,  sch.overrideStorageProfile );
+	if ( sch.overrideStorageProfile )
+	{
+		EMIT4( scheme[, index, ].storageProfile.direct =,  sch.storageProfile.direct );
+		if ( sch.storageProfile.direct )
+		{
+			EMIT4( scheme[, index, ].storageProfile.profileSelect.directRelativeProfileId  =,  (unsigned int)sch.storageProfile.profileSelect.directRelativeProfileId );
+		}
+		else
+		{
+			EMIT4( scheme[, index, ].storageProfile.profileSelect.indirectProfile.fqidOffsetShift  =,  (unsigned int)sch.storageProfile.profileSelect.indirectProfile.fqidOffsetShift );
+			EMIT4( scheme[, index, ].storageProfile.profileSelect.indirectProfile.fqidOffsetRelativeProfileIdBase  =,  (unsigned int)sch.storageProfile.profileSelect.indirectProfile.fqidOffsetRelativeProfileIdBase );
+			EMIT4( scheme[, index, ].storageProfile.profileSelect.indirectProfile.numOfProfiles  =,  (unsigned int)sch.storageProfile.profileSelect.indirectProfile.numOfProfiles );
+		}
+	}
+#endif /* (DPAA_VERSION >= 11) */
 
     EMIT4STR( scheme[, index, ].nextEngine =, sch.nextEngine );
     if ( sch.nextEngine == e_FM_PCD_DONE && sch.doneAction == e_FM_PCD_DROP_FRAME ) {
@@ -959,6 +988,8 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
         EMIT4( ccnode[, index, ].keysParams.maskSupport =, node.maskSupport );
     }
 
+	EMIT4( ccnode[, index, ].keysParams.statisticsMode =, node.statistics );
+
     if ( ( cmodel->ccnode[index].extractCcParams.type != e_FM_PCD_EXTRACT_BY_HDR ) &&
          ( node.extract.nhAction == e_FM_PCD_ACTION_INDEXED_LOOKUP ) ) {
         // Take the upper bound of amount of keys. The number of entries
@@ -988,6 +1019,9 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
             EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.plcrParams.sharedProfile =, 1 );
             EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.plcrParams.newRelativeProfileId =, node.nextEngineOnMiss.actionHandleIndex );
             EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.plcrParams.newFqid =, node.nextEngineOnMiss.newFqid );
+#if (DPAA_VERSION >= 11)
+			EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.plcrParams.newRelativeStorageProfileId =, node.nextEngineOnMiss.newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
         }
         else if ( node.nextEngineOnMiss.nextEngine == e_FM_PCD_CC ) {
             EMIT4( ccmiss_action_index[, index, ] =, node.nextEngineOnMiss.actionHandleIndex );
@@ -995,6 +1029,9 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
         else if ( node.nextEngineOnMiss.nextEngine == e_FM_PCD_KG ) {
             EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.kgParams.overrideFqid =, 1 );
             EMIT4( ccmiss_action_index[, index, ] =, node.nextEngineOnMiss.actionHandleIndex );
+#if (DPAA_VERSION >= 11)
+			EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.kgParams.newRelativeStorageProfileId =, node.nextEngineOnMiss.newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
         }
         else if ( node.nextEngineOnMiss.nextEngine == e_FM_PCD_DONE ) {
             if ( node.nextEngineOnMiss.doneAction == e_FM_PCD_DROP_FRAME ) {
@@ -1004,6 +1041,10 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
                 EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.enqueueParams.overrideFqid =, 1 );
                 EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.enqueueParams.newFqid =,
                         node.nextEngineOnMiss.newFqid );
+#if (DPAA_VERSION >= 11)
+				EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.enqueueParams.newRelativeStorageProfileId =,
+					 node.nextEngineOnMiss.newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
             }
             else {
                 EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.enqueueParams.overrideFqid =, 0 );
@@ -1058,10 +1099,16 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
             EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.sharedProfile = 1 );
             EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.newRelativeProfileId =, node.nextEngines[i].actionHandleIndex );
             EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.newFqid =, node.nextEngines[i].newFqid );
+#if (DPAA_VERSION >= 11)
+			EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.plcrParams.newRelativeStorageProfileId =, node.nextEngines[i].newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
         }
         else if ( node.nextEngines[i].nextEngine == e_FM_PCD_KG ) {
             if ( node.nextEngines[i].newFqid != 0 ) {
                 EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.kgParams.overrideFqid = 1 );
+#if (DPAA_VERSION >= 11)
+				EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.kgParams.newRelativeStorageProfileId =, node.nextEngines[i].newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
             }
             else {
                 EMIT5( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.kgParams.overrideFqid = 0 );
@@ -1071,6 +1118,11 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
         else if ( node.nextEngines[i].nextEngine == e_FM_PCD_CC ) {
             EMIT6( ccentry_action_index[, index, ][, node_num, ] =, node.nextEngines[i].actionHandleIndex );
         }
+#if (DPAA_VERSION >= 11)
+		else if ( node.nextEngines[i].nextEngine == e_FM_PCD_FR ) {
+            EMIT6( ccentry_action_index[, index, ][, node_num, ] =, node.nextEngines[i].actionHandleIndex );
+        }
+#endif /* (DPAA_VERSION >= 11) */
         else if ( node.nextEngines[i].nextEngine == e_FM_PCD_DONE ) {
             if ( node.nextEngines[i].doneAction == e_FM_PCD_DROP_FRAME ) {
                 EMIT6STR( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.action =, node.nextEngineOnMiss.doneAction );
@@ -1078,9 +1130,12 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
             else if ( node.nextEngines[i].newFqid != 0 ) {
                 EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.overrideFqid =, 1 );
                 EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.newFqid =, node.nextEngines[i].newFqid );
+#if (DPAA_VERSION >= 11)
+				EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.newRelativeStorageProfileId =, node.nextEngines[i].newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
             }
             else {
-                EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.newFqid =, 0 );
+                EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.overrideFqid =, 0 );
             }
         }
     }
@@ -1096,7 +1151,7 @@ CFMCCModelOutput::output_fmc_policer( const CFMCModel& model, fmc_model_t* cmode
 
     EMIT1( std::string( "/* Policer: " ) + plc.name + " */" );
 
-    strncpy( cmodel->policer_name[index], std::string( "\"" + plc.name + "\"" ).c_str(), FMC_NAME_LEN - 1 );
+    strncpy( cmodel->policer_name[index], plc.name.c_str(), FMC_NAME_LEN - 1 );
     cmodel->policer_name[index][FMC_NAME_LEN - 1] = 0;
     oss << ind( indent ) << ".policer_name[" << index << "] = " << std::string( "\"" + plc.name + "\"" ) << "," << std::endl;
 
@@ -1130,6 +1185,74 @@ CFMCCModelOutput::output_fmc_policer( const CFMCModel& model, fmc_model_t* cmode
     EMIT4( policer_action_index[, index, ][2] =, plc.onRedActionHandleIndex );
 }
 
+#if (DPAA_VERSION >= 11)
+void
+CFMCCModelOutput::output_fmc_replicator( const CFMCModel& model, fmc_model_t* cmodel,
+                                      unsigned int index,
+                                      std::ostream& oss, size_t indent )
+{
+    const CRepl& repl = model.all_replicators[index];
+
+    EMIT1( std::string( "/* Replicator: " ) + repl.name + " */" );
+
+    strncpy( cmodel->replicator_name[index], repl.name.c_str(), FMC_NAME_LEN - 1 );
+    cmodel->replicator_name[index][FMC_NAME_LEN - 1] = 0;
+    oss << ind( indent ) << ".replicator_name[" << index << "] = " << std::string( "\"" + repl.name + "\"" ) << "," << std::endl;
+
+	EMIT4( replicator[, index, ].maxNumOfEntries =, repl.maxNumOfEntries );
+	EMIT4( replicator[, index, ].numOfEntries =, repl.nextEngines.size() );
+
+	for ( unsigned int i = 0; i < repl.nextEngines.size(); ++i ) {
+        int entry_num = repl.indices[i];
+
+        if ( repl.frag[i] != 0 ) {
+            EMIT6( repentry_frag[, index, ][, entry_num, ] =, repl.frag[i] );
+        }
+
+        if ( repl.header[i] != 0 ) {
+            EMIT6( repentry_manip[, index, ][, entry_num, ] =, repl.header[i] );
+        }
+
+        EMIT6STR( replicator[, index, ].nextEngineParams[, entry_num, ].nextEngine =, repl.nextEngines[i].nextEngine );
+        if ( repl.nextEngines[i].nextEngine == e_FM_PCD_PLCR ) {
+            EMIT5( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.overrideParams = 1 );
+            EMIT5( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.sharedProfile = 1 );
+            EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.newRelativeProfileId =, repl.nextEngines[i].actionHandleIndex );
+            EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.newFqid =, repl.nextEngines[i].newFqid );
+			EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.newRelativeStorageProfileId =, repl.nextEngines[i].newRelativeStorageProfileId );
+        }
+        else if ( repl.nextEngines[i].nextEngine == e_FM_PCD_KG ) {
+            if ( repl.nextEngines[i].newFqid != 0 ) {
+                EMIT5( replicator[, index, ].nextEngineParams[, entry_num, ].params.kgParams.overrideFqid = 1 );
+				EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.kgParams.newFqid =, repl.nextEngines[i].newFqid );
+				EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.kgParams.newRelativeStorageProfileId =, repl.nextEngines[i].newRelativeStorageProfileId );
+            }
+            else {
+                EMIT5( replicator[, index, ].nextEngineParams[, entry_num, ].params.kgParams.overrideFqid = 0 );
+            }
+            EMIT6( repentry_action_index[, index, ][, entry_num, ] =, repl.nextEngines[i].actionHandleIndex );
+        }
+        else if ( repl.nextEngines[i].nextEngine == e_FM_PCD_CC ) {
+            EMIT6( repentry_action_index[, index, ][, entry_num, ] =, repl.nextEngines[i].actionHandleIndex );
+        }
+		else if ( repl.nextEngines[i].nextEngine == e_FM_PCD_FR ) {
+            EMIT6( repentry_action_index[, index, ][, entry_num, ] =, repl.nextEngines[i].actionHandleIndex );
+        }
+        else if ( repl.nextEngines[i].nextEngine == e_FM_PCD_DONE ) {
+            if ( repl.nextEngines[i].newFqid != 0 ) {
+                EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.enqueueParams.overrideFqid =, 1 );
+                EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.enqueueParams.newFqid =, repl.nextEngines[i].newFqid );
+				EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.enqueueParams.newRelativeStorageProfileId =, repl.nextEngines[i].newRelativeStorageProfileId );
+            }
+
+            else {
+                EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.enqueueParams.overrideFqid =, 0 );
+            }
+        }
+    }
+}
+#endif /* (DPAA_VERSION >= 11) */
+
 
 std::string
 CFMCCModelOutput::get_apply_item_name( fmc_model_t* cmodel,
@@ -1154,6 +1277,11 @@ CFMCCModelOutput::get_apply_item_name( fmc_model_t* cmodel,
     case FMCPolicer:
         return std::string( " /* " ) +
             cmodel->policer_name[e.index] + " */";
+#if (DPAA_VERSION >= 11)
+	case FMCReplicator:
+        return std::string( " /* " ) +
+            cmodel->replicator_name[e.index] + " */";
+#endif /* (DPAA_VERSION >= 11) */
     default:
         return "";
     }
@@ -1204,6 +1332,8 @@ CFMCCModelOutput::get_fmc_type( ApplyOrder::Type t ) const
             return FMCCCNode;
         case ApplyOrder::CCTree:
             return FMCCCTree;
+		case ApplyOrder::Replicator:
+            return FMCReplicator;
         case ApplyOrder::Policer:
             return FMCPolicer;
     }
@@ -1231,6 +1361,8 @@ CFMCCModelOutput::get_fmc_type_str( ApplyOrder::Type t ) const
             return "FMCCCTree     ";
         case ApplyOrder::Policer:
             return "FMCPolicer    ";
+		case ApplyOrder::Replicator:
+            return "FMCReplicator ";
     }
     return "";
 }
