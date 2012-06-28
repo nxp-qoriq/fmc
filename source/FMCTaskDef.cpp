@@ -70,6 +70,12 @@ CTaskDef::checkSemantics()
         res &= checkSemanticsClassification( clsfIt->second );
     }
 
+	// Check replicators
+    std::map< std::string, CReplicator >::iterator replIt;
+    for ( replIt = replicators.begin(); res && replIt != replicators.end(); ++replIt ) {
+        res &= checkSemanticsReplicator( replIt->second );
+    }
+
     // Check policers
     std::map< std::string, CPolicer >::iterator plcrIt;
     for ( plcrIt = policers.begin(); res && plcrIt != policers.end(); ++plcrIt ) {
@@ -126,6 +132,18 @@ CTaskDef::checkSemanticsClassification( CClassification& clsf )
             throw CGenericError( ERR_CLSF_EXTRACTION, "you can not have more than 3 extracts", clsf.name );
     }
 
+    return true;
+}
+
+bool
+CTaskDef::checkSemanticsReplicator( CReplicator& repl )
+{
+    // Check that actions' types and make sure that the actions have apropriate targets
+    for ( unsigned int i = 0; i < repl.entries.size(); ++i ) {
+        checkActionTarget( repl.entries[i].action, repl.entries[i].actionName,
+                           "replicator", repl.name );
+    }
+  
     return true;
 }
 
@@ -440,6 +458,14 @@ CTaskDef::checkActionTarget( const std::string action,
             throw CGenericError( ERR_REP_NOT_FOUND, actionName, from );
         }
     }
+
+	if (fromType == "replicator")
+	{
+		if ( action == "classification" || action == "replicator" )
+		{
+			throw CGenericError( ERR_TARGET_INVALID, action, from );
+		}
+	}
 
     // Check that it is not the same entity
     if ( ( action == fromType ) && ( actionName == from ) ) {

@@ -1242,6 +1242,12 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
 
         repl.nextEngines.push_back( CRepl::CCNextEngine() );
         repl.nextEngines[i].nextEngine        = getEngineByType( xmlRepl.entries[i].action );
+
+		if (repl.nextEngines[i].nextEngine == e_FM_PCD_CC || repl.nextEngines[i].nextEngine == e_FM_PCD_HASH)
+		{
+
+		}
+
         repl.nextEngines[i].nextEngineStr     = getEngineByTypeStr( xmlRepl.entries[i].action );
         repl.nextEngines[i].newFqid           = xmlRepl.entries[i].qbase;
 

@@ -733,6 +733,7 @@ class CTaskDef
   private:
     bool checkLoopDependencies();
     bool checkSemanticsClassification( CClassification& clsf );
+	bool checkSemanticsReplicator( CReplicator& repl );
     bool checkSemanticsDistribution( CDistribution& dist );
     bool checkSemanticsPolicer( CPolicer& plcr );
     bool checkSemanticsReassembly( CReassembly& reas );

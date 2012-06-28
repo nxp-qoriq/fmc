@@ -1470,13 +1470,13 @@ CPCDReader::parseVsp( CVsp* vsp, xmlNodePtr pNode )
 	vsp->name = getAttr( pNode, "name" );
 
 	std::string type = getAttr( pNode, "type" );
-	if (type == "direct")
+	if (type == "indirect")
 	{
-		vsp->direct = true;
+		vsp->direct = false;
 	}
 	else
 	{
-		vsp->direct = false;
+		vsp->direct = true;
 	}
 
 	vsp->base = std::strtoul( getAttr( pNode, "base" ).c_str(), 0, 0 );
@@ -1564,6 +1564,16 @@ CPCDReader::parseReplicator( CReplicator* replicator, xmlNodePtr pNode )
 
         cur = cur->next;
     }
+
+	if (replicator->entries.size() > replicator->max)
+	{
+		replicator->max = replicator->entries.size();
+	}
+
+	if (replicator->max < 2)
+	{
+		replicator->max = 2;
+	}
 }
 
 void CPCDReader::checkUnknownAttr ( xmlNodePtr pNode, int num, ...)
