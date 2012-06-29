@@ -238,8 +238,11 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
             model.all_engines[index].reasm[i].u.reassem.u.ipReassem.minFragSize[0] );
         EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.minFragSize[1] =,
             model.all_engines[index].reasm[i].u.reassem.u.ipReassem.minFragSize[1] );
+#if (DPAA_VERSION >= 11)
+#else
         EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.sgBpid =,
             (int)model.all_engines[index].reasm[i].u.reassem.u.ipReassem.sgBpid );
+#endif /* (DPAA_VERSION >= 11) */
         EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.dataLiodnOffset =,
             model.all_engines[index].reasm[i].u.reassem.u.ipReassem.dataLiodnOffset );
         EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.dataMemId =,

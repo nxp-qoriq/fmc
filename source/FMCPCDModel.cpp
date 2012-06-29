@@ -255,7 +255,10 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
         reasm.type = e_FM_PCD_MANIP_REASSEM;
         reasm.u.reassem.hdr                                          = HEADER_TYPE_IPv6;
         reasm.u.reassem.u.ipReassem.maxNumFramesInProcess            = reasmit->second.maxInProcess;
+#if (DPAA_VERSION >= 11)
+#else
         reasm.u.reassem.u.ipReassem.sgBpid                           = reasmit->second.sgBpid;
+#endif /* (DPAA_VERSION >= 11) */
         reasm.u.reassem.u.ipReassem.dataLiodnOffset                  = reasmit->second.dataLiodnOffset;
         reasm.u.reassem.u.ipReassem.dataMemId                        = reasmit->second.dataMemId;
         reasm.u.reassem.u.ipReassem.minFragSize[0]                   = reasmit->second.ipv4minFragSize;

@@ -55,6 +55,7 @@ extern "C"
 #define MAX_SP_CODE_SIZE      0x7C0
 #define FMC_MANIP_MAX             8
 #define FMC_INSERT_MAX           56
+#define FM_PCD_MAX_NUM_OF_REPS   64
 
 #define FMC_APPLY_ORDER( Index, Type, Element ) \
     .ao[Index].type  = Type,                    \

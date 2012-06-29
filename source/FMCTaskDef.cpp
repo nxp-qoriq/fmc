@@ -461,7 +461,7 @@ CTaskDef::checkActionTarget( const std::string action,
 
 	if (fromType == "replicator")
 	{
-		if ( action == "classification" || action == "replicator" )
+		if ( action == "classification" || action == "replicator" || action == "drop")
 		{
 			throw CGenericError( ERR_TARGET_INVALID, action, from );
 		}
