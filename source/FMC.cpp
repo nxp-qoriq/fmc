@@ -27,7 +27,7 @@
 #endif
 #endif
 
-#define FMC_VERSION "0.9.19"
+#define FMC_VERSION "0.9.20"
 const char* TMPFILENAME = "/tmp/fmc.bin";
 
 bool load( fmc_model_t* pmodel );
