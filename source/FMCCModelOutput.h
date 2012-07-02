@@ -36,6 +36,9 @@ protected:
     void output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel,
                             unsigned int index,
                             std::ostream& oss, size_t indent );
+	void output_fmc_htnode( const CFMCModel& model, fmc_model_t* cmodel,
+                            unsigned int index,
+                            std::ostream& oss, size_t indent );
     void output_fmc_policer( const CFMCModel& model, fmc_model_t* cmodel,
                              unsigned int index,
                              std::ostream& oss, size_t indent );

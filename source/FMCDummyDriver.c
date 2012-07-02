@@ -132,6 +132,13 @@ FM_PCD_MatchTableSet(t_Handle             h_FmPcd,
     return (t_Handle)++handle_no;
 }
 
+t_Handle
+FM_PCD_HashTableSet(t_Handle h_FmPcd, t_FmPcdHashTableParams *p_Param)
+{
+    printf( "Calling IOCTL::FM_PCD_HashTableSet %d\n", handle_no + 1 );
+    return (t_Handle)++handle_no;
+}
+
 
 t_Error
 FM_PCD_ConfigKgDfltValue(t_Handle h_FmPcd, uint8_t valueId, uint32_t value)
@@ -263,6 +270,13 @@ FM_PCD_FrmReplicSetGroup(t_Handle h_FmPcd, t_FmPcdFrmReplicGroupParams *p_FrmRep
     printf( "Calling IOCTL::FM_PCD_FrmReplicSetGroup %d\n", handle_no + 1 );
     return (t_Handle)++handle_no;
 }
+
+t_Error
+FM_PCD_FrmReplicDeleteGroup(t_Handle h_FrmReplicGroup)
+{
+    printf( "Calling IOCTL::FM_PCD_FrmReplicDeleteGroup %d\n", h_FrmReplicGroup );
+    return E_OK;
+}
 #endif /* (DPAA_VERSION >= 11) */
 
 
@@ -273,6 +287,13 @@ FM_PCD_ManipNodeDelete(t_Handle h_HdrManipNode)
     return E_OK;
 }
 #endif /* P1023 */
+
+t_Error
+FM_PCD_HashTableDelete(t_Handle h_HashTbl)
+{
+    printf( "Calling IOCTL::FM_PCD_HashTableDelete %d\n", h_HashTbl );
+    return E_OK;
+}
 
 #ifdef __cplusplus
 }

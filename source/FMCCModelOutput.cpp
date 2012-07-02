@@ -154,6 +154,13 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
         output_fmc_ccnode( model, cmodel, i, oss, indent );
     }
 	OUT_EMPTY;
+	 // Output HT nodes
+    EMIT2( htnode_count =, model.all_htnodes.size() )
+    for ( unsigned int i = 0; i < cmodel->htnode_count; ++i ) {
+        OUT_EMPTY;
+        output_fmc_htnode( model, cmodel, i, oss, indent );
+    }
+	OUT_EMPTY;
 #if (DPAA_VERSION >= 11)
     // Output Replicators
     EMIT2( replicator_count =, model.all_replicators.size() )
@@ -365,6 +372,7 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
     EMIT4( port[, index, ].ccroot_count =, model.all_ports[index].cctrees.size() );
     for ( unsigned int i = 0; i < cmodel->port[index].ccroot_count; ++i ) {
         EMIT6( port[, index, ].ccroot[, i, ] =, model.all_ports[index].cctrees[i] );
+		EMIT6( port[, index, ].ccroot_type[, i, ] =, model.all_ports[index].cctrees_type[i] );
     }
 
 #ifndef P1023
@@ -534,7 +542,7 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
         EMIT4( scheme[, index, ].kgNextEngineParams.plcrProfile.profileSelect.
                directRelativeProfileId =, sch.actionHandleIndex );
     }
-    else if ( sch.nextEngine == e_FM_PCD_CC ) {
+    else if ( sch.nextEngine == e_FM_PCD_CC || sch.nextEngine == e_FM_PCD_HASH) {
         EMIT4( scheme[, index, ].kgNextEngineParams.cc.grpId =, sch.actionHandleIndex );
     }
 
@@ -1029,6 +1037,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
         }
         else if ( node.nextEngineOnMiss.nextEngine == e_FM_PCD_CC ) {
             EMIT4( ccmiss_action_index[, index, ] =, node.nextEngineOnMiss.actionHandleIndex );
+			EMIT4( ccmiss_action_type[, index, ] =, node.nextEngineOnMiss.nextEngineTrueType );
         }
         else if ( node.nextEngineOnMiss.nextEngine == e_FM_PCD_KG ) {
             EMIT4( ccnode[, index, ].keysParams.ccNextEngineParamsForMiss.params.kgParams.overrideFqid =, 1 );
@@ -1121,6 +1130,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
             EMIT6( ccentry_action_index[, index, ][, node_num, ] =, node.nextEngines[i].actionHandleIndex );
         }
         else if ( node.nextEngines[i].nextEngine == e_FM_PCD_CC ) {
+			EMIT6( ccentry_action_type[, index, ][, node_num, ] =, node.nextEngines[i].nextEngineTrueType ); //We save the real type (CC of HT)
             EMIT6( ccentry_action_index[, index, ][, node_num, ] =, node.nextEngines[i].actionHandleIndex );
         }
 #if (DPAA_VERSION >= 11)
@@ -1145,6 +1155,69 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
         }
     }
 }
+
+
+void
+CFMCCModelOutput::output_fmc_htnode( const CFMCModel& model, fmc_model_t* cmodel,
+                                     unsigned int index,
+                                     std::ostream& oss, size_t indent )
+{
+    const HTNode& node = model.all_htnodes[index];
+
+    EMIT1( std::string( "/* Hash table node: " ) + node.name + " */" );
+
+    strncpy( cmodel->htnode_name[index], node.name.c_str(), FMC_NAME_LEN - 1 );
+    cmodel->htnode_name[index][FMC_NAME_LEN - 1] = 0;
+    oss << ind( indent ) << ".htnode_name[" << index << "] = " << std::string( "\"" + node.name + "\"" ) << "," << std::endl;
+
+
+    EMIT4( htnode[, index, ].maxNumOfKeys =, node.maxNumOfKeys );
+	EMIT4( htnode[, index, ].statisticsMode =, node.statistics );
+    EMIT4( htnode[, index, ].matchKeySize =, node.matchKeySize );
+	EMIT4( htnode[, index, ].hashResMask =, node.hashResMask );
+	EMIT4( htnode[, index, ].hashShift =, node.hashShift );
+
+   
+    EMIT4STR( htnode[, index, ].ccNextEngineParamsForMiss.nextEngine =, node.nextEngineOnMiss.nextEngine );
+	EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.statisticsEn =, node.nextEngineOnMiss.statistics );
+    if ( node.nextEngineOnMiss.nextEngine == e_FM_PCD_PLCR ) {
+        EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.plcrParams.overrideParams =, 1 );
+        EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.plcrParams.sharedProfile =, 1 );
+        EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.plcrParams.newRelativeProfileId =, node.nextEngineOnMiss.actionHandleIndex );
+        EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.plcrParams.newFqid =, node.nextEngineOnMiss.newFqid );
+#if (DPAA_VERSION >= 11)
+		EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.plcrParams.newRelativeStorageProfileId =, node.nextEngineOnMiss.newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
+    }
+    else if ( node.nextEngineOnMiss.nextEngine == e_FM_PCD_CC ) {
+        EMIT4( htmiss_action_index[, index, ] =, node.nextEngineOnMiss.actionHandleIndex );
+		EMIT4( htmiss_action_type[, index, ] =, node.nextEngineOnMiss.nextEngineTrueType );
+    }
+    else if ( node.nextEngineOnMiss.nextEngine == e_FM_PCD_KG ) {
+        EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.kgParams.overrideFqid =, 1 );
+        EMIT4( htmiss_action_index[, index, ] =, node.nextEngineOnMiss.actionHandleIndex );
+#if (DPAA_VERSION >= 11)
+		EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.kgParams.newRelativeStorageProfileId =, node.nextEngineOnMiss.newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
+    }
+    else if ( node.nextEngineOnMiss.nextEngine == e_FM_PCD_DONE ) {
+        if ( node.nextEngineOnMiss.doneAction == e_FM_PCD_DROP_FRAME ) {
+            EMIT4STR( htnode[, index, ].ccNextEngineParamsForMiss.params.enqueueParams.action =, node.nextEngineOnMiss.doneAction );
+        }
+        else if ( node.nextEngineOnMiss.newFqid != 0 ) {
+            EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.enqueueParams.overrideFqid =, 1 );
+            EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.enqueueParams.newFqid =,
+                    node.nextEngineOnMiss.newFqid );
+#if (DPAA_VERSION >= 11)
+			EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.enqueueParams.newRelativeStorageProfileId =,
+				 node.nextEngineOnMiss.newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
+        }
+        else {
+            EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.enqueueParams.overrideFqid =, 0 );
+        }
+    }
+}// End of HT node output
 
 
 void
@@ -1279,6 +1352,9 @@ CFMCCModelOutput::get_apply_item_name( fmc_model_t* cmodel,
     case FMCCCNode:
         return std::string( " /* " ) +
             cmodel->ccnode_name[e.index] + " */";
+	case FMCHTNode:
+        return std::string( " /* " ) +
+            cmodel->htnode_name[e.index] + " */";
     case FMCPolicer:
         return std::string( " /* " ) +
             cmodel->policer_name[e.index] + " */";
@@ -1287,6 +1363,9 @@ CFMCCModelOutput::get_apply_item_name( fmc_model_t* cmodel,
         return std::string( " /* " ) +
             cmodel->replicator_name[e.index] + " */";
 #endif /* (DPAA_VERSION >= 11) */
+	case FMCManipulation:
+        return std::string( " /* " ) +
+            cmodel->fman[0].hdr_name[e.index] + " */";
     default:
         return "";
     }
@@ -1335,12 +1414,16 @@ CFMCCModelOutput::get_fmc_type( ApplyOrder::Type t ) const
             return FMCScheme;
         case ApplyOrder::CCNode:
             return FMCCCNode;
+		case ApplyOrder::HTNode:
+            return FMCHTNode;
         case ApplyOrder::CCTree:
             return FMCCCTree;
 		case ApplyOrder::Replicator:
             return FMCReplicator;
         case ApplyOrder::Policer:
             return FMCPolicer;
+		case ApplyOrder::Manipulation:
+            return FMCManipulation;
     }
     return FMCEngineStart;
 }
@@ -1362,12 +1445,16 @@ CFMCCModelOutput::get_fmc_type_str( ApplyOrder::Type t ) const
             return "FMCScheme     ";
         case ApplyOrder::CCNode:
             return "FMCCCNode     ";
+		case ApplyOrder::HTNode:
+            return "FMCHTNode     ";
         case ApplyOrder::CCTree:
             return "FMCCCTree     ";
         case ApplyOrder::Policer:
             return "FMCPolicer    ";
 		case ApplyOrder::Replicator:
             return "FMCReplicator ";
+		case ApplyOrder::Manipulation:
+            return "FMCManipulation ";
     }
     return "";
 }

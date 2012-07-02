@@ -111,8 +111,12 @@ typedef struct fmc_port_t {
     unsigned int         ccnodes_count;             ///< Number of used CC nodes
     unsigned int         ccnodes[FMC_CC_NODES_NUM]; ///< Class. nodes used by this port
 
+	unsigned int         htnodes_count;             ///< Number of used CC nodes
+    unsigned int         htnodes[FMC_CC_NODES_NUM]; ///< Class. nodes used by this port
+
     unsigned int         ccroot_count;
     unsigned int         ccroot[FMC_CC_NODES_NUM];
+	e_FmPcdEngine		 ccroot_type[FMC_CC_NODES_NUM];
 #ifndef P1023
     unsigned int         ccroot_manip[FMC_CC_NODES_NUM];
 #endif /* P1023 */
@@ -128,9 +132,11 @@ typedef enum fmc_apply_order_e {
     FMCPortEnd,
     FMCScheme,
     FMCCCNode,
+	FMCHTNode,
     FMCCCTree,
     FMCPolicer,
-	FMCReplicator
+	FMCReplicator,
+	FMCManipulation
 } fmc_apply_order_e;
 
 
@@ -166,9 +172,19 @@ typedef struct fmc_model_t {
     unsigned char            ccmask              [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS]
                                                  [FM_PCD_MAX_SIZE_OF_KEY];
     unsigned int             ccentry_action_index[FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
+	e_FmPcdEngine            ccentry_action_type [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned char            ccentry_frag        [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned char            ccentry_manip       [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned int             ccmiss_action_index [FMC_CC_NODES_NUM];
+	e_FmPcdEngine            ccmiss_action_type  [FMC_CC_NODES_NUM];
+
+	unsigned int             htnode_count;       ///< Number of used HT nodes
+    char                     htnode_name         [FMC_CC_NODES_NUM][FMC_NAME_LEN];
+    t_Handle                 htnode_handle       [FMC_CC_NODES_NUM];
+    t_FmPcdHashTableParams   htnode              [FMC_CC_NODES_NUM];
+    unsigned int             htmiss_action_index [FMC_CC_NODES_NUM];
+	e_FmPcdEngine            htmiss_action_type  [FMC_CC_NODES_NUM];
+
 
 #if (DPAA_VERSION >= 11)
 	unsigned int             replicator_count;       ///< Number of used Frame Replicators

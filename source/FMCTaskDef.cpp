@@ -429,6 +429,7 @@ CTaskDef::checkActionTarget( const std::string action,
           action != "distribution"   &&
           action != "drop"           &&
           action != "policer"		 &&
+		  action != "hashtable"		 &&
 		  action != "replicator") {
         throw CGenericError( ERR_UNREC_ACTION_TYPE, action, fromType, from );
     }
@@ -461,7 +462,7 @@ CTaskDef::checkActionTarget( const std::string action,
 
 	if (fromType == "replicator")
 	{
-		if ( action == "classification" || action == "replicator" || action == "drop")
+		if ( action  == "hashtable" || action == "classification" || action == "replicator" || action == "drop")
 		{
 			throw CGenericError( ERR_TARGET_INVALID, action, from );
 		}
