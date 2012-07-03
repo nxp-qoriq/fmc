@@ -338,6 +338,16 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
             EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams.u.generic, .offset =,
                 (int)model.all_engines[index].headerManips[i].u.hdr.rmvParams.u.generic.offset );
         }
+
+		if (model.all_engines[index].headerManips_hasNext[i])
+		{
+			EMIT5( fman[, index, ].hdr_hasNext[, i, ] = 1 );
+			EMIT6( fman[, index, ].hdr_next[, i, ] = , model.all_engines[index].headerManips_nextNanip[i] );
+		}
+		else
+		{
+			EMIT5( fman[, index, ].hdr_hasNext[, i, ] = 0 );
+		}
     }
 
     OUT_EMPTY;
@@ -1365,7 +1375,7 @@ CFMCCModelOutput::get_apply_item_name( fmc_model_t* cmodel,
 #endif /* (DPAA_VERSION >= 11) */
 	case FMCManipulation:
         return std::string( " /* " ) +
-            cmodel->fman[0].hdr_name[e.index] + " */";
+            cmodel->fman[current_engine].hdr_name[e.index] + " */";
     default:
         return "";
     }
@@ -1382,6 +1392,11 @@ CFMCCModelOutput::output_fmc_applier( const CFMCModel& model, fmc_model_t* cmode
 
     cmodel->ao[cmodel->ao_count - index - 1].type  = get_fmc_type( e.type );
     cmodel->ao[cmodel->ao_count - index - 1].index = e.index;
+
+	if ( e.type == ApplyOrder::EngineStart )
+	{
+		current_engine = e.index;
+	}
 
     oss << ind( indent )
         << "FMC_APPLY_ORDER("

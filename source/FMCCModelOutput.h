@@ -21,6 +21,8 @@
 class CFMCCModelOutput
 {
 public:
+	unsigned int current_engine;
+public:
     void output( const CFMCModel& model, fmc_model_t* cmodel,
                  std::ostream& oss, size_t indent );
 protected:

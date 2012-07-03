@@ -58,6 +58,8 @@ static int fmc_exec_policer     ( fmc_model* model, unsigned int engine,
                                   unsigned int index );
 static int fmc_exec_replicator  ( fmc_model* model, unsigned int engine,
                                   unsigned int index );
+static int fmc_exec_manip       ( fmc_model* model, unsigned int engine,
+                                  unsigned int index );
 
 static int fmc_clean_engine_start( fmc_model* model, unsigned int index );
 static int fmc_clean_engine_end  ( fmc_model* model, unsigned int index );
@@ -131,6 +133,9 @@ fmc_execute( fmc_model* model )
             case FMCPolicer:
                 ret = fmc_exec_policer( model, current_engine, model->ao[i].index );
                 break;
+			case FMCManipulation:
+                ret = fmc_exec_manip( model, current_engine, model->ao[i].index );
+                break;
             default:
                 break;
         }
@@ -195,7 +200,7 @@ fmc_clean( fmc_model* model )
                 ret = fmc_clean_policer( model, current_engine, model->ao[i].index );
                 break;
 			case FMCReplicator:
-                ret = fmc_clean_policer( model, current_engine, model->ao[i].index );
+                ret = fmc_clean_replicator( model, current_engine, model->ao[i].index );
                 break;
             default:
                 break;
@@ -372,16 +377,6 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
                                  &model->fman[index].frag[i] );
     }
 
-    for ( i = 0; i < model->fman[index].hdr_count; i++ ) {
-        if ( model->fman[index].hdr[i].u.hdr.insrt )
-        {
-            model->fman[index].hdr[i].u.hdr.insrtParams.u.generic.p_Data = model->fman[index].insertData[i];
-        }
-
-        model->fman[index].hdr_handle[i] =
-            FM_PCD_ManipNodeSet( model->fman[index].pcd_handle,
-                                 &model->fman[index].hdr[i] );
-    }
 #endif /* P1023 */
 
     return 0;
@@ -806,6 +801,31 @@ fmc_exec_policer( fmc_model* model, unsigned int engine,
     return 0;
 }
 
+
+
+/* -------------------------------------------------------------------------- */
+static int
+fmc_exec_manip( fmc_model* model, unsigned int engine,
+                  unsigned int index )
+{
+#ifndef P1023
+    if ( model->fman[engine].hdr[index].u.hdr.insrt )
+    {
+        model->fman[engine].hdr[index].u.hdr.insrtParams.u.generic.p_Data = model->fman[engine].insertData[index];
+    }
+
+	if (model->fman[engine].hdr_hasNext[index])
+	{
+		model->fman[engine].hdr[index].h_NextManip = model->fman[engine].hdr_handle[model->fman[engine].hdr_next[index]];
+	}
+
+    model->fman[engine].hdr_handle[index] =
+        FM_PCD_ManipNodeSet( model->fman[engine].pcd_handle,
+                             &model->fman[engine].hdr[index] );
+#endif /* P1023 */
+    
+    return 0;
+}
 
 /* -------------------------------------------------------------------------- */
 static int

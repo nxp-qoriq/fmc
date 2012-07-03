@@ -233,6 +233,24 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
             applier.add( ApplyOrder::Entry( ApplyOrder::PortStart, port.getIndex() ) );
         }
 
+		std::map< std::string, CHeaderManip >::iterator manipIt;
+		unsigned int idx = 0;
+		for ( manipIt = pTaskDef->headermanips.begin(); manipIt != pTaskDef->headermanips.end(); ++manipIt ) {
+			if (manipIt->second.nextManip == "")
+			{
+				engine.headerManips_hasNext[engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)] = 0;
+				applier.add_edge(ApplyOrder::Entry(ApplyOrder::Manipulation, engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)), ApplyOrder::Entry(ApplyOrder::None, 0));
+			}
+			else
+			{
+				applier.add_edge(ApplyOrder::Entry(ApplyOrder::Manipulation, engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)), ApplyOrder::Entry(ApplyOrder::Manipulation, engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.nextManip)));
+				engine.headerManips_hasNext[engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)] = 1;
+				engine.headerManips_nextNanip[engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)] = engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.nextManip);
+			}
+		}
+		
+		applier.sort();
+
         applier.add( ApplyOrder::Entry( ApplyOrder::EngineStart, engine.getIndex() ) );
         createSoftParse( pTaskDef );
     }
@@ -331,6 +349,8 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
         engine.headerManips.push_back( hdr );
         engine.insertDatas.push_back( insertData );
         engine.headerManips_names.push_back( engine.name + "/hdr/" + headerit->second.name );
+		engine.headerManips_hasNext.push_back((bool)0);
+		engine.headerManips_nextNanip.push_back(0);
     }
 #endif /* P1023 */
 
@@ -2506,6 +2526,20 @@ CFMCModel::getStatistic( std::string statstic )
     }
     
     return e_FM_PCD_CC_STATS_MODE_NONE;
+}
+
+unsigned int
+Engine::getHeaderManipIndex(std::string name)
+{
+	for (unsigned int i = 0; i < headerManips_names.size(); i++)
+	{
+		if (headerManips_names[i] == name)
+			return i;
+	}
+
+	throw CGenericError( ERR_NEXTMANIP_NOT_FOUND, name );
+
+	return 0;
 }
 
 

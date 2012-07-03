@@ -440,6 +440,11 @@ public:
     std::vector< t_FmPcdManipParams > headerManips;
     std::vector< CInsertData >        insertDatas;
     std::vector< std::string >        headerManips_names;
+	std::vector< bool >				  headerManips_hasNext;
+	std::vector< unsigned int >		  headerManips_nextNanip;
+
+public:
+	unsigned int getHeaderManipIndex(std::string name);
 #endif /* P1023 */
 };
 

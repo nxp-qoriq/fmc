@@ -88,6 +88,8 @@ typedef struct fmc_fman_t {
     uint8_t            insertData[FMC_MANIP_MAX][FMC_INSERT_MAX];
     char               hdr_name[FMC_MANIP_MAX][FMC_NAME_LEN];
     t_Handle           hdr_handle[FMC_MANIP_MAX];
+	unsigned int	   hdr_hasNext[FMC_MANIP_MAX];
+	unsigned int	   hdr_next[FMC_MANIP_MAX];
 #endif /* P1023 */
 } fmc_fman;
 

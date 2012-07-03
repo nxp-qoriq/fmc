@@ -114,6 +114,7 @@ const std::string ERR_VSP_NOT_FOUND			 = "Can't find virtual storage profile's d
 const std::string ERR_TARGET_IS_ITSELF       = "The %1 '%2' has itself as an action target";
 const std::string ERR_TARGET_INVALID         = "The %1 cannot be target for %2";
 const std::string ERR_INVALID_ENTRY_DATA     = "Invalid data entry in classification definition '%1'";
+const std::string ERR_NEXTMANIP_NOT_FOUND    = "Undefined next namipulation: '%1'";
 const std::string ERR_DIST_TRG_IS_DIST       = "In the current implementation, 'distribution' can't be "
                                            "'distribution's action for '%1'";
 const std::string ERR_PLCR_TRG_IS_CLSF       = "In the current implementation, 'classification' can't be "
