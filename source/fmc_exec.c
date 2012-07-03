@@ -56,8 +56,10 @@ static int fmc_exec_cctree      ( fmc_model* model,  unsigned int engine,
                                   unsigned int port );
 static int fmc_exec_policer     ( fmc_model* model, unsigned int engine,
                                   unsigned int index );
+#if (DPAA_VERSION >= 11)
 static int fmc_exec_replicator  ( fmc_model* model, unsigned int engine,
                                   unsigned int index );
+#endif /* (DPAA_VERSION >= 11) */
 static int fmc_exec_manip       ( fmc_model* model, unsigned int engine,
                                   unsigned int index );
 
@@ -77,8 +79,11 @@ static int fmc_clean_cctree      ( fmc_model* model,  unsigned int engine,
                                    unsigned int port );
 static int fmc_clean_policer     ( fmc_model* model, unsigned int engine,
                                    unsigned int index );
+#if (DPAA_VERSION >= 11)
 static int fmc_clean_replicator  ( fmc_model* model, unsigned int engine,
                                    unsigned int index );
+#endif /* (DPAA_VERSION >= 11) */
+
 
 /* -------------------------------------------------------------------------- */
 int
