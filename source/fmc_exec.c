@@ -204,9 +204,11 @@ fmc_clean( fmc_model* model )
             case FMCPolicer:
                 ret = fmc_clean_policer( model, current_engine, model->ao[i].index );
                 break;
+#if DPAA_VERSION >= 11
 			case FMCReplicator:
                 ret = fmc_clean_replicator( model, current_engine, model->ao[i].index );
                 break;
+#endif /* DPAA_VERSION >= 11 */
             default:
                 break;
         }
@@ -623,11 +625,13 @@ fmc_exec_htnode( fmc_model* model, unsigned int engine,
 				.params.ccParams.h_CcNode = model->htnode_handle[action_index];
 		}
     }
+#if DPAA_VERSION >= 11
 	else if ( model->htnode[index].ccNextEngineParamsForMiss
                            .nextEngine == e_FM_PCD_FR ) {
         model->htnode[index].ccNextEngineParamsForMiss
 			.params.frParams.h_FrmReplic = model->replicator_handle[action_index];
     }
+#endif /* DPAA_VERSION >= 11 */
 
 
     model->htnode_handle[index] =
@@ -719,6 +723,7 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
 				params.ccParams.h_CcNode =
                 model->htnode_handle[model->port[port].ccroot[i]];
 		}
+#if DPAA_VERSION >= 11
 		else if (model->port[port].ccroot_type[i] == e_FM_PCD_FR)
 		{
 			ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
@@ -727,7 +732,7 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
 				params.frParams.h_FrmReplic =
                 model->replicator_handle[model->port[port].ccroot[i]];
 		}
-        
+#endif /* DPAA_VERSION >= 11 */
 #ifndef P1023
         if ( model->port[port].ccroot_manip[i] > 0 )
         {
