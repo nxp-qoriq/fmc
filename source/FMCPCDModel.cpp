@@ -112,8 +112,8 @@ CFMCModel::CFMCModel()
     all_schemes.reserve( MAX_ENGINES*MAX_SCHEMES );
     all_policers.reserve( MAX_ENGINES*MAX_POLICERS );
     all_ccnodes.reserve( MAX_ENGINES*MAX_CCNODES );
-	all_htnodes.reserve( MAX_ENGINES*MAX_CCNODES );
-	all_replicators.reserve( MAX_ENGINES*MAX_REPLICATORS );
+    all_htnodes.reserve( MAX_ENGINES*MAX_CCNODES );
+    all_replicators.reserve( MAX_ENGINES*MAX_REPLICATORS );
     spEnable = 0;
 }
 
@@ -193,10 +193,8 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
                 }
             }
 
-            for (unsigned int schIndex = 0; schIndex < all_schemes.size(); schIndex++)
-            {
-                if (all_schemes[schIndex].scheme_index_per_port == -1)
-                {
+            for ( unsigned int schIndex = 0; schIndex < all_schemes.size(); schIndex++ ) {
+                if (all_schemes[schIndex].scheme_index_per_port == -1) {
                     all_schemes[schIndex].scheme_index_per_port = scheme_index++;
                 }
             }
@@ -233,23 +231,21 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
             applier.add( ApplyOrder::Entry( ApplyOrder::PortStart, port.getIndex() ) );
         }
 
-		std::map< std::string, CHeaderManip >::iterator manipIt;
-		unsigned int idx = 0;
-		for ( manipIt = pTaskDef->headermanips.begin(); manipIt != pTaskDef->headermanips.end(); ++manipIt ) {
-			if (manipIt->second.nextManip == "")
-			{
-				engine.headerManips_hasNext[engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)] = 0;
-				applier.add_edge(ApplyOrder::Entry(ApplyOrder::Manipulation, engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)), ApplyOrder::Entry(ApplyOrder::None, 0));
-			}
-			else
-			{
-				applier.add_edge(ApplyOrder::Entry(ApplyOrder::Manipulation, engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)), ApplyOrder::Entry(ApplyOrder::Manipulation, engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.nextManip)));
-				engine.headerManips_hasNext[engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)] = 1;
-				engine.headerManips_nextNanip[engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)] = engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.nextManip);
-			}
-		}
-		
-		applier.sort();
+        std::map< std::string, CHeaderManip >::iterator manipIt;
+        unsigned int idx = 0;
+        for ( manipIt = pTaskDef->headermanips.begin(); manipIt != pTaskDef->headermanips.end(); ++manipIt ) {
+            if ( manipIt->second.nextManip == "" ) {
+                engine.headerManips_hasNext[engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)] = 0;
+                applier.add_edge(ApplyOrder::Entry(ApplyOrder::Manipulation, engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)), ApplyOrder::Entry(ApplyOrder::None, 0));
+            }
+            else {
+                applier.add_edge(ApplyOrder::Entry(ApplyOrder::Manipulation, engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)), ApplyOrder::Entry(ApplyOrder::Manipulation, engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.nextManip)));
+                engine.headerManips_hasNext[engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)] = 1;
+                engine.headerManips_nextNanip[engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)] = engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.nextManip);
+            }
+        }
+        
+        applier.sort();
 
         applier.add( ApplyOrder::Entry( ApplyOrder::EngineStart, engine.getIndex() ) );
         createSoftParse( pTaskDef );
@@ -349,8 +345,8 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
         engine.headerManips.push_back( hdr );
         engine.insertDatas.push_back( insertData );
         engine.headerManips_names.push_back( engine.name + "/hdr/" + headerit->second.name );
-		engine.headerManips_hasNext.push_back((bool)0);
-		engine.headerManips_nextNanip.push_back(0);
+        engine.headerManips_hasNext.push_back((bool)0);
+        engine.headerManips_nextNanip.push_back(0);
     }
 #endif /* P1023 */
 
@@ -730,27 +726,27 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
             ApplyOrder::Entry n2( ApplyOrder::Scheme, scheme.actionHandleIndex );
             applier.add_edge( n1, n2 );
     }
-    else if ( scheme.nextEngine == e_FM_PCD_CC || scheme.nextEngine == e_FM_PCD_HASH) {      // Is it CC node ?
+    else if ( scheme.nextEngine == e_FM_PCD_CC ||
+              scheme.nextEngine == e_FM_PCD_HASH ) {      // Is it CC node ?
         //Find Manip index
         unsigned int hdr_index = 0;
-        if (xmlDist.headerManipName.empty())
-        {
+        if ( xmlDist.headerManipName.empty() ) {
             hdr_index = 0;
         }
-        else
-        {
+        else {
             std::map< std::string, CHeaderManip >::const_iterator headerit;
-            for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
+            for ( headerit = pTaskDef->headermanips.begin();
+                  headerit != pTaskDef->headermanips.end();
+                  ++headerit ) {
                 hdr_index++;
-                if (headerit->second.name == xmlDist.headerManipName)
-                {
+                if ( headerit->second.name == xmlDist.headerManipName ) {
                     break;
                 }
             }
         }
 
         // Find CC node
-		scheme.actionHandleIndex =
+        scheme.actionHandleIndex =
             get_ccnode_index( pTaskDef,
                               xmlDist.actionName,
                               xmlDist.name, port, true, hdr_index );
@@ -760,53 +756,45 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
 
 #if (DPAA_VERSION >= 11)
     //Change the VSP
-	if (xmlDist.vspoverride)
-	{
-		scheme.overrideStorageProfile = true;
-		if (xmlDist.vspName != "" )
-		{
-			std::map< std::string, CVsp >::const_iterator vspIt;
-			vspIt = pTaskDef->vsps.find( xmlDist.vspName );
-			// Does such VSP exist?
-			if ( vspIt == pTaskDef->vsps.end() ) {
-				throw CGenericError( ERR_VSP_NOT_FOUND, xmlDist.vspName, xmlDist.name );
-			}
+    if ( xmlDist.vspoverride ) {
+        scheme.overrideStorageProfile = true;
+        if ( xmlDist.vspName != "" ) {
+            std::map< std::string, CVsp >::const_iterator vspIt;
+            vspIt = pTaskDef->vsps.find( xmlDist.vspName );
+            // Does such VSP exist?
+            if ( vspIt == pTaskDef->vsps.end() ) {
+                throw CGenericError( ERR_VSP_NOT_FOUND, xmlDist.vspName, xmlDist.name );
+            }
 
-			if ( vspIt->second.direct )
-			{
-				scheme.storageProfile.direct = true;
-				scheme.storageProfile.profileSelect.directRelativeProfileId = vspIt->second.base;
-			}
-			else
-			{
-				scheme.storageProfile.direct = false;
-				scheme.storageProfile.profileSelect.indirectProfile.fqidOffsetShift = vspIt->second.fqshift;
-				scheme.storageProfile.profileSelect.indirectProfile.fqidOffsetRelativeProfileIdBase = vspIt->second.vspoffset;
-				scheme.storageProfile.profileSelect.indirectProfile.numOfProfiles = vspIt->second.vspcount;
-			}
-		}
-		else
-		{
-			if ( xmlDist.vspdirect )
-			{
-				scheme.storageProfile.direct = true;
-				scheme.storageProfile.profileSelect.directRelativeProfileId = xmlDist.vspbase;
-			}
-			else
-			{
-				scheme.storageProfile.direct = false;
-				scheme.storageProfile.profileSelect.indirectProfile.fqidOffsetShift = xmlDist.vspshift;
-				scheme.storageProfile.profileSelect.indirectProfile.fqidOffsetRelativeProfileIdBase = xmlDist.vspoffset;
-				scheme.storageProfile.profileSelect.indirectProfile.numOfProfiles = xmlDist.vspcount;
-			}
-		}
-	}
-	else
-	{
-		scheme.overrideStorageProfile = false;
-	}
+            if ( vspIt->second.direct ) {
+                scheme.storageProfile.direct = true;
+                scheme.storageProfile.profileSelect.directRelativeProfileId = vspIt->second.base;
+            }
+            else {
+                scheme.storageProfile.direct = false;
+                scheme.storageProfile.profileSelect.indirectProfile.fqidOffsetShift = vspIt->second.fqshift;
+                scheme.storageProfile.profileSelect.indirectProfile.fqidOffsetRelativeProfileIdBase = vspIt->second.vspoffset;
+                scheme.storageProfile.profileSelect.indirectProfile.numOfProfiles = vspIt->second.vspcount;
+            }
+        }
+        else {
+            if ( xmlDist.vspdirect ) {
+                scheme.storageProfile.direct = true;
+                scheme.storageProfile.profileSelect.directRelativeProfileId = xmlDist.vspbase;
+            }
+            else {
+                scheme.storageProfile.direct = false;
+                scheme.storageProfile.profileSelect.indirectProfile.fqidOffsetShift = xmlDist.vspshift;
+                scheme.storageProfile.profileSelect.indirectProfile.fqidOffsetRelativeProfileIdBase = xmlDist.vspoffset;
+                scheme.storageProfile.profileSelect.indirectProfile.numOfProfiles = xmlDist.vspcount;
+            }
+        }
+    }
+    else {
+        scheme.overrideStorageProfile = false;
+    }
 #endif /* (DPAA_VERSION >= 11) */
-	
+    
     return scheme;
 }
 
@@ -826,13 +814,13 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     port.ccnodes.push_back( ccNode.getIndex() );
 
     ccNode.name           = port.name + "/ccnode/" + xmlCCNode.name;
+    ccNode.port_signature = port.name;
 
     //Pre-allocation
     ccNode.maxNumOfKeys = xmlCCNode.max;
-    ccNode.maskSupport = xmlCCNode.masks;
-	ccNode.statistics = getStatistic(xmlCCNode.statistics);
+    ccNode.maskSupport  = xmlCCNode.masks;
+    ccNode.statistics   = getStatistic(xmlCCNode.statistics);
 
-    ccNode.port_signature = port.name;
 
 
     if (xmlCCNode.key.header)
@@ -981,30 +969,25 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         ccNode.masks.push_back( CCNode::CCData() );
         ccNode.indices.push_back( xmlCCNode.entries[i].index );
 
-        if (xmlCCNode.entries[i].headerManipName.empty())
-        {
+        if ( xmlCCNode.entries[i].headerManipName.empty() ) {
             ccNode.header.push_back( 0 );
         }
-        else
-        {
+        else {
             std::map< std::string, CHeaderManip >::const_iterator headerit;
             unsigned int hdr_index = 0;
             for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
                 hdr_index++;
-                if (headerit->second.name == xmlCCNode.entries[i].headerManipName)
-                {
+                if ( headerit->second.name == xmlCCNode.entries[i].headerManipName ) {
                     ccNode.header.push_back( hdr_index );
                     break;
                 }
             }
         }
 
-        if (xmlCCNode.entries[i].fragmentationName.empty())
-        {
+        if ( xmlCCNode.entries[i].fragmentationName.empty() ) {
             ccNode.frag.push_back( 0 );
         }
-        else
-        {
+        else {
             std::map< std::string, CFragmentation >::const_iterator fragit;
             unsigned int frag_index = 0;
             for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {
@@ -1027,51 +1010,46 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         ccNode.nextEngines.push_back( CCNode::CCNextEngine() );
         ccNode.nextEngines[i].nextEngine        = getEngineByType( xmlCCNode.entries[i].action );
 
-		//Save the true type of the next engine
-		ccNode.nextEngines[i].nextEngineTrueType = ccNode.nextEngines[i].nextEngine;
-		if (ccNode.nextEngines[i].nextEngine == e_FM_PCD_CC)
-		{
-			std::map< std::string, CClassification >::const_iterator nodeIt;
-			nodeIt = pTaskDef->classifications.find( xmlCCNode.entries[i].actionName );
-			// Does such node exist?
-			if ( nodeIt == pTaskDef->classifications.end() ) {
-				throw CGenericError( ERR_CC_NOT_FOUND, xmlCCNode.entries[i].actionName, xmlCCNode.name );
-			}
+        //Save the true type of the next engine
+        ccNode.nextEngines[i].nextEngineTrueType = ccNode.nextEngines[i].nextEngine;
+        if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_CC ) {
+            std::map< std::string, CClassification >::const_iterator nodeIt;
+            nodeIt = pTaskDef->classifications.find( xmlCCNode.entries[i].actionName );
+            // Does such node exist?
+            if ( nodeIt == pTaskDef->classifications.end() ) {
+                throw CGenericError( ERR_CC_NOT_FOUND, xmlCCNode.entries[i].actionName, xmlCCNode.name );
+            }
 
-			if ( nodeIt->second.key.hashTable )
-				ccNode.nextEngines[i].nextEngineTrueType = e_FM_PCD_HASH;
-			else
-				ccNode.nextEngines[i].nextEngineTrueType = e_FM_PCD_CC;
-		}
+            if ( nodeIt->second.key.hashTable )
+                ccNode.nextEngines[i].nextEngineTrueType = e_FM_PCD_HASH;
+            else
+                ccNode.nextEngines[i].nextEngineTrueType = e_FM_PCD_CC;
+        }
 
-        ccNode.nextEngines[i].nextEngineStr     = getEngineByTypeStr( xmlCCNode.entries[i].action );
-        ccNode.nextEngines[i].newFqid           = xmlCCNode.entries[i].qbase;
-		ccNode.nextEngines[i].statistics        = xmlCCNode.entries[i].statistics;
+        ccNode.nextEngines[i].nextEngineStr = getEngineByTypeStr( xmlCCNode.entries[i].action );
+        ccNode.nextEngines[i].newFqid       = xmlCCNode.entries[i].qbase;
+        ccNode.nextEngines[i].statistics    = xmlCCNode.entries[i].statistics;
 
 #if (DPAA_VERSION >= 11)
     //Change the VSP
-	if (xmlCCNode.entries[i].vspOverride)
-	{
-		if (xmlCCNode.entries[i].vspName != "")
-		{
-			std::map< std::string, CVsp >::const_iterator vspIt;
-			vspIt = pTaskDef->vsps.find( xmlCCNode.entries[i].vspName );
-			// Does such VSP exist?
-			if ( vspIt == pTaskDef->vsps.end() ) {
-				throw CGenericError( ERR_VSP_NOT_FOUND, xmlCCNode.entries[i].vspName, xmlCCNode.name );
-			}
+    if ( xmlCCNode.entries[i].vspOverride ) {
+        if ( xmlCCNode.entries[i].vspName != "" ) {
+            std::map< std::string, CVsp >::const_iterator vspIt;
+            vspIt = pTaskDef->vsps.find( xmlCCNode.entries[i].vspName );
+            // Does such VSP exist?
+            if ( vspIt == pTaskDef->vsps.end() ) {
+                throw CGenericError( ERR_VSP_NOT_FOUND, xmlCCNode.entries[i].vspName, xmlCCNode.name );
+            }
 
-			ccNode.nextEngines[i].newRelativeStorageProfileId = vspIt->second.base;
-		}
-		else
-		{
-			ccNode.nextEngines[i].newRelativeStorageProfileId = xmlCCNode.entries[i].vspBase;
-		}
-	}
-	else
-	{
-		ccNode.nextEngines[i].newRelativeStorageProfileId = 0;
-	}
+            ccNode.nextEngines[i].newRelativeStorageProfileId = vspIt->second.base;
+        }
+        else {
+            ccNode.nextEngines[i].newRelativeStorageProfileId = xmlCCNode.entries[i].vspBase;
+        }
+    }
+    else {
+        ccNode.nextEngines[i].newRelativeStorageProfileId = 0;
+    }
 #endif /* (DPAA_VERSION >= 11) */
 
         ccNode.nextEngines[i].doneAction        = e_FM_PCD_ENQ_FRAME;
@@ -1082,25 +1060,26 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             ccNode.nextEngines[i].doneAction    = e_FM_PCD_DROP_FRAME;
             ccNode.nextEngines[i].doneActionStr = "e_FM_PCD_DROP_FRAME";
         }
-        if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_CC || ccNode.nextEngines[i].nextEngine == e_FM_PCD_HASH ) {
-			if ( ccNode.nextEngines[i].nextEngineTrueType =  e_FM_PCD_HASH)
-			{
-				ccNode.nextEngines[i].actionHandleIndex =
+        if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_CC ||
+             ccNode.nextEngines[i].nextEngine == e_FM_PCD_HASH ) {
+            if ( ccNode.nextEngines[i].nextEngineTrueType == e_FM_PCD_HASH ) {
+                ccNode.nextEngines[i].actionHandleIndex =
                 get_htnode_index( pTaskDef,
-									xmlCCNode.entries[i].actionName,
-									ccNode.name, port, false );
-				ApplyOrder::Entry n2( ApplyOrder::HTNode,
-									ccNode.nextEngines[i].actionHandleIndex );
-            applier.add_edge( n1, n2 );
-			} else {
-				ccNode.nextEngines[i].actionHandleIndex =
-					get_ccnode_index( pTaskDef,
-									  xmlCCNode.entries[i].actionName,
-									  ccNode.name, port, false );
-				ApplyOrder::Entry n2( ApplyOrder::CCNode,
-									  ccNode.nextEngines[i].actionHandleIndex );
-				applier.add_edge( n1, n2 );
-			}
+                                  xmlCCNode.entries[i].actionName,
+                                  ccNode.name, port, false );
+                ApplyOrder::Entry n2( ApplyOrder::HTNode,
+                                      ccNode.nextEngines[i].actionHandleIndex );
+                applier.add_edge( n1, n2 );
+            }
+            else {
+                ccNode.nextEngines[i].actionHandleIndex =
+                    get_ccnode_index( pTaskDef,
+                                      xmlCCNode.entries[i].actionName,
+                                      ccNode.name, port, false );
+                ApplyOrder::Entry n2( ApplyOrder::CCNode,
+                                      ccNode.nextEngines[i].actionHandleIndex );
+                applier.add_edge( n1, n2 );
+            }
         }
         else if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_KG ) {
             ccNode.nextEngines[i].actionHandleIndex =
@@ -1119,7 +1098,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             applier.add_edge( n1, n2 );
         }
 #if (DPAA_VERSION >= 11)
-		else if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_FR ) {
+        else if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_FR ) {
             ccNode.nextEngines[i].actionHandleIndex =
                 get_replicator_index( pTaskDef, xmlCCNode.entries[i].actionName,
                                    ccNode.name, port );
@@ -1132,51 +1111,46 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 
     ccNode.nextEngineOnMiss.nextEngine        = getEngineByType( xmlCCNode.actionOnMiss );
 
-	//Save the true type of the next engine
-	ccNode.nextEngineOnMiss.nextEngineTrueType = ccNode.nextEngineOnMiss.nextEngine;
-	if (ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_CC)
-	{
-		std::map< std::string, CClassification >::const_iterator nodeIt;
-		nodeIt = pTaskDef->classifications.find( xmlCCNode.actionNameOnMiss );
-		// Does such node exist?
-		if ( nodeIt == pTaskDef->classifications.end() ) {
-			throw CGenericError( ERR_CC_NOT_FOUND, xmlCCNode.actionNameOnMiss, xmlCCNode.name );
-		}
+    //Save the true type of the next engine
+    ccNode.nextEngineOnMiss.nextEngineTrueType = ccNode.nextEngineOnMiss.nextEngine;
+    if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_CC ) {
+        std::map< std::string, CClassification >::const_iterator nodeIt;
+        nodeIt = pTaskDef->classifications.find( xmlCCNode.actionNameOnMiss );
+        // Does such node exist?
+        if ( nodeIt == pTaskDef->classifications.end() ) {
+            throw CGenericError( ERR_CC_NOT_FOUND, xmlCCNode.actionNameOnMiss, xmlCCNode.name );
+        }
 
-		if ( nodeIt->second.key.hashTable )
-			ccNode.nextEngineOnMiss.nextEngineTrueType = e_FM_PCD_HASH;
-		else
-			ccNode.nextEngineOnMiss.nextEngineTrueType = e_FM_PCD_CC;
-	}
+        if ( nodeIt->second.key.hashTable )
+            ccNode.nextEngineOnMiss.nextEngineTrueType = e_FM_PCD_HASH;
+        else
+            ccNode.nextEngineOnMiss.nextEngineTrueType = e_FM_PCD_CC;
+    }
 
-    ccNode.nextEngineOnMiss.nextEngineStr     = getEngineByTypeStr( xmlCCNode.actionOnMiss );
-    ccNode.nextEngineOnMiss.newFqid           = 0;
-	ccNode.nextEngineOnMiss.statistics		  = xmlCCNode.statisticsOnMiss;
+    ccNode.nextEngineOnMiss.nextEngineStr = getEngineByTypeStr( xmlCCNode.actionOnMiss );
+    ccNode.nextEngineOnMiss.newFqid       = 0;
+    ccNode.nextEngineOnMiss.statistics    = xmlCCNode.statisticsOnMiss;
 
 #if (DPAA_VERSION >= 11)
     //Change the VSP
-	if (xmlCCNode.vspOverrideOnMiss)
-	{
-		if (xmlCCNode.vspNameOnMiss != "")
-		{
-			std::map< std::string, CVsp >::const_iterator vspIt;
-			vspIt = pTaskDef->vsps.find( xmlCCNode.vspNameOnMiss );
-			// Does such VSP exist?
-			if ( vspIt == pTaskDef->vsps.end() ) {
-				throw CGenericError( ERR_VSP_NOT_FOUND, xmlCCNode.vspNameOnMiss, xmlCCNode.name );
-			}
+    if ( xmlCCNode.vspOverrideOnMiss ) {
+        if ( xmlCCNode.vspNameOnMiss != "" ) {
+            std::map< std::string, CVsp >::const_iterator vspIt;
+            vspIt = pTaskDef->vsps.find( xmlCCNode.vspNameOnMiss );
+            // Does such VSP exist?
+            if ( vspIt == pTaskDef->vsps.end() ) {
+                throw CGenericError( ERR_VSP_NOT_FOUND, xmlCCNode.vspNameOnMiss, xmlCCNode.name );
+            }
 
-			ccNode.nextEngineOnMiss.newRelativeStorageProfileId = vspIt->second.base;
-		}
-		else
-		{
-			ccNode.nextEngineOnMiss.newRelativeStorageProfileId = xmlCCNode.vspBaseOnMiss;
-		}
-	}
-	else
-	{
-		ccNode.nextEngineOnMiss.newRelativeStorageProfileId = 0;
-	}
+            ccNode.nextEngineOnMiss.newRelativeStorageProfileId = vspIt->second.base;
+        }
+        else {
+            ccNode.nextEngineOnMiss.newRelativeStorageProfileId = xmlCCNode.vspBaseOnMiss;
+        }
+    }
+    else {
+        ccNode.nextEngineOnMiss.newRelativeStorageProfileId = 0;
+    }
 #endif /* (DPAA_VERSION >= 11) */
 
     ccNode.nextEngineOnMiss.doneAction        = e_FM_PCD_ENQ_FRAME;
@@ -1187,26 +1161,27 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         ccNode.nextEngineOnMiss.doneAction    = e_FM_PCD_DROP_FRAME;
         ccNode.nextEngineOnMiss.doneActionStr = "e_FM_PCD_DROP_FRAME";
     }
-    if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_CC || ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_HASH) {
-		//Check if it's a match or hash table
-		if ( ccNode.nextEngineOnMiss.nextEngineTrueType =  e_FM_PCD_HASH)
-		{
-			ccNode.nextEngineOnMiss.actionHandleIndex =
-            get_htnode_index( pTaskDef,
-								xmlCCNode.actionNameOnMiss,
-								ccNode.name, port, false );
-			ApplyOrder::Entry n2( ApplyOrder::HTNode,
-								ccNode.nextEngineOnMiss.actionHandleIndex );
-        applier.add_edge( n1, n2 );
-		} else {
-			ccNode.nextEngineOnMiss.actionHandleIndex =
-				get_ccnode_index( pTaskDef,
-								  xmlCCNode.actionNameOnMiss,
-								  ccNode.name, port, false );
-			ApplyOrder::Entry n2( ApplyOrder::CCNode,
-								  ccNode.nextEngineOnMiss.actionHandleIndex );
-			applier.add_edge( n1, n2 );
-		}
+    if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_CC ||
+         ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_HASH ) {
+        //Check if it's a match or hash table
+        if ( ccNode.nextEngineOnMiss.nextEngineTrueType == e_FM_PCD_HASH ) {
+            ccNode.nextEngineOnMiss.actionHandleIndex =
+                get_htnode_index( pTaskDef,
+                                  xmlCCNode.actionNameOnMiss,
+                                  ccNode.name, port, false );
+            ApplyOrder::Entry n2( ApplyOrder::HTNode,
+                                  ccNode.nextEngineOnMiss.actionHandleIndex );
+            applier.add_edge( n1, n2 );
+        }
+        else {
+            ccNode.nextEngineOnMiss.actionHandleIndex =
+                get_ccnode_index( pTaskDef,
+                                  xmlCCNode.actionNameOnMiss,
+                                  ccNode.name, port, false );
+            ApplyOrder::Entry n2( ApplyOrder::CCNode,
+                                  ccNode.nextEngineOnMiss.actionHandleIndex );
+            applier.add_edge( n1, n2 );
+        }
     }
     else if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_KG ) {
         ccNode.nextEngineOnMiss.actionHandleIndex =
@@ -1232,7 +1207,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         e_FmPcdEngine action     = getEngineByType( xmlCCNode.may_use_action[i] );
         std::string   actionName = xmlCCNode.may_use_actionName[i];
         switch ( action ) {
-		case e_FM_PCD_HASH:
+        case e_FM_PCD_HASH:
         case e_FM_PCD_CC:
             {
             unsigned int index =
@@ -1277,65 +1252,57 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 
     port.htnodes.push_back( htNode.getIndex() );
 
-    htNode.name           = port.name + "/htnode/" + xmlCCNode.name;
+    htNode.name = port.name + "/htnode/" + xmlCCNode.name;
 
     //Pre-allocation
-    htNode.maxNumOfKeys = xmlCCNode.max;
-	htNode.statistics = getStatistic(xmlCCNode.statistics);
+    htNode.maxNumOfKeys                = xmlCCNode.max;
+    htNode.statistics                  = getStatistic(xmlCCNode.statistics);
+    htNode.hashResMask                 = xmlCCNode.key.hashTableEntry.mask;
+    htNode.hashShift                   = xmlCCNode.key.hashTableEntry.hashShift;
+    htNode.matchKeySize                = xmlCCNode.key.hashTableEntry.keySize;
+    htNode.port_signature              = port.name;
+    htNode.nextEngineOnMiss.nextEngine = getEngineByType( xmlCCNode.actionOnMiss );
 
-	htNode.hashResMask = xmlCCNode.key.hashTableEntry.mask;
-	htNode.hashShift = xmlCCNode.key.hashTableEntry.hashShift;
-	htNode.matchKeySize = xmlCCNode.key.hashTableEntry.keySize;
+    //Save the true type of the next engine
+    htNode.nextEngineOnMiss.nextEngineTrueType = htNode.nextEngineOnMiss.nextEngine;
+    if ( htNode.nextEngineOnMiss.nextEngine == e_FM_PCD_CC ) {
+        std::map< std::string, CClassification >::const_iterator nodeIt;
+        nodeIt = pTaskDef->classifications.find( xmlCCNode.actionNameOnMiss );
+        // Does such node exist?
+        if ( nodeIt == pTaskDef->classifications.end() ) {
+            throw CGenericError( ERR_CC_NOT_FOUND, xmlCCNode.actionNameOnMiss, xmlCCNode.name );
+        }
 
-    htNode.port_signature = port.name;
+        if ( nodeIt->second.key.hashTable )
+            htNode.nextEngineOnMiss.nextEngineTrueType = e_FM_PCD_HASH;
+        else
+            htNode.nextEngineOnMiss.nextEngineTrueType = e_FM_PCD_CC;
+    }
 
-    htNode.nextEngineOnMiss.nextEngine        = getEngineByType( xmlCCNode.actionOnMiss );
-
-	//Save the true type of the next engine
-	htNode.nextEngineOnMiss.nextEngineTrueType = htNode.nextEngineOnMiss.nextEngine;
-	if (htNode.nextEngineOnMiss.nextEngine == e_FM_PCD_CC)
-	{
-		std::map< std::string, CClassification >::const_iterator nodeIt;
-		nodeIt = pTaskDef->classifications.find( xmlCCNode.actionNameOnMiss );
-		// Does such node exist?
-		if ( nodeIt == pTaskDef->classifications.end() ) {
-			throw CGenericError( ERR_CC_NOT_FOUND, xmlCCNode.actionNameOnMiss, xmlCCNode.name );
-		}
-
-		if ( nodeIt->second.key.hashTable )
-			htNode.nextEngineOnMiss.nextEngineTrueType = e_FM_PCD_HASH;
-		else
-			htNode.nextEngineOnMiss.nextEngineTrueType = e_FM_PCD_CC;
-	}
-
-    htNode.nextEngineOnMiss.nextEngineStr     = getEngineByTypeStr( xmlCCNode.actionOnMiss );
-    htNode.nextEngineOnMiss.newFqid           = 0;
-	htNode.nextEngineOnMiss.statistics		  = xmlCCNode.statisticsOnMiss;
+    htNode.nextEngineOnMiss.nextEngineStr = getEngineByTypeStr( xmlCCNode.actionOnMiss );
+    htNode.nextEngineOnMiss.newFqid       = 0;
+    htNode.nextEngineOnMiss.statistics    = xmlCCNode.statisticsOnMiss;
 
 #if (DPAA_VERSION >= 11)
     //Change the VSP
-	if (xmlCCNode.vspOverrideOnMiss)
-	{
-		if (xmlCCNode.vspNameOnMiss != "")
-		{
-			std::map< std::string, CVsp >::const_iterator vspIt;
-			vspIt = pTaskDef->vsps.find( xmlCCNode.vspNameOnMiss );
-			// Does such VSP exist?
-			if ( vspIt == pTaskDef->vsps.end() ) {
-				throw CGenericError( ERR_VSP_NOT_FOUND, xmlCCNode.vspNameOnMiss, xmlCCNode.name );
-			}
+    if ( xmlCCNode.vspOverrideOnMiss ) {
+        if ( xmlCCNode.vspNameOnMiss != "" ) {
+            std::map< std::string, CVsp >::const_iterator vspIt;
+            vspIt = pTaskDef->vsps.find( xmlCCNode.vspNameOnMiss );
+            // Does such VSP exist?
+            if ( vspIt == pTaskDef->vsps.end() ) {
+                throw CGenericError( ERR_VSP_NOT_FOUND, xmlCCNode.vspNameOnMiss, xmlCCNode.name );
+            }
 
-			htNode.nextEngineOnMiss.newRelativeStorageProfileId = vspIt->second.base;
-		}
-		else
-		{
-			htNode.nextEngineOnMiss.newRelativeStorageProfileId = xmlCCNode.vspBaseOnMiss;
-		}
-	}
-	else
-	{
-		htNode.nextEngineOnMiss.newRelativeStorageProfileId = 0;
-	}
+            htNode.nextEngineOnMiss.newRelativeStorageProfileId = vspIt->second.base;
+        }
+        else {
+            htNode.nextEngineOnMiss.newRelativeStorageProfileId = xmlCCNode.vspBaseOnMiss;
+        }
+    }
+    else {
+        htNode.nextEngineOnMiss.newRelativeStorageProfileId = 0;
+    }
 #endif /* (DPAA_VERSION >= 11) */
 
     htNode.nextEngineOnMiss.doneAction        = e_FM_PCD_ENQ_FRAME;
@@ -1346,28 +1313,29 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         htNode.nextEngineOnMiss.doneAction    = e_FM_PCD_DROP_FRAME;
         htNode.nextEngineOnMiss.doneActionStr = "e_FM_PCD_DROP_FRAME";
     }
-    if ( htNode.nextEngineOnMiss.nextEngine == e_FM_PCD_CC) {
-		//Check if it's a match or hash table
-		if ( htNode.nextEngineOnMiss.nextEngineTrueType =  e_FM_PCD_HASH)
-		{
-			htNode.nextEngineOnMiss.actionHandleIndex =
+    if ( htNode.nextEngineOnMiss.nextEngine == e_FM_PCD_CC ||
+         htNode.nextEngineOnMiss.nextEngine == e_FM_PCD_HASH ) {
+        //Check if it's a match or hash table
+        if ( htNode.nextEngineOnMiss.nextEngineTrueType == e_FM_PCD_HASH ) {
+            htNode.nextEngineOnMiss.actionHandleIndex =
             get_htnode_index( pTaskDef,
-								xmlCCNode.actionNameOnMiss,
-								htNode.name, port, false );
-			ApplyOrder::Entry n2( ApplyOrder::HTNode,
-								htNode.nextEngineOnMiss.actionHandleIndex );
-        applier.add_edge( n1, n2 );
-		} else {
-			htNode.nextEngineOnMiss.actionHandleIndex =
-				get_ccnode_index( pTaskDef,
-								  xmlCCNode.actionNameOnMiss,
-								  htNode.name, port, false );
-			ApplyOrder::Entry n2( ApplyOrder::CCNode,
-								  htNode.nextEngineOnMiss.actionHandleIndex );
-			applier.add_edge( n1, n2 );
-		}
+                                xmlCCNode.actionNameOnMiss,
+                                htNode.name, port, false );
+            ApplyOrder::Entry n2( ApplyOrder::HTNode,
+                                htNode.nextEngineOnMiss.actionHandleIndex );
+            applier.add_edge( n1, n2 );
+        }
+        else {
+            htNode.nextEngineOnMiss.actionHandleIndex =
+                get_ccnode_index( pTaskDef,
+                                  xmlCCNode.actionNameOnMiss,
+                                  htNode.name, port, false );
+            ApplyOrder::Entry n2( ApplyOrder::CCNode,
+                                  htNode.nextEngineOnMiss.actionHandleIndex );
+            applier.add_edge( n1, n2 );
+        }
     }
-	else if ( htNode.nextEngineOnMiss.nextEngine == e_FM_PCD_HASH ) {
+    else if ( htNode.nextEngineOnMiss.nextEngine == e_FM_PCD_HASH ) {
         htNode.nextEngineOnMiss.actionHandleIndex =
             get_htnode_index( pTaskDef, xmlCCNode.actionNameOnMiss,
                               htNode.name, port, true );
@@ -1399,7 +1367,7 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         e_FmPcdEngine action     = getEngineByType( xmlCCNode.may_use_action[i] );
         std::string   actionName = xmlCCNode.may_use_actionName[i];
         switch ( action ) {
-		case e_FM_PCD_HASH:
+        case e_FM_PCD_HASH:
         case e_FM_PCD_CC:
             {
             unsigned int index =
@@ -1459,36 +1427,34 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
     for ( unsigned int i = 0; i < xmlRepl.entries.size(); ++i ) {
         repl.indices.push_back( xmlRepl.entries[i].index );
 
-        if (xmlRepl.entries[i].headerManipName.empty())
-        {
+        if ( xmlRepl.entries[i].headerManipName.empty() ) {
             repl.header.push_back( 0 );
         }
-        else
-        {
+        else {
             std::map< std::string, CHeaderManip >::const_iterator headerit;
             unsigned int hdr_index = 0;
-            for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
+            for ( headerit = pTaskDef->headermanips.begin();
+                  headerit != pTaskDef->headermanips.end();
+                  ++headerit ) {
                 hdr_index++;
-                if (headerit->second.name == xmlRepl.entries[i].headerManipName)
-                {
+                if ( headerit->second.name == xmlRepl.entries[i].headerManipName ) {
                     repl.header.push_back( hdr_index );
                     break;
                 }
             }
         }
 
-        if (xmlRepl.entries[i].fragmentationName.empty())
-        {
+        if ( xmlRepl.entries[i].fragmentationName.empty() ) {
             repl.frag.push_back( 0 );
         }
-        else
-        {
+        else {
             std::map< std::string, CFragmentation >::const_iterator fragit;
             unsigned int frag_index = 0;
-            for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {
+            for ( fragit = pTaskDef->fragmentations.begin();
+                  fragit != pTaskDef->fragmentations.end();
+                  ++fragit ) {
                 frag_index++;
-                if (fragit->second.name == xmlRepl.entries[i].fragmentationName)
-                {
+                if ( fragit->second.name == xmlRepl.entries[i].fragmentationName ) {
                     repl.frag.push_back( frag_index );
                     break;
                 }
@@ -1498,38 +1464,34 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
         repl.nextEngines.push_back( CRepl::CCNextEngine() );
         repl.nextEngines[i].nextEngine        = getEngineByType( xmlRepl.entries[i].action );
 
-		if (repl.nextEngines[i].nextEngine == e_FM_PCD_CC || repl.nextEngines[i].nextEngine == e_FM_PCD_HASH)
-		{
+        if ( repl.nextEngines[i].nextEngine == e_FM_PCD_CC ||
+             repl.nextEngines[i].nextEngine == e_FM_PCD_HASH ) {
 
-		}
+        }
 
         repl.nextEngines[i].nextEngineStr     = getEngineByTypeStr( xmlRepl.entries[i].action );
         repl.nextEngines[i].newFqid           = xmlRepl.entries[i].qbase;
 
 #if (DPAA_VERSION >= 11)
     //Change the VSP
-	if (xmlRepl.entries[i].vspOverride)
-	{
-		if (xmlRepl.entries[i].vspName != "")
-		{
-			std::map< std::string, CVsp >::const_iterator vspIt;
-			vspIt = pTaskDef->vsps.find( xmlRepl.entries[i].vspName );
-			// Does such VSP exist?
-			if ( vspIt == pTaskDef->vsps.end() ) {
-				throw CGenericError( ERR_VSP_NOT_FOUND, xmlRepl.entries[i].vspName, xmlRepl.name );
-			}
+    if ( xmlRepl.entries[i].vspOverride ) {
+        if (xmlRepl.entries[i].vspName != "") {
+            std::map< std::string, CVsp >::const_iterator vspIt;
+            vspIt = pTaskDef->vsps.find( xmlRepl.entries[i].vspName );
+            // Does such VSP exist?
+            if ( vspIt == pTaskDef->vsps.end() ) {
+                throw CGenericError( ERR_VSP_NOT_FOUND, xmlRepl.entries[i].vspName, xmlRepl.name );
+            }
 
-			repl.nextEngines[i].newRelativeStorageProfileId = vspIt->second.base;
-		}
-		else
-		{
-			repl.nextEngines[i].newRelativeStorageProfileId = xmlRepl.entries[i].vspBase;
-		}
-	}
-	else
-	{
-		repl.nextEngines[i].newRelativeStorageProfileId = 0;
-	}
+            repl.nextEngines[i].newRelativeStorageProfileId = vspIt->second.base;
+        }
+        else {
+            repl.nextEngines[i].newRelativeStorageProfileId = xmlRepl.entries[i].vspBase;
+        }
+    }
+    else {
+        repl.nextEngines[i].newRelativeStorageProfileId = 0;
+    }
 #endif /* (DPAA_VERSION >= 11) */
 
         repl.nextEngines[i].doneAction        = e_FM_PCD_ENQ_FRAME;
@@ -1540,7 +1502,8 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
             repl.nextEngines[i].doneAction    = e_FM_PCD_DROP_FRAME;
             repl.nextEngines[i].doneActionStr = "e_FM_PCD_DROP_FRAME";
         }
-        if ( repl.nextEngines[i].nextEngine == e_FM_PCD_CC || repl.nextEngines[i].nextEngine == e_FM_PCD_HASH ) {
+        if ( repl.nextEngines[i].nextEngine == e_FM_PCD_CC ||
+             repl.nextEngines[i].nextEngine == e_FM_PCD_HASH ) {
             repl.nextEngines[i].actionHandleIndex =
                 get_ccnode_index( pTaskDef,
                                   xmlRepl.entries[i].actionName,
@@ -1566,7 +1529,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
             applier.add_edge( n1, n2 );
         }
 #if (DPAA_VERSION >= 11)
-		else if ( repl.nextEngines[i].nextEngine == e_FM_PCD_FR ) {
+        else if ( repl.nextEngines[i].nextEngine == e_FM_PCD_FR ) {
             repl.nextEngines[i].actionHandleIndex =
                 get_replicator_index( pTaskDef, xmlRepl.entries[i].actionName,
                                    repl.name, port );
@@ -1577,13 +1540,13 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
 #endif /* (DPAA_VERSION >= 11) */
     }
 
-	/*
-	//resource pre-allocation may-use part
+    /*
+    //resource pre-allocation may-use part
     for ( unsigned int i = 0; i < xmlRepl.may_use_action.size(); ++i ) {
         e_FmPcdEngine action     = getEngineByType( xmlRepl.may_use_action[i] );
         std::string   actionName = xmlRepl.may_use_actionName[i];
         switch ( action ) {
-		case e_FM_PCD_HASH:
+        case e_FM_PCD_HASH:
         case e_FM_PCD_CC:
             {
             unsigned int index =
@@ -1610,7 +1573,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
             applier.add_edge( n1, n2 );
             break;
             }
-		case e_FM_PCD_FR:
+        case e_FM_PCD_FR:
             {
             unsigned int index =
                 get_replicator_index( pTaskDef, actionName, repl.name, port );
@@ -1622,7 +1585,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
             {}
         }
     }
-	*/
+    */
 
     return repl;
 }
@@ -1642,8 +1605,9 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
         throw CGenericError( ERR_CC_NOT_FOUND, name, from );
     }
 
-	if (nodeIt->second.key.hashTable)
-		return get_htnode_index(pTaskDef, name, from, port, isRoot, manip);
+    if ( nodeIt->second.key.hashTable ) {
+        return get_htnode_index(pTaskDef, name, from, port, isRoot, manip);
+    }
 
     // Check whether this node was already created
     bool         found = false;
@@ -1667,7 +1631,7 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
 
     if ( isRoot ) {
         port.cctrees.push_back( index );
-		port.cctrees_type.push_back( e_FM_PCD_CC );
+        port.cctrees_type.push_back( e_FM_PCD_CC );
         port.hdrmanips.push_back( manip );
         return port.cctrees.size() - 1;
     }
@@ -1711,7 +1675,7 @@ CFMCModel::get_htnode_index( const CTaskDef* pTaskDef, std::string name,
 
     if ( isRoot ) {
         port.cctrees.push_back( index );
-		port.cctrees_type.push_back( e_FM_PCD_HASH );
+        port.cctrees_type.push_back( e_FM_PCD_HASH );
         port.hdrmanips.push_back( manip );
         return port.cctrees.size() - 1;
     }
@@ -1745,7 +1709,7 @@ CFMCModel::get_replicator_index( const CTaskDef* pTaskDef, std::string name,
     }
 
     if ( !found ) {
-		CRepl& replicator = createReplicator( pTaskDef, port, replIt->second );
+        CRepl& replicator = createReplicator( pTaskDef, port, replIt->second );
         index = replicator.getIndex();
     }
 
@@ -2465,23 +2429,23 @@ CFMCModel::getEngineByType( std::string enginename )
     if ( enginename == "distribution" ) {
         return e_FM_PCD_KG;
     }
-    else if (enginename == "classification" ) {
+    else if ( enginename == "classification" ) {
         return e_FM_PCD_CC;
     }
-    else if (enginename == "policer" ) {
+    else if ( enginename == "policer" ) {
         return e_FM_PCD_PLCR;
     }
-    else if (enginename == "parser" ) {
+    else if ( enginename == "parser" ) {
         return e_FM_PCD_PRS;
     }
 #if (DPAA_VERSION >= 11)
-	else if (enginename == "replicator" ) {
-		return e_FM_PCD_FR;
-	}
+    else if ( enginename == "replicator" ) {
+        return e_FM_PCD_FR;
+    }
 #endif /* (DPAA_VERSION >= 11) */
-	else if (enginename == "hashtable" ) {
-		return e_FM_PCD_CC;
-	}
+    else if ( enginename == "hashtable" ) {
+        return e_FM_PCD_HASH;
+    }
 
     return e_FM_PCD_DONE;
 }
@@ -2502,10 +2466,10 @@ CFMCModel::getEngineByTypeStr( std::string enginename )
     else if (enginename == "parser" ) {
         return "e_FM_PCD_PRS";
     }
-	else if (enginename == "replicator" ) {
+    else if (enginename == "replicator" ) {
         return "e_FM_PCD_FR";
     }
-	else if (enginename == "hashtable" ) {
+    else if (enginename == "hashtable" ) {
         return "e_FM_PCD_CC";
     }
 
@@ -2531,15 +2495,14 @@ CFMCModel::getStatistic( std::string statstic )
 unsigned int
 Engine::getHeaderManipIndex(std::string name)
 {
-	for (unsigned int i = 0; i < headerManips_names.size(); i++)
-	{
-		if (headerManips_names[i] == name)
-			return i;
-	}
+    for (unsigned int i = 0; i < headerManips_names.size(); i++) {
+        if (headerManips_names[i] == name)
+            return i;
+    }
 
-	throw CGenericError( ERR_NEXTMANIP_NOT_FOUND, name );
+    throw CGenericError( ERR_NEXTMANIP_NOT_FOUND, name );
 
-	return 0;
+    return 0;
 }
 
 

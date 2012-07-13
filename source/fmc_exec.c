@@ -124,11 +124,11 @@ fmc_execute( fmc_model* model )
             case FMCCCNode:
                 ret = fmc_exec_ccnode( model, current_engine, model->ao[i].index );
                 break;
-			case FMCHTNode:
+            case FMCHTNode:
                 ret = fmc_exec_htnode( model, current_engine, model->ao[i].index );
                 break;
 #if (DPAA_VERSION >= 11)
-			case FMCReplicator:
+            case FMCReplicator:
                 ret = fmc_exec_replicator( model, current_engine, model->ao[i].index );
                 break;
 #endif /* (DPAA_VERSION >= 11) */
@@ -138,7 +138,7 @@ fmc_execute( fmc_model* model )
             case FMCPolicer:
                 ret = fmc_exec_policer( model, current_engine, model->ao[i].index );
                 break;
-			case FMCManipulation:
+            case FMCManipulation:
                 ret = fmc_exec_manip( model, current_engine, model->ao[i].index );
                 break;
             default:
@@ -195,7 +195,7 @@ fmc_clean( fmc_model* model )
             case FMCCCNode:
                 ret = fmc_clean_ccnode( model, current_engine, model->ao[i].index );
                 break;
-			case FMCHTNode:
+            case FMCHTNode:
                 ret = fmc_clean_htnode( model, current_engine, model->ao[i].index );
                 break;
             case FMCCCTree:
@@ -205,7 +205,7 @@ fmc_clean( fmc_model* model )
                 ret = fmc_clean_policer( model, current_engine, model->ao[i].index );
                 break;
 #if DPAA_VERSION >= 11
-			case FMCReplicator:
+            case FMCReplicator:
                 ret = fmc_clean_replicator( model, current_engine, model->ao[i].index );
                 break;
 #endif /* DPAA_VERSION >= 11 */
@@ -237,7 +237,7 @@ fmc_get_handle(
     unsigned int port    = 0;
     unsigned int found   = 0;
     unsigned int ccindex = 0;
-	unsigned int htindex = 0;
+    unsigned int htindex = 0;
     unsigned int i;
 
     // Find engine index
@@ -301,7 +301,7 @@ fmc_get_handle(
         }
     }
 
-	// Find HT handle according to found engine and port
+    // Find HT handle according to found engine and port
     for ( htindex =0; htindex < model->port[port].htnodes_count; htindex++ ) {
         unsigned int index = model->port[port].htnodes[htindex];
         if ( strcmp( model->htnode_name[index], name ) == 0 ) {
@@ -527,21 +527,22 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
                                              model->scheme_handle[action_index];
         }
         else if ( model->ccnode[index].keysParams.keyParams[i].ccNextEngineParams.nextEngine == e_FM_PCD_CC) {
-			if ( model->ccentry_action_type[index][i] == e_FM_PCD_CC ) {
-	            model->ccnode[index].keysParams.keyParams[i]
-		            .ccNextEngineParams.params.ccParams.h_CcNode =
-			                                     model->ccnode_handle[action_index];
-			} else if (model->ccentry_action_type[index][i] == e_FM_PCD_HASH) {
-				 model->ccnode[index].keysParams.keyParams[i]
-		            .ccNextEngineParams.params.ccParams.h_CcNode =
-			                                     model->htnode_handle[action_index];
-			}
+            if ( model->ccentry_action_type[index][i] == e_FM_PCD_CC ) {
+                model->ccnode[index].keysParams.keyParams[i]
+                    .ccNextEngineParams.params.ccParams.h_CcNode =
+                                                 model->ccnode_handle[action_index];
+            }
+            else if (model->ccentry_action_type[index][i] == e_FM_PCD_HASH) {
+                 model->ccnode[index].keysParams.keyParams[i]
+                    .ccNextEngineParams.params.ccParams.h_CcNode =
+                                                 model->htnode_handle[action_index];
+            }
         }
 #if (DPAA_VERSION >= 11)
-		else if ( model->ccnode[index].keysParams.keyParams[i]
+        else if ( model->ccnode[index].keysParams.keyParams[i]
                 .ccNextEngineParams.nextEngine == e_FM_PCD_FR) {
             model->ccnode[index].keysParams.keyParams[i]
-				.ccNextEngineParams.params.frParams.h_FrmReplic =
+                .ccNextEngineParams.params.frParams.h_FrmReplic =
                                              model->ccnode_handle[action_index];
         }
 #endif /* (DPAA_VERSION >= 11) */
@@ -580,13 +581,13 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
                            .nextEngine == e_FM_PCD_CC ) {
         model->ccnode[index].keysParams.ccNextEngineParamsForMiss
             .params.ccParams.h_CcNode = model->ccnode_handle[action_index];
-		if ( model->ccmiss_action_type[index] == e_FM_PCD_CC ) {
+        if ( model->ccmiss_action_type[index] == e_FM_PCD_CC ) {
             model->ccnode[index].keysParams.ccNextEngineParamsForMiss
-				.params.ccParams.h_CcNode = model->ccnode_handle[action_index];
-		} else if (model->ccmiss_action_type[index] == e_FM_PCD_HASH) {
-			 model->ccnode[index].keysParams.ccNextEngineParamsForMiss
-				.params.ccParams.h_CcNode = model->htnode_handle[action_index];
-		}
+                .params.ccParams.h_CcNode = model->ccnode_handle[action_index];
+        } else if (model->ccmiss_action_type[index] == e_FM_PCD_HASH) {
+             model->ccnode[index].keysParams.ccNextEngineParamsForMiss
+                .params.ccParams.h_CcNode = model->htnode_handle[action_index];
+        }
     }
 
 
@@ -617,19 +618,19 @@ fmc_exec_htnode( fmc_model* model, unsigned int engine,
     }
     else if ( model->htnode[index].ccNextEngineParamsForMiss
                            .nextEngine == e_FM_PCD_CC ) {
-		if ( model->htmiss_action_type[index] == e_FM_PCD_CC ) {
+        if ( model->htmiss_action_type[index] == e_FM_PCD_CC ) {
             model->htnode[index].ccNextEngineParamsForMiss
-				.params.ccParams.h_CcNode = model->ccnode_handle[action_index];
-		} else if (model->htmiss_action_type[index] == e_FM_PCD_HASH) {
-			 model->htnode[index].ccNextEngineParamsForMiss
-				.params.ccParams.h_CcNode = model->htnode_handle[action_index];
-		}
+                .params.ccParams.h_CcNode = model->ccnode_handle[action_index];
+        } else if (model->htmiss_action_type[index] == e_FM_PCD_HASH) {
+             model->htnode[index].ccNextEngineParamsForMiss
+                .params.ccParams.h_CcNode = model->htnode_handle[action_index];
+        }
     }
 #if DPAA_VERSION >= 11
-	else if ( model->htnode[index].ccNextEngineParamsForMiss
+    else if ( model->htnode[index].ccNextEngineParamsForMiss
                            .nextEngine == e_FM_PCD_FR ) {
         model->htnode[index].ccNextEngineParamsForMiss
-			.params.frParams.h_FrmReplic = model->replicator_handle[action_index];
+            .params.frParams.h_FrmReplic = model->replicator_handle[action_index];
     }
 #endif /* DPAA_VERSION >= 11 */
 
@@ -656,7 +657,7 @@ fmc_exec_replicator( fmc_model* model, unsigned int engine,
 
     for ( i = 0; i < model->replicator[index].numOfEntries; ++i ) {
         action_index = model->repentry_action_index[index][i];
-		if ( model->replicator[index].nextEngineParams[i].nextEngine == e_FM_PCD_KG ) {
+        if ( model->replicator[index].nextEngineParams[i].nextEngine == e_FM_PCD_KG ) {
             model->replicator[index].nextEngineParams[i].params.kgParams.h_DirectScheme =
                                              model->scheme_handle[action_index];
         }
@@ -664,7 +665,7 @@ fmc_exec_replicator( fmc_model* model, unsigned int engine,
             model->replicator[index].nextEngineParams[i].params.ccParams.h_CcNode =
                                              model->ccnode_handle[action_index];
         }
-		else if ( model->replicator[index].nextEngineParams[i].nextEngine == e_FM_PCD_FR) {
+        else if ( model->replicator[index].nextEngineParams[i].nextEngine == e_FM_PCD_FR) {
             model->replicator[index].nextEngineParams[i].params.frParams.h_FrmReplic =
                                              model->replicator_handle[action_index];
         }
@@ -707,31 +708,31 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
 
     for ( i = 0; i < model->port[port].ccroot_count; ++i ) {
         ccTreeParams.ccGrpParams[i].numOfDistinctionUnits = 0;
-		if (model->port[port].ccroot_type[i] == e_FM_PCD_CC)
-		{
-			ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
-				nextEngine = e_FM_PCD_CC;
-			ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
-				params.ccParams.h_CcNode =
+        if (model->port[port].ccroot_type[i] == e_FM_PCD_CC)
+        {
+            ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
+                nextEngine = e_FM_PCD_CC;
+            ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
+                params.ccParams.h_CcNode =
                 model->ccnode_handle[model->port[port].ccroot[i]];
-		}
-		else if (model->port[port].ccroot_type[i] == e_FM_PCD_HASH)
-		{
-			ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
-				nextEngine = e_FM_PCD_CC;
-			ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
-				params.ccParams.h_CcNode =
+        }
+        else if (model->port[port].ccroot_type[i] == e_FM_PCD_HASH)
+        {
+            ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
+                nextEngine = e_FM_PCD_CC;
+            ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
+                params.ccParams.h_CcNode =
                 model->htnode_handle[model->port[port].ccroot[i]];
-		}
+        }
 #if DPAA_VERSION >= 11
-		else if (model->port[port].ccroot_type[i] == e_FM_PCD_FR)
-		{
-			ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
-				nextEngine = e_FM_PCD_FR;
-			ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
-				params.frParams.h_FrmReplic =
+        else if (model->port[port].ccroot_type[i] == e_FM_PCD_FR)
+        {
+            ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
+                nextEngine = e_FM_PCD_FR;
+            ccTreeParams.ccGrpParams[i].nextEnginePerEntriesInGrp[0].
+                params.frParams.h_FrmReplic =
                 model->replicator_handle[model->port[port].ccroot[i]];
-		}
+        }
 #endif /* DPAA_VERSION >= 11 */
 #ifndef P1023
         if ( model->port[port].ccroot_manip[i] > 0 )
@@ -824,10 +825,10 @@ fmc_exec_manip( fmc_model* model, unsigned int engine,
         model->fman[engine].hdr[index].u.hdr.insrtParams.u.generic.p_Data = model->fman[engine].insertData[index];
     }
 
-	if (model->fman[engine].hdr_hasNext[index])
-	{
-		model->fman[engine].hdr[index].h_NextManip = model->fman[engine].hdr_handle[model->fman[engine].hdr_next[index]];
-	}
+    if (model->fman[engine].hdr_hasNext[index])
+    {
+        model->fman[engine].hdr[index].h_NextManip = model->fman[engine].hdr_handle[model->fman[engine].hdr_next[index]];
+    }
 
     model->fman[engine].hdr_handle[index] =
         FM_PCD_ManipNodeSet( model->fman[engine].pcd_handle,

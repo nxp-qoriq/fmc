@@ -161,15 +161,15 @@ CPCDReader::parseNetPCD( std::string filename )
             parsePolicy( &policy, cur );
             task->policies[policy.name] = policy;
         }
-		// replicator
+        // replicator
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"replicator" ) ) {
-			CReplicator replicator;
+            CReplicator replicator;
             parseReplicator( &replicator, cur );
             task->replicators[replicator.name] = replicator;
         }
-		// VSP
+        // VSP
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"vsp" ) ) {
-			CVsp vsp;
+            CVsp vsp;
             parseVsp( &vsp, cur );
             task->vsps[vsp.name] = vsp;
         }
@@ -262,12 +262,12 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
     distribution->qbase         = 0;
     distribution->dflt0         = 0;
     distribution->dflt1         = 0;
-	distribution->vspbase		= 0;
-	distribution->vspdirect	    = true;
-	distribution->vspshift		= 0;
-	distribution->vspoffset		= 0;
-	distribution->vspcount		= 0;
-	distribution->vspoverride	= false;
+    distribution->vspbase        = 0;
+    distribution->vspdirect        = true;
+    distribution->vspshift        = 0;
+    distribution->vspoffset        = 0;
+    distribution->vspcount        = 0;
+    distribution->vspoverride    = false;
 
     checkUnknownAttr( pNode, 3, "name", "comment", "description" );
 
@@ -427,29 +427,29 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
             distribution->actionName = stripBlanks( getAttr( cur, "name" ) );
             distribution->headerManipName = stripBlanks( getAttr( cur, "header" ) );
         }
-		 // vsp
+         // vsp
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"vsp" ) ) {
             checkUnknownAttr( pNode, 6, "name", "type", "base", "fqshift", "vspoffset", "vspcount" );
-			distribution->vspoverride = true;
+            distribution->vspoverride = true;
             distribution->vspName = stripBlanks( getAttr( cur, "name" ) );
 
-			if (distribution->vspName == "")
-			{
-				std::string type = getAttr( cur, "type" );
-				if (type == "direct")
-				{
-					distribution->vspdirect = true;
-				}
-				else
-				{
-					distribution->vspdirect = false;
-				}
+            if (distribution->vspName == "")
+            {
+                std::string type = getAttr( cur, "type" );
+                if (type == "direct")
+                {
+                    distribution->vspdirect = true;
+                }
+                else
+                {
+                    distribution->vspdirect = false;
+                }
 
-				distribution->vspbase = std::strtoul( getAttr( cur, "base" ).c_str(), 0, 0 );
-				distribution->vspshift = std::strtoul( getAttr( cur, "fqshift" ).c_str(), 0, 0 );
-				distribution->vspoffset = std::strtoul( getAttr( cur, "vspoffset" ).c_str(), 0, 0 );
-				distribution->vspcount = std::strtoul( getAttr( cur, "vspcount" ).c_str(), 0, 0 );
-			}
+                distribution->vspbase = std::strtoul( getAttr( cur, "base" ).c_str(), 0, 0 );
+                distribution->vspshift = std::strtoul( getAttr( cur, "fqshift" ).c_str(), 0, 0 );
+                distribution->vspoffset = std::strtoul( getAttr( cur, "vspoffset" ).c_str(), 0, 0 );
+                distribution->vspcount = std::strtoul( getAttr( cur, "vspcount" ).c_str(), 0, 0 );
+            }
         }
         // comment/text
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ||
@@ -478,29 +478,29 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
 
     classification->actionOnMiss            = "";
     classification->actionNameOnMiss        = "";
-	classification->vspNameOnMiss			= "";
+    classification->vspNameOnMiss            = "";
     classification->fragmentationNameOnMiss = "";
     classification->qbase                   = 0;
     classification->key.field               = false;
-	classification->key.header				= false;
-	classification->key.hashTable			= false;
+    classification->key.header                = false;
+    classification->key.hashTable            = false;
     classification->max                     = 0;
     classification->masks                   = false;
-	classification->statistics				= "none";
-	classification->vspOverrideOnMiss		= false;
-	classification->vspBaseOnMiss			= 0;
-	classification->statisticsOnMiss		= false;
+    classification->statistics                = "none";
+    classification->vspOverrideOnMiss        = false;
+    classification->vspBaseOnMiss            = 0;
+    classification->statisticsOnMiss        = false;
 
     // Get known attributes
     classification->name = getAttr( pNode, "name" );
 
     classification->max = std::strtol( getAttr( pNode, "max" ).c_str(), 0, 0 );
 
-	classification->statistics = getAttr( pNode, "statistics" );
-	if (classification->statistics == "")
-	{
-		classification->statistics = "none";
-	}
+    classification->statistics = getAttr( pNode, "statistics" );
+    if (classification->statistics == "")
+    {
+        classification->statistics = "none";
+    }
 
     if ( getAttr( pNode, "masks" ) == "true" || getAttr( pNode, "masks" ) == "yes" ) {
             classification->masks = true;
@@ -509,7 +509,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
     // 'Key presents' flags
     bool nonHeaderFound = false;
     bool fielrefFound   = false;
-	bool hashTableFound = false;
+    bool hashTableFound = false;
 
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
@@ -522,12 +522,12 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
 
             while ( 0 != fr ) {
                 if ( !xmlStrcmp( fr->name, (const xmlChar*)"fieldref" ) ) {
-                    if (nonHeaderFound)
+                    if ( nonHeaderFound )
                     {
                          throw CGenericError( ERR_NH_FIELDREF, classification->name );
                     }
 
-					 if (hashTableFound)
+                    if ( hashTableFound )
                     {
                          throw CGenericError( ERR_HT_FIELDREF, classification->name );
                     }
@@ -536,24 +536,25 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                     parseFieldRef( &fieldref, fr );
                     classification->key.fields.push_back( fieldref );
                     classification->key.header = true;
-					classification->key.hashTable = false;
-                    if (fieldref.size > 0 || fieldref.offset > 0)
+                    classification->key.hashTable = false;
+                    if (fieldref.size > 0 || fieldref.offset > 0) {
                         classification->key.field = true;
+                    }
                     fielrefFound = true;
                 }
 
                 if ( !xmlStrcmp( fr->name, (const xmlChar*)"nonheader" ) ) {
-                    if (fielrefFound)
+                    if ( fielrefFound )
                     {
                         throw CGenericError( ERR_NH_FIELDREF, classification->name );
                     }
 
-                    if (nonHeaderFound)
+                    if ( nonHeaderFound )
                     {
                         throw CGenericError( ERR_NH_ONE_ENTRY, classification->name );
                     }
 
-					 if (hashTableFound)
+                    if ( hashTableFound )
                     {
                         throw CGenericError( ERR_HT_NONHEADER, classification->name );
                     }
@@ -563,13 +564,13 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                     if (nonHeaderEntry.size > MAX_SIZE_OF_KEY)
                         throw CGenericError( ERR_NH_KEY_SIZE, MAX_SIZE_OF_KEY, classification->name);
                     classification->key.nonHeaderEntry = nonHeaderEntry;
-					classification->key.hashTable = false;
+                    classification->key.hashTable = false;
                     classification->key.header = false;
-					classification->key.field = false;
+                    classification->key.field = false;
                     nonHeaderFound = true;
                 }
 
-				 if ( !xmlStrcmp( fr->name, (const xmlChar*)"hashtable" ) ) {
+                 if ( !xmlStrcmp( fr->name, (const xmlChar*)"hashtable" ) ) {
                     if (fielrefFound)
                     {
                         throw CGenericError( ERR_HT_FIELDREF, classification->name );
@@ -580,7 +581,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                         throw CGenericError( ERR_HT_NONHEADER, classification->name );
                     }
 
-					 if (hashTableFound)
+                     if (hashTableFound)
                     {
                         throw CGenericError( ERR_HT_ONE_ENTRY, classification->name );
                     }
@@ -589,8 +590,8 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                     parseHashTable( &hashTableEntry, fr );
                     classification->key.hashTableEntry = hashTableEntry;
                     classification->key.hashTable = true;
-					classification->key.header = false;
-					classification->key.field = false;
+                    classification->key.header = false;
+                    classification->key.field = false;
                     hashTableFound = true;
                 }
 
@@ -605,9 +606,9 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
             ce.qbase = 0x00;
             ce.fragmentationName = "";
             ce.headerManipName   = "";
-			ce.action = "";
-			ce.actionName = "";
-			ce.statistics = false;
+            ce.action = "";
+            ce.actionName = "";
+            ce.statistics = false;
 
             // Calculate entry index
             if ( !getAttr( cur, "index" ).empty() ) {
@@ -678,18 +679,18 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                     // Get the 'name' attribute of the header manipulation
                     ce.headerManipName = stripBlanks( getAttr( pr, "name" ) );
                 }
-				else if ( !xmlStrcmp( pr->name, (const xmlChar*)"vsp" ) ) {
+                else if ( !xmlStrcmp( pr->name, (const xmlChar*)"vsp" ) ) {
                     // Get the 'name' attribute of the fragmentation
                     ce.vspName = stripBlanks( getAttr( pr, "name" ) );
                 }
                 else if ( !xmlStrcmp( pr->name, (const xmlChar*)"action" ) ) {
                     ce.action     = stripBlanks( getAttr( pr, "type" ) );
                     ce.actionName = stripBlanks( getAttr( pr, "name" ) );
-					std::string text = stripBlanks( getAttr( cur, "statistics" ) );
-					if (text == "yes" || text == "true" || text == "enable")
-						ce.statistics = true;
-					else
-						ce.statistics = false;
+                    std::string text = stripBlanks( getAttr( cur, "statistics" ) );
+                    if (text == "yes" || text == "true" || text == "enable")
+                        ce.statistics = true;
+                    else
+                        ce.statistics = false;
                 }
 
                 pr = pr->next;
@@ -713,19 +714,19 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
             classification->actionOnMiss     = stripBlanks( getAttr( cur, "type" ) );
             classification->actionNameOnMiss = stripBlanks( getAttr( cur, "name" ) );
 
-			std::string text = stripBlanks( getAttr( cur, "statistics" ) );
+            std::string text = stripBlanks( getAttr( cur, "statistics" ) );
             if (text == "yes" || text == "true" || text == "enable")
                 classification->statisticsOnMiss = true;
             else
                 classification->statisticsOnMiss = false;
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"vsp" ) ) {
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"vsp" ) ) {
             //VSP for the on-miss case
             checkUnknownAttr( cur, 2, "name", "base" );
 
-			classification->vspOverrideOnMiss = true;
-			classification->vspNameOnMiss = getAttr( cur, "name" );
-			classification->vspBaseOnMiss = std::strtoul( getAttr( cur, "base" ).c_str(), 0, 0 );
+            classification->vspOverrideOnMiss = true;
+            classification->vspNameOnMiss = getAttr( cur, "name" );
+            classification->vspBaseOnMiss = std::strtoul( getAttr( cur, "base" ).c_str(), 0, 0 );
         }
         // fragmentation
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"fragmentation" ) ) {
@@ -904,9 +905,9 @@ CPCDReader::parseHashTable( CHashTable* hashTable, xmlNodePtr pNode )
 
     checkUnknownAttr( pNode, 3, "mask", "hashshift", "keysize" );
 
-	hashTable->mask				= std::strtoul( getAttr( pNode, "mask" ).c_str(), 0, 0 );
-	hashTable->hashShift        = std::strtoul( getAttr( pNode, "hashshift" ).c_str(), 0, 0 );
-	hashTable->keySize			= std::strtoul( getAttr( pNode, "keysize" ).c_str(), 0, 0 );
+    hashTable->mask                = std::strtoul( getAttr( pNode, "mask" ).c_str(), 0, 0 );
+    hashTable->hashShift        = std::strtoul( getAttr( pNode, "hashshift" ).c_str(), 0, 0 );
+    hashTable->keySize            = std::strtoul( getAttr( pNode, "keysize" ).c_str(), 0, 0 );
 
     return;
 }
@@ -1400,7 +1401,7 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
             headerManip->remove = true;
             parseHeaderRemove( &headerManip->hdrRemove, cur );
         }
-		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"nextmanip" ) ) {
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"nextmanip" ) ) {
             headerManip->nextManip = stripBlanks( getAttr( cur, "name" ) );
         }
         // comment
@@ -1461,28 +1462,28 @@ CPCDReader::parseManipulations( xmlNodePtr pNode )
 void
 CPCDReader::parseVsp( CVsp* vsp, xmlNodePtr pNode )
 {
-	if ( xmlStrcmp( pNode->name, (const xmlChar*)"vsp" ) ) {
+    if ( xmlStrcmp( pNode->name, (const xmlChar*)"vsp" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
-	
-	checkUnknownAttr( pNode, 6, "name", "type", "base", "fqshift", "vspoffset", "vspcount" );
+    
+    checkUnknownAttr( pNode, 6, "name", "type", "base", "fqshift", "vspoffset", "vspcount" );
 
-	vsp->name = getAttr( pNode, "name" );
+    vsp->name = getAttr( pNode, "name" );
 
-	std::string type = getAttr( pNode, "type" );
-	if (type == "indirect")
-	{
-		vsp->direct = false;
-	}
-	else
-	{
-		vsp->direct = true;
-	}
+    std::string type = getAttr( pNode, "type" );
+    if (type == "indirect")
+    {
+        vsp->direct = false;
+    }
+    else
+    {
+        vsp->direct = true;
+    }
 
-	vsp->base = std::strtoul( getAttr( pNode, "base" ).c_str(), 0, 0 );
-	vsp->fqshift = std::strtoul( getAttr( pNode, "fqshift" ).c_str(), 0, 0 );
-	vsp->vspoffset = std::strtoul( getAttr( pNode, "vspoffset" ).c_str(), 0, 0 );
-	vsp->vspcount = std::strtoul( getAttr( pNode, "vspcount" ).c_str(), 0, 0 );
+    vsp->base = std::strtoul( getAttr( pNode, "base" ).c_str(), 0, 0 );
+    vsp->fqshift = std::strtoul( getAttr( pNode, "fqshift" ).c_str(), 0, 0 );
+    vsp->vspoffset = std::strtoul( getAttr( pNode, "vspoffset" ).c_str(), 0, 0 );
+    vsp->vspcount = std::strtoul( getAttr( pNode, "vspcount" ).c_str(), 0, 0 );
 }
 
 void
@@ -1492,26 +1493,26 @@ CPCDReader::parseReplicator( CReplicator* replicator, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-	checkUnknownAttr( pNode, 2, "name", "max" );
+    checkUnknownAttr( pNode, 2, "name", "max" );
 
-	replicator->name = getAttr( pNode, "name" );
-	replicator->max = std::strtoul( getAttr( pNode, "max" ).c_str(), 0, 0 );
-	
-	// Parse children nodes
+    replicator->name = getAttr( pNode, "name" );
+    replicator->max = std::strtoul( getAttr( pNode, "max" ).c_str(), 0, 0 );
+    
+    // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
     int entry_index = 0;
     while ( 0 != cur ) {
         // entry
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"entry" ) ) {
-			CReplicatorEntry re;
+            CReplicatorEntry re;
             re.qbase = 0x00;
             re.fragmentationName = "";
             re.headerManipName   = "";
-			re.vspName = "";
-			re.action = "";
-			re.actionName = "";
-			re.vspOverride = false;
-			re.vspBase = 0;
+            re.vspName = "";
+            re.action = "";
+            re.actionName = "";
+            re.vspOverride = false;
+            re.vspBase = 0;
 
             // Calculate entry index
             if ( !getAttr( cur, "index" ).empty() ) {
@@ -1534,13 +1535,13 @@ CPCDReader::parseReplicator( CReplicator* replicator, xmlNodePtr pNode )
                     // Get the 'name' attribute of the header manipulation
                     re.headerManipName = stripBlanks( getAttr( pr, "name" ) );
                 }
-				else if ( !xmlStrcmp( pr->name, (const xmlChar*)"vsp" ) ) {
+                else if ( !xmlStrcmp( pr->name, (const xmlChar*)"vsp" ) ) {
                     // Get the 'name' attribute of the vsp
                     re.vspName = stripBlanks( getAttr( pr, "name" ) );
-					checkUnknownAttr( cur, 2, "name", "base" );
+                    checkUnknownAttr( cur, 2, "name", "base" );
 
-					re.vspOverride = true;
-					re.vspBase = std::strtoul( getAttr( pr, "base" ).c_str(), 0, 0 );
+                    re.vspOverride = true;
+                    re.vspBase = std::strtoul( getAttr( pr, "base" ).c_str(), 0, 0 );
                 }
                 else if ( !xmlStrcmp( pr->name, (const xmlChar*)"action" ) ) {
                     re.action     = stripBlanks( getAttr( pr, "type" ) );
@@ -1552,7 +1553,7 @@ CPCDReader::parseReplicator( CReplicator* replicator, xmlNodePtr pNode )
 
             replicator->entries.push_back( re );
         }
-		 // comment/text
+         // comment/text
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ||
                   !xmlStrcmp( cur->name, (const xmlChar*)"text" )  ) {
         }
@@ -1565,15 +1566,15 @@ CPCDReader::parseReplicator( CReplicator* replicator, xmlNodePtr pNode )
         cur = cur->next;
     }
 
-	if (replicator->entries.size() > replicator->max)
-	{
-		replicator->max = replicator->entries.size();
-	}
+    if (replicator->entries.size() > replicator->max)
+    {
+        replicator->max = replicator->entries.size();
+    }
 
-	if (replicator->max < 2)
-	{
-		replicator->max = 2;
-	}
+    if (replicator->max < 2)
+    {
+        replicator->max = 2;
+    }
 }
 
 void CPCDReader::checkUnknownAttr ( xmlNodePtr pNode, int num, ...)

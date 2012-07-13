@@ -68,8 +68,8 @@ public:
     static unsigned int assignIndex( std::vector< Port >&    ports );
     static unsigned int assignIndex( std::vector< Scheme >&  schemes );
     static unsigned int assignIndex( std::vector< CCNode >&  ccnodes );
-	static unsigned int assignIndex( std::vector< HTNode >&  htnodes );
-	static unsigned int assignIndex( std::vector< CRepl >&  repls );
+    static unsigned int assignIndex( std::vector< HTNode >&  htnodes );
+    static unsigned int assignIndex( std::vector< CRepl >&   repls );
     static unsigned int assignIndex( std::vector< Policer >& policers );
 
 private:
@@ -180,8 +180,8 @@ public:
     unsigned int      actionHandleIndex;
 
 #if (DPAA_VERSION >= 11)
-	bool overrideStorageProfile; 
-	t_FmPcdKgStorageProfile storageProfile; 
+    bool                    overrideStorageProfile; 
+    t_FmPcdKgStorageProfile storageProfile; 
 #endif /* (DPAA_VERSION >= 11) */
 
     std::string   port_signature;
@@ -196,7 +196,7 @@ class DistinctionUnitElement
 {
 public:
     e_NetHeaderType hdr;
-  std::string    opt;
+    std::string    opt;
     std::string     hdrStr;
 };
 
@@ -217,10 +217,10 @@ public:
         std::string       doneActionStr;
         unsigned int      actionHandleIndex;
 #if (DPAA_VERSION >= 11)
-		unsigned int	  newRelativeStorageProfileId;
+        unsigned int      newRelativeStorageProfileId;
 #endif /* (DPAA_VERSION >= 11) */
-		bool statistics;
-		e_FmPcdEngine     nextEngineTrueType; //Drivers are using CC for both hash and match table so we cant deferientiate in the final structures between them. We must propagate this.
+        bool statistics;
+        e_FmPcdEngine     nextEngineTrueType; //Drivers are using CC for both hash and match table so we cant deferientiate in the final structures between them. We must propagate this.
     };
     class CCData
     {
@@ -228,12 +228,11 @@ public:
         unsigned char data[FM_PCD_MAX_SIZE_OF_KEY];
     };
 
-public:
     std::string name;                   ///< Node name
 
     unsigned int maxNumOfKeys;          ///< Max number of keys
 
-	e_FmPcdCcStatsMode statistics;      ///< Statistics mode (none/frame)
+    e_FmPcdCcStatsMode statistics;      ///< Statistics mode (none/frame)
 
     bool maskSupport;                   ///< Reservation of memory for key masks
 
@@ -263,7 +262,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 class HTNode : public FMBlock
 {
-	public:
+public:
     class CCNextEngine
     {
     public:
@@ -274,21 +273,21 @@ class HTNode : public FMBlock
         std::string       doneActionStr;
         unsigned int      actionHandleIndex;
 #if (DPAA_VERSION >= 11)
-		unsigned int	  newRelativeStorageProfileId;
+        unsigned int      newRelativeStorageProfileId;
 #endif /* (DPAA_VERSION >= 11) */
-		bool statistics;
-		e_FmPcdEngine     nextEngineTrueType;
+        bool statistics;
+        e_FmPcdEngine     nextEngineTrueType;
     };
-public:
+
     std::string name;                   ///< Node name
 
     unsigned int maxNumOfKeys;          ///< Max number of keys
 
-	e_FmPcdCcStatsMode statistics;      ///< Statistics mode (none/frame)
+    e_FmPcdCcStatsMode statistics;      ///< Statistics mode (none/frame)
 
-	unsigned int hashResMask;			///< Mask that will be used on the hash-result
+    unsigned int hashResMask;           ///< Mask that will be used on the hash-result
     unsigned int matchKeySize;          ///< The key data size in bits
-	unsigned int hashShift;				///< Byte offset from the beginning of the KeyGen hash result to the 2-bytes to be used as hash index.
+    unsigned int hashShift;             ///< Byte offset from the beginning of the KeyGen hash result to the 2-bytes to be used as hash index.
 
     CCNextEngine nextEngineOnMiss;
 
@@ -311,7 +310,7 @@ public:
         std::string       doneActionStr;
         unsigned int      actionHandleIndex;
 #if (DPAA_VERSION >= 11)
-		unsigned int	  newRelativeStorageProfileId;
+        unsigned int      newRelativeStorageProfileId;
 #endif /* (DPAA_VERSION >= 11) */
     };
  
@@ -394,13 +393,13 @@ public:
                                         ///< Schemes used by this port
     std::vector< unsigned int > ccnodes; ///<
                                         ///< Class. nodes used by this port
-	std::vector< unsigned int > htnodes; ///<
+    std::vector< unsigned int > htnodes; ///<
                                         ///< Hash table used by this port
-	std::vector< unsigned int > replicators; ///<
+    std::vector< unsigned int > replicators; ///<
                                         ///< Class. nodes used by this port
     std::vector< unsigned int > cctrees; ///<
                                         ///< Root CC nodes
-	std::vector< e_FmPcdEngine > cctrees_type; ///<
+    std::vector< e_FmPcdEngine > cctrees_type; ///<
                                         ///< Root CC nodes type
     std::vector< unsigned int > hdrmanips; ///<
                                         ///< Header manip for CC nodes
@@ -440,11 +439,11 @@ public:
     std::vector< t_FmPcdManipParams > headerManips;
     std::vector< CInsertData >        insertDatas;
     std::vector< std::string >        headerManips_names;
-	std::vector< bool >				  headerManips_hasNext;
-	std::vector< unsigned int >		  headerManips_nextNanip;
+    std::vector< bool >               headerManips_hasNext;
+    std::vector< unsigned int >       headerManips_nextNanip;
 
 public:
-	unsigned int getHeaderManipIndex(std::string name);
+    unsigned int getHeaderManipIndex(std::string name);
 #endif /* P1023 */
 };
 
@@ -517,21 +516,21 @@ public:
     static std::string      getNetCommHeaderIndexStr( std::string indexstr );
     static e_FmPcdEngine    getEngineByType( std::string enginename );
     static std::string      getEngineByTypeStr( std::string enginename );
-	static e_FmPcdCcStatsMode      getStatistic( std::string statstic );
+    static e_FmPcdCcStatsMode      getStatistic( std::string statstic );
     static e_FmPcdPlcrColor getPlcrColor( std::string color );
     static std::string      getPlcrColorStr( std::string color );
     static bool             isFullFieldForCC( std::string fieldName );
 
 
 public:
-    std::vector< Engine >	all_engines; ///< Engines defined by this configuration
-    std::vector< Port >		all_ports;   ///< Ports defined by this configuration
-    std::vector< Scheme >	all_schemes; ///< Schemes participating in this config
-    std::vector< CCNode >	all_ccnodes; ///< Class. nodes participating in this config
-	std::vector< HTNode >	all_htnodes; ///< Hash table nodes participating in this config
-	std::vector< CRepl >	all_replicators; ///< Replicator nodes participating in this config
-    std::vector< Policer >	all_policers; ///<
-                                        ///< Policers participating in this config
+    std::vector< Engine >  all_engines;     ///< Engines defined by this configuration
+    std::vector< Port >    all_ports;       ///< Ports defined by this configuration
+    std::vector< Scheme >  all_schemes;     ///< Schemes participating in this config
+    std::vector< CCNode >  all_ccnodes;     ///< Class. nodes participating in this config
+    std::vector< HTNode >  all_htnodes;     ///< Hash table nodes participating in this config
+    std::vector< CRepl >   all_replicators; ///< Replicator nodes participating in this config
+    std::vector< Policer > all_policers;    ///<
+                                            ///< Policers participating in this config
     t_FmPcdPrsSwParams swPrs;
     bool               spEnable;
     unsigned char      spCode[MAX_CODE_SIZE];
@@ -544,8 +543,8 @@ private:
     Scheme&  createScheme( const CTaskDef* pTaskDef, Port& port, const CDistribution& xmlDist,
                            bool isDirect );
     CCNode&  createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode );
-	HTNode&  createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode );
-	CRepl&   createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplicator& xmlRepl );
+    HTNode&  createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode );
+    CRepl&   createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplicator& xmlRepl );
     Policer& createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& xmlPolicer );
     void     createSoftParse( const CTaskDef* pTaskDef );
 
@@ -553,10 +552,10 @@ private:
                                    std::string from, Port& port, bool isDirect );
     unsigned int get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
                                    std::string from, Port& port, bool isRoot, unsigned int manip = 0 );
-	unsigned int get_htnode_index( const CTaskDef* pTaskDef, std::string name,
+    unsigned int get_htnode_index( const CTaskDef* pTaskDef, std::string name,
                                    std::string from, Port& port, bool isRoot, unsigned int manip = 0 );
-	unsigned int get_replicator_index( const CTaskDef* pTaskDef, std::string name,
-                                   std::string from, Port& port, unsigned int manip = 0 );
+    unsigned int get_replicator_index( const CTaskDef* pTaskDef, std::string name,
+                                       std::string from, Port& port, unsigned int manip = 0 );
     unsigned int get_policer_index( const CTaskDef* pTaskDef, std::string name,
                                     std::string from, Port& port );
 };
