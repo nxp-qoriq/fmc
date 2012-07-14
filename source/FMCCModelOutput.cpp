@@ -178,8 +178,8 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
     }
     OUT_EMPTY;
     // Output apply order
-    EMIT2( ao_count =, model.applier.size() )
-    for ( int i = cmodel->ao_count - 1; i >= 0; --i ) {
+    EMIT2( apply_order_count =, model.applier.size() )
+    for ( int i = cmodel->apply_order_count - 1; i >= 0; --i ) {
         output_fmc_applier( model, cmodel, i, oss, indent );
     }
 
@@ -1385,8 +1385,8 @@ CFMCCModelOutput::output_fmc_applier( const CFMCModel& model, fmc_model_t* cmode
 {
     ApplyOrder::Entry e = model.applier.get( index );
 
-    cmodel->ao[cmodel->ao_count - index - 1].type  = get_fmc_type( e.type );
-    cmodel->ao[cmodel->ao_count - index - 1].index = e.index;
+    cmodel->apply_order[cmodel->apply_order_count - index - 1].type  = get_fmc_type( e.type );
+    cmodel->apply_order[cmodel->apply_order_count - index - 1].index = e.index;
 
     if ( e.type == ApplyOrder::EngineStart ) {
         current_engine = e.index;
@@ -1395,7 +1395,7 @@ CFMCCModelOutput::output_fmc_applier( const CFMCModel& model, fmc_model_t* cmode
     oss << ind( indent )
         << "FMC_APPLY_ORDER("
         << std::setfill(' ') << std::setw( 3 )
-        << cmodel->ao_count - index - 1
+        << cmodel->apply_order_count - index - 1
         << ", "
         << get_fmc_type_str( e.type )
         << ","

@@ -143,8 +143,8 @@ typedef enum fmc_apply_order_e {
 
 
 typedef struct fmc_apply_order_t {
-    fmc_apply_order_e   type;
-    unsigned int        index;
+    fmc_apply_order_e type;
+    unsigned int      index;
 } fmc_apply_order;
 
 
@@ -204,8 +204,8 @@ typedef struct fmc_model_t {
     t_Handle                 policer_handle      [FMC_PLC_NUM];
     unsigned int             policer_action_index[FMC_PLC_NUM][3];
 
-    unsigned int             ao_count;               ///< Number of 'apply order' elements
-    fmc_apply_order          ao[FMC_FMAN_NUM*FMC_PORTS_PER_FMAN*(FMC_SCHEMES_NUM+FMC_CC_NODES_NUM)];
+    unsigned int             apply_order_count;               ///< Number of 'apply order' elements
+    fmc_apply_order          apply_order[FMC_FMAN_NUM*FMC_PORTS_PER_FMAN*(FMC_SCHEMES_NUM+FMC_CC_NODES_NUM)];
 } fmc_model;
 
 

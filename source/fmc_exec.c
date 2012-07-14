@@ -99,10 +99,10 @@ fmc_execute( fmc_model* model )
         return 0xFFFFFFFF;
     }
 
-    for ( i = 0; i < model->ao_count; i++ ) {
-        switch ( model->ao[i].type ) {
+    for ( i = 0; i < model->apply_order_count; i++ ) {
+        switch ( model->apply_order[i].type ) {
             case FMCEngineStart:
-                current_engine        = model->ao[i].index;
+                current_engine        = model->apply_order[i].index;
                 relative_scheme_index = 0;
                 ret = fmc_exec_engine_start( model, current_engine,
                                              &relative_scheme_index );
@@ -111,7 +111,7 @@ fmc_execute( fmc_model* model )
                 ret = fmc_exec_engine_end( model, current_engine );
                 break;
             case FMCPortStart:
-                current_port = model->ao[i].index;
+                current_port = model->apply_order[i].index;
                 ret = fmc_exec_port_start( model, current_engine, current_port );
                 break;
             case FMCPortEnd:
@@ -119,27 +119,27 @@ fmc_execute( fmc_model* model )
                 break;
             case FMCScheme:
                 ret = fmc_exec_scheme( model, current_engine, current_port,
-                                       model->ao[i].index, relative_scheme_index++ );
+                                       model->apply_order[i].index, relative_scheme_index++ );
                 break;
             case FMCCCNode:
-                ret = fmc_exec_ccnode( model, current_engine, model->ao[i].index );
+                ret = fmc_exec_ccnode( model, current_engine, model->apply_order[i].index );
                 break;
             case FMCHTNode:
-                ret = fmc_exec_htnode( model, current_engine, model->ao[i].index );
+                ret = fmc_exec_htnode( model, current_engine, model->apply_order[i].index );
                 break;
 #if (DPAA_VERSION >= 11)
             case FMCReplicator:
-                ret = fmc_exec_replicator( model, current_engine, model->ao[i].index );
+                ret = fmc_exec_replicator( model, current_engine, model->apply_order[i].index );
                 break;
 #endif /* (DPAA_VERSION >= 11) */
             case FMCCCTree:
-                ret = fmc_exec_cctree( model, current_engine, model->ao[i].index );
+                ret = fmc_exec_cctree( model, current_engine, model->apply_order[i].index );
                 break;
             case FMCPolicer:
-                ret = fmc_exec_policer( model, current_engine, model->ao[i].index );
+                ret = fmc_exec_policer( model, current_engine, model->apply_order[i].index );
                 break;
             case FMCManipulation:
-                ret = fmc_exec_manip( model, current_engine, model->ao[i].index );
+                ret = fmc_exec_manip( model, current_engine, model->apply_order[i].index );
                 break;
             default:
                 break;
@@ -168,45 +168,45 @@ fmc_clean( fmc_model* model )
         return 0xFFFFFFFF;
     }
 
-    for ( j = 0; j < model->ao_count; j++ ) {
+    for ( j = 0; j < model->apply_order_count; j++ ) {
         // Clean entities in reverse order of applying
-        i = model->ao_count - j - 1;
-        switch ( model->ao[i].type ) {
+        i = model->apply_order_count - j - 1;
+        switch ( model->apply_order[i].type ) {
             case FMCEngineStart:
-                current_engine = model->ao[i].index;
+                current_engine = model->apply_order[i].index;
                 ret = fmc_clean_engine_start( model, current_engine );
                 break;
             case FMCEngineEnd:
-                current_engine = model->ao[i].index;
+                current_engine = model->apply_order[i].index;
                 ret = fmc_clean_engine_end( model, current_engine );
                 break;
             case FMCPortStart:
-                current_port = model->ao[i].index;
+                current_port = model->apply_order[i].index;
                 ret = fmc_clean_port_start( model, current_engine, current_port );
                 break;
             case FMCPortEnd:
-                current_port = model->ao[i].index;
+                current_port = model->apply_order[i].index;
                 ret = fmc_clean_port_end( model, current_engine, current_port );
                 break;
             case FMCScheme:
                 ret = fmc_clean_scheme( model, current_engine, current_port,
-                                        model->ao[i].index );
+                                        model->apply_order[i].index );
                 break;
             case FMCCCNode:
-                ret = fmc_clean_ccnode( model, current_engine, model->ao[i].index );
+                ret = fmc_clean_ccnode( model, current_engine, model->apply_order[i].index );
                 break;
             case FMCHTNode:
-                ret = fmc_clean_htnode( model, current_engine, model->ao[i].index );
+                ret = fmc_clean_htnode( model, current_engine, model->apply_order[i].index );
                 break;
             case FMCCCTree:
-                ret = fmc_clean_cctree( model, current_engine, model->ao[i].index );
+                ret = fmc_clean_cctree( model, current_engine, model->apply_order[i].index );
                 break;
             case FMCPolicer:
-                ret = fmc_clean_policer( model, current_engine, model->ao[i].index );
+                ret = fmc_clean_policer( model, current_engine, model->apply_order[i].index );
                 break;
 #if DPAA_VERSION >= 11
             case FMCReplicator:
-                ret = fmc_clean_replicator( model, current_engine, model->ao[i].index );
+                ret = fmc_clean_replicator( model, current_engine, model->apply_order[i].index );
                 break;
 #endif /* DPAA_VERSION >= 11 */
             default:
