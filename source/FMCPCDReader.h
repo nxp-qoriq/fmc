@@ -36,8 +36,13 @@ public:
     void parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode );
     void parseReassembly( CReassembly* reassembly, xmlNodePtr pNode );
     void parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode );
-    void parseHeaderInsert( CHeaderInsert* headerInsert, xmlNodePtr pNode );
-    void parseHeaderRemove( CHeaderRemove* headerRemove, xmlNodePtr pNode );
+    void parseInsert( CInsert* insert, xmlNodePtr pNode );
+    void parseRemove( CRemove* remove, xmlNodePtr pNode );
+
+	void parseInsertHeader( CInsertHeader* headerInsert, xmlNodePtr pNode );
+	void parseRemoveHeader( CRemoveHeader* headerRemove, xmlNodePtr pNode );
+	void parseUpdate( CUpdate* update, xmlNodePtr pNode );
+
     void parseReplicator( CReplicator* replicator, xmlNodePtr pNode );
     void parseVsp( CVsp* vsp, xmlNodePtr pNode );
 

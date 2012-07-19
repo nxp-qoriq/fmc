@@ -338,9 +338,17 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
                 headerit->second.hdrInsert.data[FM_PCD_MAX_SIZE_OF_KEY - headerit->second.hdrInsert.size + j];
         }
 
-        hdr.u.hdr.rmvParams.type             = e_FM_PCD_MANIP_RMV_GENERIC;
-        hdr.u.hdr.rmvParams.u.generic.size   = headerit->second.hdrRemove.size;
-        hdr.u.hdr.rmvParams.u.generic.offset = headerit->second.hdrRemove.offset;
+		if (headerit->second.removeHeader)
+		{
+			hdr.u.hdr.rmvParams.type             = e_FM_PCD_MANIP_RMV_BY_HDR;
+			hdr.u.hdr.rmvParams.u.byHdr.type     = e_FM_PCD_MANIP_RMV_BY_HDR_SPECIFIC_L2;
+		}
+		else
+		{
+			hdr.u.hdr.rmvParams.type             = e_FM_PCD_MANIP_RMV_GENERIC;
+			hdr.u.hdr.rmvParams.u.generic.size   = headerit->second.hdrRemove.size;
+			hdr.u.hdr.rmvParams.u.generic.offset = headerit->second.hdrRemove.offset;
+		}
 
         engine.headerManips.push_back( hdr );
         engine.insertDatas.push_back( insertData );

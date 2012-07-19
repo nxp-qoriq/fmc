@@ -686,7 +686,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                 else if ( !xmlStrcmp( pr->name, (const xmlChar*)"action" ) ) {
                     ce.action     = stripBlanks( getAttr( pr, "type" ) );
                     ce.actionName = stripBlanks( getAttr( pr, "name" ) );
-                    std::string text = stripBlanks( getAttr( cur, "statistics" ) );
+                    std::string text = stripBlanks( getAttr( pr, "statistics" ) );
                     if (text == "yes" || text == "true" || text == "enable")
                         ce.statistics = true;
                     else
@@ -1279,25 +1279,25 @@ CPCDReader::parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode 
 }
 
 void
-CPCDReader::parseHeaderInsert( CHeaderInsert* headerInsert, xmlNodePtr pNode )
+CPCDReader::parseInsert( CInsert* insert, xmlNodePtr pNode )
 {
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"size" ) ) {
             std::string text = getXMLElement( cur );
-            headerInsert->size = std::strtol( text.c_str(), 0, 0 );
+            insert->size = std::strtol( text.c_str(), 0, 0 );
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"offset" ) ) {
             std::string text = getXMLElement( cur );
-            headerInsert->offset = std::strtol( text.c_str(), 0, 0 );
+            insert->offset = std::strtol( text.c_str(), 0, 0 );
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"replace" ) ) {
             std::string text = getXMLElement( cur );
             if (text == "yes" || text == "true")
-                headerInsert->replace = true;
+                insert->replace = true;
             else
-                headerInsert->replace = false;
+                insert->replace = false;
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"data" ) ) {
                     std::string data = stripBlanks( (const char*)cur->children->content );
@@ -1308,7 +1308,7 @@ CPCDReader::parseHeaderInsert( CHeaderInsert* headerInsert, xmlNodePtr pNode )
 
                     // Convert data to numeric array
                     data = data.substr( 2 );
-                    int index = sizeof( headerInsert->data );
+                    int index = sizeof( insert->data );
                     while ( data.length() > 0 && index >= 1 ) {
                         std::string tmp;
                         if ( data.length() > 1 ) {
@@ -1319,7 +1319,7 @@ CPCDReader::parseHeaderInsert( CHeaderInsert* headerInsert, xmlNodePtr pNode )
                             tmp  = "0x" + data;
                             data = "";
                         }
-                        headerInsert->data[--index] = (char)std::strtol( tmp.c_str(), 0, 0 );
+                        insert->data[--index] = (char)std::strtol( tmp.c_str(), 0, 0 );
                     }
                 }
         // comment
@@ -1336,18 +1336,18 @@ CPCDReader::parseHeaderInsert( CHeaderInsert* headerInsert, xmlNodePtr pNode )
 }
 
 void
-CPCDReader::parseHeaderRemove( CHeaderRemove* headerRemove, xmlNodePtr pNode )
+CPCDReader::parseRemove( CRemove* remove, xmlNodePtr pNode )
 {
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"size" ) ) {
             std::string text = getXMLElement( cur );
-            headerRemove->size = std::strtol( text.c_str(), 0, 0 );
+            remove->size = std::strtol( text.c_str(), 0, 0 );
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"offset" ) ) {
             std::string text = getXMLElement( cur );
-            headerRemove->offset = std::strtol( text.c_str(), 0, 0 );
+            remove->offset = std::strtol( text.c_str(), 0, 0 );
         }
         // comment
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
@@ -1363,21 +1363,134 @@ CPCDReader::parseHeaderRemove( CHeaderRemove* headerRemove, xmlNodePtr pNode )
 }
 
 void
+CPCDReader::parseInsertHeader( CInsertHeader* headerInsert, xmlNodePtr pNode )
+{
+    checkUnknownAttr( pNode, 2, "type", "header_index" );
+
+    headerInsert->type = getAttr( pNode, "type" );
+	headerInsert->header_index = std::strtoul( getAttr( pNode, "header_index" ).c_str(), 0, 0 );
+
+	xmlNodePtr cur = pNode->xmlChildrenNode;
+    while ( 0 != cur ) {
+		if ( !xmlStrcmp( cur->name, (const xmlChar*)"data" ) ) {
+            std::string data = stripBlanks( (const char*)cur->children->content );
+            if ( data.length() < 3 || data.substr( 0, 2 ) != "0x" ) {
+                throw CGenericError( ERR_INVALID_ENTRY_DATA,
+                                     "header manipulation insert" );
+            }
+
+            // Convert data to numeric array
+            data = data.substr( 2 );
+            int index = sizeof( headerInsert->data );
+            while ( data.length() > 0 && index >= 1 ) {
+                std::string tmp;
+                if ( data.length() > 1 ) {
+                    tmp  = "0x" + data.substr( data.length() - 2, 2 );
+                    data = data.substr( 0, data.length() - 2 );
+                }
+                else {
+                    tmp  = "0x" + data;
+                    data = "";
+                }
+                headerInsert->data[--index] = (char)std::strtol( tmp.c_str(), 0, 0 );
+            }
+        }
+		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"field" ) ) {
+			CInsertField field;
+			field.type = getAttr( cur, "type" );
+			field.value = getAttr( cur, "value" );
+			
+			headerInsert->fields.push_back(field);
+        }
+        // comment
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
+        }
+        // other
+        else
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
+
+
+	    cur = cur->next;
+    }
+}
+
+void
+CPCDReader::parseRemoveHeader( CRemoveHeader* headerRemove, xmlNodePtr pNode )
+{
+    checkUnknownAttr( pNode, 1, "type" );
+
+    headerRemove->type = getAttr( pNode, "type" );
+}
+
+void
+CPCDReader::parseUpdate( CUpdate* update, xmlNodePtr pNode )
+{
+    checkUnknownAttr( pNode, 1, "type" );
+
+    update->type = getAttr( pNode, "type" );
+
+	xmlNodePtr cur = pNode->xmlChildrenNode;
+    while ( 0 != cur ) {
+		if ( !xmlStrcmp( cur->name, (const xmlChar*)"field" ) ) {
+			CUpdateField field;
+			field.type = getAttr( cur, "type" );
+			field.value = getAttr( cur, "value" );
+			field.index = std::strtoul( getAttr( pNode, "index" ).c_str(), 0, 0 );
+			if (field.index == 0)
+				field.index = 1;
+
+			field.fill = false;
+			field.fillValue = 0;
+			std::string text = getAttr( pNode, "fill" );
+			if (text != "")
+			{
+				field.fill = true;
+				field.fillValue = std::strtoul( text.c_str(), 0, 0 );
+			}
+			
+			update->fields.push_back(field);
+        }
+        // comment
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
+        }
+        // other
+        else
+            CGenericErrorLine::printWarning( WARN_UNEXPECTED_NODE,
+                                             xmlGetLineNo( cur ),
+                                             (char*)cur->name );
+
+
+	    cur = cur->next;
+    }
+}
+
+void
 CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode )
 {
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"header" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
+	//Fill the default values.
     headerManip->name              = "";
     headerManip->insert            = false;
     headerManip->remove            = false;
+	headerManip->insertHeader      = false;
+	headerManip->removeHeader      = false;
+	headerManip->update            = false;
     headerManip->hdrInsert.size    = 0;
     headerManip->hdrInsert.offset  = 0;
     headerManip->hdrInsert.replace = false;
     headerManip->hdrRemove.size    = 0;
     headerManip->hdrRemove.offset  = 0;
+	headerManip->hdrInsertHeader.type = "";
+	headerManip->hdrInsertHeader.header_index = 1;
+	headerManip->hdrRemoveHeader.type = "";
+	headerManip->hdrUpdate.type = "";
     memset( headerManip->hdrInsert.data, 0x00, sizeof( headerManip->hdrInsert.data ) );
+	memset( headerManip->hdrInsertHeader.data, 0x00, sizeof( headerManip->hdrInsertHeader.data ) );
 
     checkUnknownAttr( pNode, 2, "name", "parse" );
 
@@ -1395,11 +1508,23 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
         // action
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"insert" ) ) {
             headerManip->insert = true;
-            parseHeaderInsert( &headerManip->hdrInsert, cur );
+            parseInsert( &headerManip->hdrInsert, cur );
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"remove" ) ) {
             headerManip->remove = true;
-            parseHeaderRemove( &headerManip->hdrRemove, cur );
+            parseRemove( &headerManip->hdrRemove, cur );
+        }
+		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"insert_header" ) ) {
+			headerManip->insertHeader = true;
+            parseInsertHeader( &headerManip->hdrInsertHeader, cur );
+        }
+		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"remove_header" ) ) {
+            headerManip->removeHeader = true;
+            parseRemoveHeader( &headerManip->hdrRemoveHeader, cur );
+        }
+		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"update" ) ) {
+            headerManip->update = true;
+            parseUpdate( &headerManip->hdrUpdate, cur );
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"nextmanip" ) ) {
             headerManip->nextManip = stripBlanks( getAttr( cur, "name" ) );

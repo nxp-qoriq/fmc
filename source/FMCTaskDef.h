@@ -547,7 +547,7 @@ class CReassembly
     unsigned int timeoutThreshold;
 };
 
-class CHeaderInsert
+class CInsert
 {
  public:
     unsigned int size;
@@ -556,11 +556,50 @@ class CHeaderInsert
     char data[MAX_INSERT_SIZE];
 };
 
-class CHeaderRemove
+class CRemove
 {
  public:
    unsigned int size;
    unsigned int offset;
+};
+
+class CInsertField
+{
+public:
+   std::string type;
+   std::string value;
+};
+
+class CInsertHeader
+{
+ public:
+   std::string type;
+   unsigned int header_index;
+   char data[MAX_INSERT_SIZE];	
+   std::vector < CInsertField > fields;
+};
+
+class CRemoveHeader
+{
+ public:
+   std::string type;
+};
+
+class CUpdateField
+{
+public:
+   std::string type;
+   std::string value;
+   bool fill;
+   unsigned int fillValue;
+   unsigned int index;
+};
+
+class CUpdate
+{
+ public:
+   std::string type;
+   std::vector < CUpdateField > fields;
 };
 
 class CHeaderManip
@@ -570,8 +609,14 @@ class CHeaderManip
     bool parse;
     bool insert;
     bool remove;
-    CHeaderInsert hdrInsert;
-    CHeaderRemove hdrRemove;
+	bool insertHeader;
+	bool removeHeader;
+	bool update;
+    CInsert hdrInsert;
+    CRemove hdrRemove;
+	CInsertHeader hdrInsertHeader;
+	CRemoveHeader hdrRemoveHeader;
+	CUpdate hdrUpdate;
     std::string   nextManip;
 };
 
