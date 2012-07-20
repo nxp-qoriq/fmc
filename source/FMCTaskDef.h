@@ -614,7 +614,7 @@ class CHeaderManip
 	bool update;
     CInsert hdrInsert;
     CRemove hdrRemove;
-	CInsertHeader hdrInsertHeader;
+	CInsertHeader hdrInsertHeader[2];
 	CRemoveHeader hdrRemoveHeader;
 	CUpdate hdrUpdate;
     std::string   nextManip;

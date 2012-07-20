@@ -1437,13 +1437,13 @@ CPCDReader::parseUpdate( CUpdate* update, xmlNodePtr pNode )
 			CUpdateField field;
 			field.type = getAttr( cur, "type" );
 			field.value = getAttr( cur, "value" );
-			field.index = std::strtoul( getAttr( pNode, "index" ).c_str(), 0, 0 );
+			field.index = std::strtoul( getAttr( cur, "index" ).c_str(), 0, 0 );
 			if (field.index == 0)
 				field.index = 1;
 
 			field.fill = false;
 			field.fillValue = 0;
-			std::string text = getAttr( pNode, "fill" );
+			std::string text = getAttr( cur, "fill" );
 			if (text != "")
 			{
 				field.fill = true;
@@ -1485,12 +1485,15 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
     headerManip->hdrInsert.replace = false;
     headerManip->hdrRemove.size    = 0;
     headerManip->hdrRemove.offset  = 0;
-	headerManip->hdrInsertHeader.type = "";
-	headerManip->hdrInsertHeader.header_index = 1;
+	headerManip->hdrInsertHeader[0].type = "";
+	headerManip->hdrInsertHeader[0].header_index = 1;
+	headerManip->hdrInsertHeader[1].type = "";
+	headerManip->hdrInsertHeader[1].header_index = 1;
 	headerManip->hdrRemoveHeader.type = "";
 	headerManip->hdrUpdate.type = "";
     memset( headerManip->hdrInsert.data, 0x00, sizeof( headerManip->hdrInsert.data ) );
-	memset( headerManip->hdrInsertHeader.data, 0x00, sizeof( headerManip->hdrInsertHeader.data ) );
+	memset( headerManip->hdrInsertHeader[0].data, 0x00, sizeof( headerManip->hdrInsertHeader[0].data ) );
+	memset( headerManip->hdrInsertHeader[1].data, 0x00, sizeof( headerManip->hdrInsertHeader[1].data ) );
 
     checkUnknownAttr( pNode, 2, "name", "parse" );
 
@@ -1516,7 +1519,13 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
         }
 		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"insert_header" ) ) {
 			headerManip->insertHeader = true;
-            parseInsertHeader( &headerManip->hdrInsertHeader, cur );
+			CInsertHeader hdrForInsert;
+            parseInsertHeader( &hdrForInsert, cur );
+
+			if (hdrForInsert.header_index >= 1 && hdrForInsert.header_index <= 2)
+			{
+				headerManip->hdrInsertHeader[hdrForInsert.header_index - 1] = hdrForInsert;
+			}
         }
 		else if ( !xmlStrcmp( cur->name, (const xmlChar*)"remove_header" ) ) {
             headerManip->removeHeader = true;

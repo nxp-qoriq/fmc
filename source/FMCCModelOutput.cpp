@@ -303,6 +303,10 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
             model.all_engines[index].headerManips[i].u.hdr.insrt );
         EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .rmv =,
             model.all_engines[index].headerManips[i].u.hdr.rmv );
+		EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .fieldUpdate =,
+			model.all_engines[index].headerManips[i].u.hdr.fieldUpdate );
+		EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .custom =,
+            model.all_engines[index].headerManips[i].u.hdr.custom );
         EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr, .dontParseAfterManip =,
             model.all_engines[index].headerManips[i].u.hdr.dontParseAfterManip );
 
@@ -331,12 +335,28 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 
         if ( model.all_engines[index].headerManips[i].u.hdr.rmv )
         {
-            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams, .type =,
+			EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams, .type =,
                 model.all_engines[index].headerManips[i].u.hdr.rmvParams.type );
-            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams.u.generic, .size =,
-                (int)model.all_engines[index].headerManips[i].u.hdr.rmvParams.u.generic.size );
-            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams.u.generic, .offset =,
-                (int)model.all_engines[index].headerManips[i].u.hdr.rmvParams.u.generic.offset );
+
+			if ( model.all_engines[index].headerManips[i].u.hdr.rmvParams.type == e_FM_PCD_MANIP_RMV_GENERIC)
+			{
+				 EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams.u.generic, .size =,
+                     (int)model.all_engines[index].headerManips[i].u.hdr.rmvParams.u.generic.size );
+                 EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams.u.generic, .offset =,
+                     (int)model.all_engines[index].headerManips[i].u.hdr.rmvParams.u.generic.offset );
+			}
+			else {
+                 EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams.u.byHdr, .type =,
+					 model.all_engines[index].headerManips[i].u.hdr.rmvParams.u.byHdr.type );
+                 EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.rmvParams.u.byHdr.u, .specificL2 =,
+					 model.all_engines[index].headerManips[i].u.hdr.rmvParams.u.byHdr.u.specificL2 );
+			}
+        }
+
+		if ( model.all_engines[index].headerManips[i].u.hdr.fieldUpdate )
+        {
+			EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams, .type =,
+				model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.type );
         }
 
         if ( model.all_engines[index].headerManips_hasNext[i] ) {

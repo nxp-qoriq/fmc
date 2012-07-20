@@ -320,36 +320,50 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
     std::map< std::string, CHeaderManip >::const_iterator headerit;
     for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
         t_FmPcdManipParams hdr;
+		Engine::CInsertData insertData;
         hdr.h_NextManip                                         = 0;
         hdr.type                                                = e_FM_PCD_MANIP_HDR;
 
-        hdr.u.hdr.insrt = headerit->second.insert;
-        hdr.u.hdr.rmv   = headerit->second.remove;
+        hdr.u.hdr.insrt = headerit->second.insert || headerit->second.insertHeader;
+        hdr.u.hdr.rmv   = headerit->second.remove || headerit->second.removeHeader;
+		hdr.u.hdr.fieldUpdate = headerit->second.update;
+		hdr.u.hdr.custom   = false;
         hdr.u.hdr.dontParseAfterManip = !headerit->second.parse;
 
-        hdr.u.hdr.insrtParams.type              = e_FM_PCD_MANIP_INSRT_GENERIC;
-        hdr.u.hdr.insrtParams.u.generic.size    = headerit->second.hdrInsert.size;
-        hdr.u.hdr.insrtParams.u.generic.offset  = headerit->second.hdrInsert.offset;
-        hdr.u.hdr.insrtParams.u.generic.replace = headerit->second.hdrInsert.replace;
-
-        Engine::CInsertData insertData;
-        for ( unsigned int j = 0; j < headerit->second.hdrInsert.size; ++j ) {
-            insertData.data[j] =
-                headerit->second.hdrInsert.data[FM_PCD_MAX_SIZE_OF_KEY - headerit->second.hdrInsert.size + j];
-        }
-
-		if (headerit->second.removeHeader)
+		if ( hdr.u.hdr.insrt )
 		{
-			hdr.u.hdr.rmvParams.type             = e_FM_PCD_MANIP_RMV_BY_HDR;
-			hdr.u.hdr.rmvParams.u.byHdr.type     = e_FM_PCD_MANIP_RMV_BY_HDR_SPECIFIC_L2;
+			hdr.u.hdr.insrtParams.type              = e_FM_PCD_MANIP_INSRT_GENERIC;
+			hdr.u.hdr.insrtParams.u.generic.size    = headerit->second.hdrInsert.size;
+			hdr.u.hdr.insrtParams.u.generic.offset  = headerit->second.hdrInsert.offset;
+			hdr.u.hdr.insrtParams.u.generic.replace = headerit->second.hdrInsert.replace;
+
+			for ( unsigned int j = 0; j < headerit->second.hdrInsert.size; ++j ) {
+				insertData.data[j] =
+					headerit->second.hdrInsert.data[FM_PCD_MAX_SIZE_OF_KEY - headerit->second.hdrInsert.size + j];
+			}
 		}
-		else
+       
+		if ( hdr.u.hdr.rmv )
 		{
-			hdr.u.hdr.rmvParams.type             = e_FM_PCD_MANIP_RMV_GENERIC;
-			hdr.u.hdr.rmvParams.u.generic.size   = headerit->second.hdrRemove.size;
-			hdr.u.hdr.rmvParams.u.generic.offset = headerit->second.hdrRemove.offset;
+			if (headerit->second.removeHeader)
+			{
+				hdr.u.hdr.rmvParams.type             = e_FM_PCD_MANIP_RMV_BY_HDR;
+				hdr.u.hdr.rmvParams.u.byHdr.type     = e_FM_PCD_MANIP_RMV_BY_HDR_SPECIFIC_L2;
+				hdr.u.hdr.rmvParams.u.byHdr.u.specificL2 = getSpecificL2ByString(headerit->second.hdrRemoveHeader.type);
+			}
+			else
+			{
+				hdr.u.hdr.rmvParams.type             = e_FM_PCD_MANIP_RMV_GENERIC;
+				hdr.u.hdr.rmvParams.u.generic.size   = headerit->second.hdrRemove.size;
+				hdr.u.hdr.rmvParams.u.generic.offset = headerit->second.hdrRemove.offset;
+			}
 		}
 
+		if ( hdr.u.hdr.fieldUpdate )
+		{
+			hdr.u.hdr.fieldUpdateParams.type = getFieldUpdateTypeByString(headerit->second.hdrUpdate.type);
+		}
+		
         engine.headerManips.push_back( hdr );
         engine.insertDatas.push_back( insertData );
         engine.headerManips_names.push_back( engine.name + "/hdr/" + headerit->second.name );
@@ -2498,6 +2512,44 @@ CFMCModel::getStatistic( std::string statstic )
     }
     
     return e_FM_PCD_CC_STATS_MODE_NONE;
+}
+
+e_FmPcdManipHdrRmvSpecificL2
+CFMCModel::getSpecificL2ByString( std::string l2 )
+{
+    if ( l2 == "eth" || l2 == "ethernet" ) {
+        return e_FM_PCD_MANIP_HDR_RMV_ETHERNET;
+    }
+    else if ( l2 == "qtags" ) {
+        return e_FM_PCD_MANIP_HDR_RMV_STACKED_QTAGS;
+    }
+    else if ( l2 == "ethmpls" || l2 == "ethernet_mpls" ) {
+        return e_FM_PCD_MANIP_HDR_RMV_ETHERNET_AND_MPLS;
+    }
+	else if ( l2 == "mpls" ) {
+        return e_FM_PCD_MANIP_HDR_RMV_MPLS;
+    }
+    
+    return e_FM_PCD_MANIP_HDR_RMV_ETHERNET;
+}
+
+e_FmPcdManipHdrFieldUpdateType
+CFMCModel::getFieldUpdateTypeByString( std::string type )
+{
+    if ( type == "vlan" ) {
+        return e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN;
+    }
+    else if ( type == "ipv4" ) {
+        return e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV4;
+    }
+    else if ( type == "ipv6" ) {
+        return e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV6;
+    }
+	else if ( type == "tcpudp" ) {
+        return e_FM_PCD_MANIP_HDR_FIELD_UPDATE_TCP_UDP;
+    }
+    
+    return e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN;
 }
 
 unsigned int
