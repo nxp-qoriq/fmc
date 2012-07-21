@@ -39,9 +39,9 @@ public:
     void parseInsert( CInsert* insert, xmlNodePtr pNode );
     void parseRemove( CRemove* remove, xmlNodePtr pNode );
 
-	void parseInsertHeader( CInsertHeader* headerInsert, xmlNodePtr pNode );
-	void parseRemoveHeader( CRemoveHeader* headerRemove, xmlNodePtr pNode );
-	void parseUpdate( CUpdate* update, xmlNodePtr pNode );
+    void parseInsertHeader( CInsertHeader* headerInsert, xmlNodePtr pNode );
+    void parseRemoveHeader( CRemoveHeader* headerRemove, xmlNodePtr pNode );
+    void parseUpdate( CUpdate* update, xmlNodePtr pNode );
 
     void parseReplicator( CReplicator* replicator, xmlNodePtr pNode );
     void parseVsp( CVsp* vsp, xmlNodePtr pNode );

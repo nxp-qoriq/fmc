@@ -159,9 +159,9 @@ fmc_execute( fmc_model* model )
 int
 fmc_clean( fmc_model* model )
 {
-    int          ret = 0;
-    unsigned int current_engine;
-    unsigned int current_port;
+    int          ret            = 0;
+    unsigned int current_engine = 0;
+    unsigned int current_port   = 0;
     unsigned int i, j;
 
     if ( model->format_version != FMC_OUTPUT_FORMAT_VER ) {

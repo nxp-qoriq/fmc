@@ -516,9 +516,9 @@ public:
     static std::string      getNetCommHeaderIndexStr( std::string indexstr );
     static e_FmPcdEngine    getEngineByType( std::string enginename );
     static std::string      getEngineByTypeStr( std::string enginename );
-    static e_FmPcdCcStatsMode      getStatistic( std::string statstic );
-	static e_FmPcdManipHdrRmvSpecificL2 getSpecificL2ByString( std::string l2 );
-	static e_FmPcdManipHdrFieldUpdateType getFieldUpdateTypeByString( std::string type );
+    static e_FmPcdCcStatsMode             getStatistic( std::string statstic );
+    static e_FmPcdManipHdrRmvSpecificL2   getSpecificL2ByString( std::string l2 );
+    static e_FmPcdManipHdrFieldUpdateType getFieldUpdateTypeByString( std::string type );
     static e_FmPcdPlcrColor getPlcrColor( std::string color );
     static std::string      getPlcrColorStr( std::string color );
     static bool             isFullFieldForCC( std::string fieldName );

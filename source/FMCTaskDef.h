@@ -575,7 +575,7 @@ class CInsertHeader
  public:
    std::string type;
    unsigned int header_index;
-   char data[MAX_INSERT_SIZE];	
+   char data[MAX_INSERT_SIZE];
    std::vector < CInsertField > fields;
 };
 
@@ -609,14 +609,14 @@ class CHeaderManip
     bool parse;
     bool insert;
     bool remove;
-	bool insertHeader;
-	bool removeHeader;
-	bool update;
+    bool insertHeader;
+    bool removeHeader;
+    bool update;
     CInsert hdrInsert;
     CRemove hdrRemove;
-	CInsertHeader hdrInsertHeader[2];
-	CRemoveHeader hdrRemoveHeader;
-	CUpdate hdrUpdate;
+    CInsertHeader hdrInsertHeader[2];
+    CRemoveHeader hdrRemoveHeader;
+    CUpdate hdrUpdate;
     std::string   nextManip;
 };
 
