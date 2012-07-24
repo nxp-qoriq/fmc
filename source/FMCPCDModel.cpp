@@ -388,6 +388,112 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
         if ( hdr.u.hdr.fieldUpdate )
         {
             hdr.u.hdr.fieldUpdateParams.type = getFieldUpdateTypeByString(headerit->second.hdrUpdate.type);
+
+            //The update can have only one type of update in an header manipulation entry so I check only the first elements in the fields vector
+            if (hdr.u.hdr.fieldUpdateParams.type == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN)
+            {
+                if (headerit->second.hdrUpdate.fields.size())
+                {
+                    if (headerit->second.hdrUpdate.fields[0].type == "vpri")
+                    {
+                        hdr.u.hdr.fieldUpdateParams.u.vlan.updateType = e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN_VPRI;
+                        hdr.u.hdr.fieldUpdateParams.u.vlan.u.vpri = (uint8_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
+                    }
+                    
+                    if (headerit->second.hdrUpdate.fields[0].type == "dscp")
+                    {
+                        hdr.u.hdr.fieldUpdateParams.u.vlan.updateType = e_FM_PCD_MANIP_HDR_FIELD_UPDATE_DSCP_TO_VLAN;
+                    }
+                }
+            }
+
+            if (hdr.u.hdr.fieldUpdateParams.type == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV4)
+            {
+                if (headerit->second.hdrUpdate.fields.size())
+                {
+                    if (headerit->second.hdrUpdate.fields[0].type == "tos")
+                    {
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates = HDR_MANIP_IPV4_TOS;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.tos = (uint8_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
+                    }
+                    
+                    if (headerit->second.hdrUpdate.fields[0].type == "id")
+                    {
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates = HDR_MANIP_IPV4_ID;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.id = (uint16_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
+                    }
+
+                    if (headerit->second.hdrUpdate.fields[0].type == "ttl")
+                    {
+                        //No value required
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates = HDR_MANIP_IPV4_TTL;
+                    }
+
+                    if (headerit->second.hdrUpdate.fields[0].type == "src")
+                    {
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates = HDR_MANIP_IPV4_SRC;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.src = (uint32_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
+                    }
+
+                    if (headerit->second.hdrUpdate.fields[0].type == "dst")
+                    {
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates = HDR_MANIP_IPV4_DST;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.dst = (uint32_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
+                    }
+                }
+            }
+
+            if (hdr.u.hdr.fieldUpdateParams.type == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV6)
+            {
+                if (headerit->second.hdrUpdate.fields.size())
+                {
+                    if (headerit->second.hdrUpdate.fields[0].type == "tc")
+                    {
+                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates = HDR_MANIP_IPV6_TC;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv6.trafficClass = (uint8_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
+                    }
+                    
+                    if (headerit->second.hdrUpdate.fields[0].type == "hl")
+                    {
+                        //No value required
+                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates = HDR_MANIP_IPV6_HL;
+                    }
+
+                    if (headerit->second.hdrUpdate.fields[0].type == "src")
+                    {
+                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates = HDR_MANIP_IPV6_SRC;
+                    }
+
+                    if (headerit->second.hdrUpdate.fields[0].type == "dst")
+                    {
+                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates = HDR_MANIP_IPV6_DST;
+                    }
+                }
+            }
+
+            if (hdr.u.hdr.fieldUpdateParams.type == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_TCP_UDP)
+            {
+                if (headerit->second.hdrUpdate.fields.size())
+                {
+                    if (headerit->second.hdrUpdate.fields[0].type == "checksum" || headerit->second.hdrUpdate.fields[0].type == "crc")
+                    {
+                        //No value required
+                        hdr.u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates = HDR_MANIP_TCP_UDP_CHECKSUM;
+                    }
+                    
+                    if (headerit->second.hdrUpdate.fields[0].type == "src")
+                    {
+                        hdr.u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates = HDR_MANIP_TCP_UDP_SRC;
+                        hdr.u.hdr.fieldUpdateParams.u.tcpUdp.src = (uint16_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
+                    }
+
+                    if (headerit->second.hdrUpdate.fields[0].type == "dst")
+                    {
+                        hdr.u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates = HDR_MANIP_TCP_UDP_DST;
+                        hdr.u.hdr.fieldUpdateParams.u.tcpUdp.dst = (uint16_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
+                    }
+                }
+            }
         }
         
         engine.headerManips.push_back( hdr );
@@ -775,8 +881,10 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
             applier.add_edge( n1, n2 );
     }
     else if ( scheme.nextEngine == e_FM_PCD_CC ||
-              scheme.nextEngine == e_FM_PCD_HASH ||
-              scheme.nextEngine == e_FM_PCD_FR) {      // Is it CC/Replicator node ?
+#if DPAA_VERSION >= 11
+              scheme.nextEngine == e_FM_PCD_FR ||
+#endif
+               scheme.nextEngine == e_FM_PCD_HASH ) {      // Is it CC/Replicator node ?
         //Find Manip index
         unsigned int hdr_index = 0;
         if ( xmlDist.headerManipName.empty() ) {
@@ -803,6 +911,7 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
                               xmlDist.actionName,
                               xmlDist.name, port, true, hdr_index );
         }
+#if (DPAA_VERSION >= 11)
         else
         {
             scheme.actionHandleIndex =
@@ -810,6 +919,7 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
                               xmlDist.actionName,
                               xmlDist.name, port, true, hdr_index );
         }
+#endif /* (DPAA_VERSION >= 11) */
        
         ApplyOrder::Entry n2( ApplyOrder::CCTree, port.getIndex() );
         applier.add_edge( n1, n2 );
@@ -1744,6 +1854,7 @@ CFMCModel::get_htnode_index( const CTaskDef* pTaskDef, std::string name,
     return index;
 }
 
+#if DPAA_VERSION >= 11
 ////////////////////////////////////////////////////////////////////////////////
 /// Finds XML definition for a replicator node and adds it
 ////////////////////////////////////////////////////////////////////////////////
@@ -1787,7 +1898,7 @@ CFMCModel::get_replicator_index( const CTaskDef* pTaskDef, std::string name,
 
     return index;
 }
-
+#endif /* DPAA_VERSION >= 11 */
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Converts Distribution parameters provided throught XML file to the internal

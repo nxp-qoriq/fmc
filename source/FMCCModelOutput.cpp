@@ -63,6 +63,28 @@ static std::string ind( size_t count )
     cmodel->A B C D E F;          \
     oss << ind( indent ) << "." << QUOTE( A ) << B << QUOTE( C ) << D << QUOTE( E ) << F << "," << std::endl;
 
+#if DPAA_VERSION >= 11
+#define EMIT6_NEXTENG( A, B, C, D, E, F )   \
+    cmodel->A B C D E F;          \
+    oss << ind( indent ) << "." << QUOTE( A ) << B << QUOTE( C ) << D << QUOTE( E ) ;\
+    if (F == e_FM_PCD_FR)\
+        oss << QUOTE(e_FM_PCD_FR); \
+    if (F == e_FM_PCD_CC)\
+        oss << QUOTE(e_FM_PCD_CC); \
+    if (F == e_FM_PCD_HASH)\
+        oss << QUOTE(e_FM_PCD_HASH); \
+    oss << "," << std::endl;
+#else
+#define EMIT6_NEXTENG( A, B, C, D, E, F )   \
+    cmodel->A B C D E F;          \
+    oss << ind( indent ) << "." << QUOTE( A ) << B << QUOTE( C ) << D << QUOTE( E ) ;\
+    if (F == e_FM_PCD_CC)\
+        oss << QUOTE(e_FM_PCD_CC); \
+    if (F == e_FM_PCD_HASH)\
+        oss << QUOTE(e_FM_PCD_HASH); \
+    oss << "," << std::endl;
+#endif
+
 #define EMIT6STR( A, B, C, D, E, F )    \
     cmodel->A B C D E F;              \
     oss << ind( indent ) << "." << QUOTE( A ) << B << QUOTE( C ) << D << QUOTE( E ) << F ## Str << "," << std::endl;
@@ -77,6 +99,43 @@ static std::string ind( size_t count )
         << QUOTE( A ) << B << QUOTE( C ) << D                 \
         << QUOTE( E ) << QUOTE( F ) << G                                               \
         << "," << std::endl;
+
+#define EMIT7_2A_HEX( A, B, C, D, E, F, G ) \
+    cmodel->A B C D E F G;              \
+    oss << ind( indent ) << "."                                         \
+        << QUOTE( A ) << B << QUOTE( C ) << D                 \
+        << QUOTE( E ) << QUOTE( F ) \
+        << " 0x" << std::hex \
+        << G                                               \
+        << std::dec \
+        << "," << std::endl;
+
+#define EMIT7_2A_UPDTYPE( A, B, C, D, E, F, G ) \
+    cmodel->A B C D E F G;              \
+    oss << ind( indent ) << "."                                         \
+        << QUOTE( A ) << B << QUOTE( C ) << D                 \
+        << QUOTE( E ) << QUOTE( F ); \
+    if (G == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN) \
+       oss << QUOTE(e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN); \
+    if (G == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV4) \
+       oss << QUOTE(e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV4); \
+    if (G == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV6) \
+       oss << QUOTE(e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV6); \
+    if (G == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_TCP_UDP) \
+       oss << QUOTE(e_FM_PCD_MANIP_HDR_FIELD_UPDATE_TCP_UDP); \
+    oss << "," << std::endl;
+
+#define EMIT7_2A_VLANTYPE( A, B, C, D, E, F, G ) \
+    cmodel->A B C D E F G;              \
+    oss << ind( indent ) << "."                                         \
+        << QUOTE( A ) << B << QUOTE( C ) << D                 \
+        << QUOTE( E ) << QUOTE( F ); \
+    if (G == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN_VPRI) \
+       oss << QUOTE(e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN_VPRI); \
+    if (G == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_DSCP_TO_VLAN) \
+       oss << QUOTE(e_FM_PCD_MANIP_HDR_FIELD_UPDATE_DSCP_TO_VLAN); \
+    oss << "," << std::endl;
+
 
 #define EMIT7_2STR( A, B, C, D, E, F, G )  \
     cmodel->A B C D E F G;                  \
@@ -381,8 +440,92 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 
         if ( model.all_engines[index].headerManips[i].u.hdr.fieldUpdate )
         {
-            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams, .type =,
+            EMIT7_2A_UPDTYPE( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams, .type =,
                 model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.type );
+
+            if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.type == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN)
+            {
+                EMIT7_2A_VLANTYPE( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.vlan, .updateType =,
+                    model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.updateType );
+
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.updateType == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN_VPRI)
+                {
+                    EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.vlan.u, .vpri =,
+                        model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.u.vpri );
+                }
+
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.updateType == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_DSCP_TO_VLAN)
+                {
+                }
+            }
+
+            if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.type == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV4)
+            {
+                EMIT7_2A_HEX( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv4, .validUpdates =,
+                    model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates );
+
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates == HDR_MANIP_IPV4_TOS)
+                {
+                    EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv4, .tos =,
+                        model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.tos );
+                }
+
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates == HDR_MANIP_IPV4_ID)
+                {
+                    EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv4, .id =,
+                        (uint32_t)model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.id );
+                }
+
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates == HDR_MANIP_IPV4_SRC)
+                {
+                    EMIT7_2A_HEX( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv4, .src =,
+                        model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.src );
+                }
+
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates == HDR_MANIP_IPV4_DST)
+                {
+                    EMIT7_2A_HEX( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv4, .dst =,
+                        model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.dst );
+                }
+            }
+
+            if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.type == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV6)
+            {
+                EMIT7_2A_HEX( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv6, .validUpdates =,
+                    model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates );
+
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates == HDR_MANIP_IPV6_TC)
+                {
+                    EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv6, .trafficClass =,
+                        model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.trafficClass );
+                }
+
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates == HDR_MANIP_IPV6_SRC)
+                {
+                }
+
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates == HDR_MANIP_IPV6_DST)
+                {
+                }
+            }
+
+            if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.type == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_TCP_UDP)
+            {
+                EMIT7_2A_HEX( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.tcpUdp, .validUpdates =,
+                    model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates );
+
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates == HDR_MANIP_TCP_UDP_SRC)
+                {
+                    EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.tcpUdp, .src =,
+                        model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.src );
+                }
+
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates == HDR_MANIP_TCP_UDP_DST)
+                {
+                    EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.tcpUdp, .dst =,
+                        model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.dst );
+                }
+            }
         }
 
         if ( model.all_engines[index].headerManips_hasNext[i] ) {
@@ -426,7 +569,7 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
     EMIT4( port[, index, ].ccroot_count =, model.all_ports[index].cctrees.size() );
     for ( unsigned int i = 0; i < cmodel->port[index].ccroot_count; ++i ) {
         EMIT6( port[, index, ].ccroot[, i, ] =, model.all_ports[index].cctrees[i] );
-        EMIT6( port[, index, ].ccroot_type[, i, ] =, model.all_ports[index].cctrees_type[i] );
+        EMIT6_NEXTENG( port[, index, ].ccroot_type[, i, ] =, model.all_ports[index].cctrees_type[i] );
     }
 
 #ifndef P1023
