@@ -576,6 +576,8 @@ class CInsertHeader
    std::string type;
    unsigned int header_index;
    char data[MAX_INSERT_SIZE];
+   bool update;
+   unsigned int size;
    std::vector < CInsertField > fields;
 };
 

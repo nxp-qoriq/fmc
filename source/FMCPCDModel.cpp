@@ -332,15 +332,41 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
         if ( hdr.u.hdr.insrt )
         {
-            hdr.u.hdr.insrtParams.type              = e_FM_PCD_MANIP_INSRT_GENERIC;
-            hdr.u.hdr.insrtParams.u.generic.size    = headerit->second.hdrInsert.size;
-            hdr.u.hdr.insrtParams.u.generic.offset  = headerit->second.hdrInsert.offset;
-            hdr.u.hdr.insrtParams.u.generic.replace = headerit->second.hdrInsert.replace;
+            if (headerit->second.insertHeader)
+            {
+                hdr.u.hdr.insrtParams.type              = e_FM_PCD_MANIP_INSRT_BY_HDR;
+                hdr.u.hdr.insrtParams.u.byHdr.type      = e_FM_PCD_MANIP_INSRT_BY_HDR_SPECIFIC_L2;
 
-            for ( unsigned int j = 0; j < headerit->second.hdrInsert.size; ++j ) {
-                insertData.data[j] =
-                    headerit->second.hdrInsert.data[FM_PCD_MAX_SIZE_OF_KEY - headerit->second.hdrInsert.size + j];
+                if (headerit->second.hdrInsertHeader[0].type == "mpls")
+                    hdr.u.hdr.insrtParams.u.byHdr.u.specificL2Params.specificL2 = e_FM_PCD_MANIP_HDR_INSRT_MPLS;
+
+                hdr.u.hdr.insrtParams.u.byHdr.u.specificL2Params.update = headerit->second.hdrInsertHeader[0].update || headerit->second.hdrInsertHeader[1].update;
+
+                hdr.u.hdr.insrtParams.u.byHdr.u.specificL2Params.size = headerit->second.hdrInsertHeader[0].size + headerit->second.hdrInsertHeader[1].size;
+
+                for ( unsigned int j = 0; j < headerit->second.hdrInsertHeader[0].size; ++j ) {
+                    insertData.data[j] =
+                        headerit->second.hdrInsertHeader[0].data[FM_PCD_MAX_SIZE_OF_KEY - ( headerit->second.hdrInsertHeader[0].size ) + j];
+                }
+
+                for ( unsigned int j = headerit->second.hdrInsertHeader[0].size; j < headerit->second.hdrInsertHeader[0].size + headerit->second.hdrInsertHeader[1].size; ++j ) {
+                    insertData.data[j] =
+                        headerit->second.hdrInsertHeader[1].data[FM_PCD_MAX_SIZE_OF_KEY - ( headerit->second.hdrInsertHeader[0].size + headerit->second.hdrInsertHeader[1].size ) + j];
+                }
             }
+            else
+            {
+                hdr.u.hdr.insrtParams.type              = e_FM_PCD_MANIP_INSRT_GENERIC;
+                hdr.u.hdr.insrtParams.u.generic.size    = headerit->second.hdrInsert.size;
+                hdr.u.hdr.insrtParams.u.generic.offset  = headerit->second.hdrInsert.offset;
+                hdr.u.hdr.insrtParams.u.generic.replace = headerit->second.hdrInsert.replace;
+
+                for ( unsigned int j = 0; j < headerit->second.hdrInsert.size; ++j ) {
+                    insertData.data[j] =
+                        headerit->second.hdrInsert.data[FM_PCD_MAX_SIZE_OF_KEY - headerit->second.hdrInsert.size + j];
+                }
+            }
+            
         }
        
         if ( hdr.u.hdr.rmv )
@@ -749,7 +775,8 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
             applier.add_edge( n1, n2 );
     }
     else if ( scheme.nextEngine == e_FM_PCD_CC ||
-              scheme.nextEngine == e_FM_PCD_HASH ) {      // Is it CC node ?
+              scheme.nextEngine == e_FM_PCD_HASH ||
+              scheme.nextEngine == e_FM_PCD_FR) {      // Is it CC/Replicator node ?
         //Find Manip index
         unsigned int hdr_index = 0;
         if ( xmlDist.headerManipName.empty() ) {
@@ -768,10 +795,22 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
         }
 
         // Find CC node
-        scheme.actionHandleIndex =
+        if ( scheme.nextEngine == e_FM_PCD_CC ||
+              scheme.nextEngine == e_FM_PCD_HASH )
+        {
+            scheme.actionHandleIndex =
             get_ccnode_index( pTaskDef,
                               xmlDist.actionName,
                               xmlDist.name, port, true, hdr_index );
+        }
+        else
+        {
+            scheme.actionHandleIndex =
+            get_replicator_index( pTaskDef,
+                              xmlDist.actionName,
+                              xmlDist.name, port, true, hdr_index );
+        }
+       
         ApplyOrder::Entry n2( ApplyOrder::CCTree, port.getIndex() );
         applier.add_edge( n1, n2 );
     }
@@ -1123,7 +1162,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         else if ( ccNode.nextEngines[i].nextEngine == e_FM_PCD_FR ) {
             ccNode.nextEngines[i].actionHandleIndex =
                 get_replicator_index( pTaskDef, xmlCCNode.entries[i].actionName,
-                                   ccNode.name, port );
+                                   ccNode.name, port, false );
             ApplyOrder::Entry n2( ApplyOrder::Replicator,
                                   ccNode.nextEngines[i].actionHandleIndex );
             applier.add_edge( n1, n2 );
@@ -1554,7 +1593,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
         else if ( repl.nextEngines[i].nextEngine == e_FM_PCD_FR ) {
             repl.nextEngines[i].actionHandleIndex =
                 get_replicator_index( pTaskDef, xmlRepl.entries[i].actionName,
-                                   repl.name, port );
+                                   repl.name, port, false );
             ApplyOrder::Entry n2( ApplyOrder::Replicator,
                                   repl.nextEngines[i].actionHandleIndex );
             applier.add_edge( n1, n2 );
@@ -1710,7 +1749,7 @@ CFMCModel::get_htnode_index( const CTaskDef* pTaskDef, std::string name,
 ////////////////////////////////////////////////////////////////////////////////
 unsigned int
 CFMCModel::get_replicator_index( const CTaskDef* pTaskDef, std::string name,
-                             std::string from, Port& port, unsigned int manip )
+                             std::string from, Port& port, bool isRoot, unsigned int manip )
 {
     std::map< std::string, CReplicator >::const_iterator replIt;
     replIt = pTaskDef->replicators.find( name );
@@ -1733,6 +1772,17 @@ CFMCModel::get_replicator_index( const CTaskDef* pTaskDef, std::string name,
     if ( !found ) {
         CRepl& replicator = createReplicator( pTaskDef, port, replIt->second );
         index = replicator.getIndex();
+    }
+
+    ApplyOrder::Entry root( ApplyOrder::CCTree, port.getIndex() );
+    ApplyOrder::Entry node( ApplyOrder::Replicator, index );
+    applier.add_edge( root, node );
+
+    if ( isRoot ) {
+        port.cctrees.push_back( index );
+        port.cctrees_type.push_back( e_FM_PCD_FR );
+        port.hdrmanips.push_back( manip );
+        return port.cctrees.size() - 1;
     }
 
     return index;

@@ -822,7 +822,10 @@ fmc_exec_manip( fmc_model* model, unsigned int engine,
 #ifndef P1023
     if ( model->fman[engine].hdr[index].u.hdr.insrt )
     {
-        model->fman[engine].hdr[index].u.hdr.insrtParams.u.generic.p_Data = model->fman[engine].insertData[index];
+        if (model->fman[engine].hdr[index].u.hdr.insrtParams.type == e_FM_PCD_MANIP_INSRT_GENERIC)
+            model->fman[engine].hdr[index].u.hdr.insrtParams.u.generic.p_Data = model->fman[engine].insertData[index];
+        if (model->fman[engine].hdr[index].u.hdr.insrtParams.type == e_FM_PCD_MANIP_INSRT_BY_HDR)
+            model->fman[engine].hdr[index].u.hdr.insrtParams.u.byHdr.u.specificL2Params.p_Data = model->fman[engine].insertData[index];
     }
 
     if (model->fman[engine].hdr_hasNext[index])

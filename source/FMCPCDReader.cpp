@@ -1367,7 +1367,17 @@ CPCDReader::parseInsertHeader( CInsertHeader* headerInsert, xmlNodePtr pNode )
 {
     checkUnknownAttr( pNode, 2, "type", "header_index" );
 
+    headerInsert->update = false;
+    headerInsert->size = 0;
+    headerInsert->header_index = 1;
+
     headerInsert->type = getAttr( pNode, "type" );
+
+    if (headerInsert->type == "mpls")
+    {
+        headerInsert->size = 4;
+    }
+
     headerInsert->header_index = std::strtoul( getAttr( pNode, "header_index" ).c_str(), 0, 0 );
 
     xmlNodePtr cur = pNode->xmlChildrenNode;
@@ -1401,6 +1411,13 @@ CPCDReader::parseInsertHeader( CInsertHeader* headerInsert, xmlNodePtr pNode )
             field.value = getAttr( cur, "value" );
             
             headerInsert->fields.push_back(field);
+        }
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"replace" ) ) {
+            std::string text = getXMLElement( cur );
+            if (text == "yes" || text == "true")
+                headerInsert->update = true;
+            else
+                headerInsert->update = false;
         }
         // comment
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
@@ -1487,8 +1504,12 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
     headerManip->hdrRemove.offset  = 0;
     headerManip->hdrInsertHeader[0].type = "";
     headerManip->hdrInsertHeader[0].header_index = 1;
+    headerManip->hdrInsertHeader[0].size = 0;
+    headerManip->hdrInsertHeader[0].update = false;
     headerManip->hdrInsertHeader[1].type = "";
     headerManip->hdrInsertHeader[1].header_index = 1;
+    headerManip->hdrInsertHeader[1].size = 0;
+    headerManip->hdrInsertHeader[1].update = false;
     headerManip->hdrRemoveHeader.type = "";
     headerManip->hdrUpdate.type = "";
     memset( headerManip->hdrInsert.data, 0x00, sizeof( headerManip->hdrInsert.data ) );

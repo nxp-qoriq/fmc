@@ -314,23 +314,49 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
         {
             EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams, .type =,
                 model.all_engines[index].headerManips[i].u.hdr.insrtParams.type );
-            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .size =,
-                (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.size );
-            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .offset =,
-                (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.offset );
-            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .replace =,
-                model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.replace );
+            if (model.all_engines[index].headerManips[i].u.hdr.insrtParams.type == e_FM_PCD_MANIP_INSRT_GENERIC)
+            {
+                EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .size =,
+                    (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.size );
+                EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .offset =,
+                    (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.offset );
+                EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.generic, .replace =,
+                    model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.replace );
 
-            oss << ind( indent ) << ".fman[" << index << "].insertData[" << i << "] = {";
-            for ( unsigned int j = 0; j < (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.size; ++j ) {
-                    if ( j != 0 ) {
-                        oss << ",";
-                    }
-                    oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)model.all_engines[index].insertDatas[i].data[j];
-                    oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
-                    cmodel->fman[index].insertData[i][j] = model.all_engines[index].insertDatas[i].data[j];
+                oss << ind( indent ) << ".fman[" << index << "].insertData[" << i << "] = {";
+                for ( unsigned int j = 0; j < (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.generic.size; ++j ) {
+                        if ( j != 0 ) {
+                            oss << ",";
+                        }
+                        oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)model.all_engines[index].insertDatas[i].data[j];
+                        oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
+                        cmodel->fman[index].insertData[i][j] = model.all_engines[index].insertDatas[i].data[j];
+                }
+                oss << " }," << std::endl;
             }
-            oss << " }," << std::endl;
+
+            if (model.all_engines[index].headerManips[i].u.hdr.insrtParams.type == e_FM_PCD_MANIP_INSRT_BY_HDR)
+            {
+                EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.byHdr, .type =,
+                    model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.byHdr.type );
+                EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.byHdr.u.specificL2Params, .specificL2 =,
+                    (e_FmPcdManipHdrInsrtSpecificL2)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.byHdr.u.specificL2Params.specificL2 );
+                EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.byHdr.u.specificL2Params, .size =,
+                    (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.byHdr.u.specificL2Params.size );
+                EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.insrtParams.u.byHdr.u.specificL2Params, .update =,
+                    (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.byHdr.u.specificL2Params.update );
+
+                oss << ind( indent ) << ".fman[" << index << "].insertData[" << i << "] = {";
+                for ( unsigned int j = 0; j < (int)model.all_engines[index].headerManips[i].u.hdr.insrtParams.u.byHdr.u.specificL2Params.size; ++j ) {
+                        if ( j != 0 ) {
+                            oss << ",";
+                        }
+                        oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)model.all_engines[index].insertDatas[i].data[j];
+                        oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
+                        cmodel->fman[index].insertData[i][j] = model.all_engines[index].insertDatas[i].data[j];
+                }
+                oss << " }," << std::endl;
+            }
         }
 
         if ( model.all_engines[index].headerManips[i].u.hdr.rmv )

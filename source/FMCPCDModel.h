@@ -557,7 +557,7 @@ private:
     unsigned int get_htnode_index( const CTaskDef* pTaskDef, std::string name,
                                    std::string from, Port& port, bool isRoot, unsigned int manip = 0 );
     unsigned int get_replicator_index( const CTaskDef* pTaskDef, std::string name,
-                                       std::string from, Port& port, unsigned int manip = 0 );
+                                   std::string from, Port& port, bool isRoot, unsigned int manip = 0 );
     unsigned int get_policer_index( const CTaskDef* pTaskDef, std::string name,
                                     std::string from, Port& port );
 };
