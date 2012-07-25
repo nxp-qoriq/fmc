@@ -456,6 +456,27 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 
                 if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.updateType == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_DSCP_TO_VLAN)
                 {
+                    oss << ind(indent) << "." << "fman[" << index << "].hdr[" << i 
+                            << "].u.hdr.fieldUpdateParams.u.vlan.u.dscpToVpri.dscpToVpriTable = {";
+
+                    for (unsigned int idx = 0; idx < FM_PCD_MANIP_DSCP_TO_VLAN_TRANS; idx++)
+                    {
+                        //Fill the cmodel dscpToVpri table
+                        cmodel->fman[index].hdr[i].u.hdr.fieldUpdateParams.u.vlan.u.dscpToVpri.dscpToVpriTable[idx] = 
+                            model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.u.dscpToVpri.dscpToVpriTable[idx];
+
+                        //Print the table
+                        if ( idx != 0 ) {
+                            oss << ",";
+                        }
+
+                        oss << " " << (unsigned int)model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.u.dscpToVpri.dscpToVpriTable[idx];
+                    }
+
+                    oss << " }," << std::endl;
+
+                    EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.vlan.u.dscpToVpri, .vpriDefVal =,
+                        (unsigned int)model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.u.dscpToVpri.vpriDefVal );
                 }
             }
 
@@ -502,10 +523,46 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 
                 if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates == HDR_MANIP_IPV6_SRC)
                 {
+                    oss << ind(indent) << "." << "fman[" << index << "].hdr[" << i 
+                            << "].u.hdr.fieldUpdateParams.u.ipv6.src = {";
+
+                    for (unsigned int idx = 0; idx < NET_HEADER_FIELD_IPv6_ADDR_SIZE; idx++)
+                    {
+                        cmodel->fman[index].hdr[i].u.hdr.fieldUpdateParams.u.ipv6.src[idx] = 
+                            model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.src[idx];
+
+                        //Print the table
+                        if ( idx != 0 ) {
+                            oss << ",";
+                        }
+
+                        oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.src[idx];
+                    }
+
+                     oss << " }," << std::endl;
+                     oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
                 }
 
                 if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates == HDR_MANIP_IPV6_DST)
                 {
+                    oss << ind(indent) << "." << "fman[" << index << "].hdr[" << i 
+                            << "].u.hdr.fieldUpdateParams.u.ipv6.dst = {";
+
+                    for (unsigned int idx = 0; idx < NET_HEADER_FIELD_IPv6_ADDR_SIZE; idx++)
+                    {
+                        cmodel->fman[index].hdr[i].u.hdr.fieldUpdateParams.u.ipv6.dst[idx] = 
+                            model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.dst[idx];
+
+                        //Print the table
+                        if ( idx != 0 ) {
+                            oss << ",";
+                        }
+
+                        oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.dst[idx];
+                    }
+
+                     oss << " }," << std::endl;
+                     oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
                 }
             }
 

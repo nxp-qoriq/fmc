@@ -402,7 +402,31 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
                     
                     if (headerit->second.hdrUpdate.fields[0].type == "dscp")
                     {
+                        //Fill in the default values
                         hdr.u.hdr.fieldUpdateParams.u.vlan.updateType = e_FM_PCD_MANIP_HDR_FIELD_UPDATE_DSCP_TO_VLAN;
+                        hdr.u.hdr.fieldUpdateParams.u.vlan.u.dscpToVpri.vpriDefVal = 0;
+                        for (unsigned int i = 0; i < FM_PCD_MANIP_DSCP_TO_VLAN_TRANS; i++)
+                            hdr.u.hdr.fieldUpdateParams.u.vlan.u.dscpToVpri.dscpToVpriTable[i] = 0;
+
+                        for (unsigned int i = 0; i < headerit->second.hdrUpdate.fields.size(); i++)
+                        {
+                            if (headerit->second.hdrUpdate.fields[i].fill)
+                            {
+                                for (unsigned int idx = 0; idx < FM_PCD_MANIP_DSCP_TO_VLAN_TRANS; idx++)
+                                    hdr.u.hdr.fieldUpdateParams.u.vlan.u.dscpToVpri.dscpToVpriTable[idx] = (uint8_t)headerit->second.hdrUpdate.fields[i].fillValue;
+                            }
+
+                            if (headerit->second.hdrUpdate.fields[i].defVal)
+                                hdr.u.hdr.fieldUpdateParams.u.vlan.u.dscpToVpri.vpriDefVal = headerit->second.hdrUpdate.fields[i].vpriDefVal;
+                        }
+
+                        for (unsigned int i = 0; i < headerit->second.hdrUpdate.fields.size(); i++)
+                        {
+                            if (!headerit->second.hdrUpdate.fields[i].fill)
+                            {
+                                hdr.u.hdr.fieldUpdateParams.u.vlan.u.dscpToVpri.dscpToVpriTable[headerit->second.hdrUpdate.fields[i].index] = (uint8_t)std::strtoul( headerit->second.hdrUpdate.fields[i].value.c_str(), 0, 0 );
+                            }
+                        }
                     }
                 }
             }
@@ -462,11 +486,55 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
                     if (headerit->second.hdrUpdate.fields[0].type == "src")
                     {
                         hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates = HDR_MANIP_IPV6_SRC;
+
+                        std::string data = stripBlanks( headerit->second.hdrUpdate.fields[0].value );
+                        if ( data.length() != 34 || data.substr( 0, 2 ) != "0x" ) {
+                            throw CGenericError( ERR_INVALID_ENTRY_DATA,
+                                                 "update ipv6 src" );
+                        }
+
+                        // Convert data to numeric array
+                        data = data.substr( 2 );
+                        int index = NET_HEADER_FIELD_IPv6_ADDR_SIZE;
+                        while ( data.length() > 0 && index >= 1 ) {
+                            std::string tmp;
+                            if ( data.length() > 1 ) {
+                                tmp  = "0x" + data.substr( data.length() - 2, 2 );
+                                data = data.substr( 0, data.length() - 2 );
+                            }
+                            else {
+                                tmp  = "0x" + data;
+                                data = "";
+                            }
+                            hdr.u.hdr.fieldUpdateParams.u.ipv6.src[--index] = (uint8_t)std::strtol( tmp.c_str(), 0, 0 );
+                        }
                     }
 
                     if (headerit->second.hdrUpdate.fields[0].type == "dst")
                     {
                         hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates = HDR_MANIP_IPV6_DST;
+
+                        std::string data = stripBlanks( headerit->second.hdrUpdate.fields[0].value );
+                        if ( data.length() != 34 || data.substr( 0, 2 ) != "0x" ) {
+                            throw CGenericError( ERR_INVALID_ENTRY_DATA,
+                                                 "update ipv6 dst" );
+                        }
+
+                        // Convert data to numeric array
+                        data = data.substr( 2 );
+                        int index = NET_HEADER_FIELD_IPv6_ADDR_SIZE;
+                        while ( data.length() > 0 && index >= 1 ) {
+                            std::string tmp;
+                            if ( data.length() > 1 ) {
+                                tmp  = "0x" + data.substr( data.length() - 2, 2 );
+                                data = data.substr( 0, data.length() - 2 );
+                            }
+                            else {
+                                tmp  = "0x" + data;
+                                data = "";
+                            }
+                            hdr.u.hdr.fieldUpdateParams.u.ipv6.dst[--index] = (uint8_t)std::strtol( tmp.c_str(), 0, 0 );
+                        }
                     }
                 }
             }

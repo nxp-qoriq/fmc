@@ -1367,8 +1367,13 @@ CPCDReader::parseInsertHeader( CInsertHeader* headerInsert, xmlNodePtr pNode )
 {
     checkUnknownAttr( pNode, 2, "type", "header_index" );
 
+    //Update appears as replace in the driver structure but kept it like this to be consistent with the generic insert
     headerInsert->update = false;
+
+    //Size is calculated according to the type of the inserted header, for mpls it is 4
     headerInsert->size = 0;
+
+    //There can be 2 mpls header inserted at the same time but in the xml I have separated them to be easier to give them field by field
     headerInsert->header_index = 1;
 
     headerInsert->type = getAttr( pNode, "type" );
@@ -1382,6 +1387,7 @@ CPCDReader::parseInsertHeader( CInsertHeader* headerInsert, xmlNodePtr pNode )
 
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {
+        //Read the data of the header as raw data
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"data" ) ) {
             std::string data = stripBlanks( (const char*)cur->children->content );
             if ( data.length() < 3 || data.substr( 0, 2 ) != "0x" ) {
@@ -1460,11 +1466,21 @@ CPCDReader::parseUpdate( CUpdate* update, xmlNodePtr pNode )
 
             field.fill = false;
             field.fillValue = 0;
+            field.defVal = false;
+            field.vpriDefVal = 0;
+            
             std::string text = getAttr( cur, "fill" );
             if (text != "")
             {
                 field.fill = true;
-                field.fillValue = std::strtoul( text.c_str(), 0, 0 );
+                field.fillValue = std::strtoul( field.value.c_str(), 0, 0 );
+            }
+
+            text = getAttr( cur, "default" );
+            if (text != "")
+            {
+                field.defVal = true;
+                field.vpriDefVal = std::strtoul( field.value.c_str(), 0, 0 );
             }
             
             update->fields.push_back(field);

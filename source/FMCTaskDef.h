@@ -593,8 +593,10 @@ public:
    std::string type;
    std::string value;
    bool fill;
+   bool defVal;
    unsigned int fillValue;
    unsigned int index;
+   unsigned int vpriDefVal;
 };
 
 class CUpdate
