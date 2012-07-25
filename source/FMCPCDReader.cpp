@@ -1528,19 +1528,23 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
     headerManip->hdrInsertHeader[1].update = false;
     headerManip->hdrRemoveHeader.type = "";
     headerManip->hdrUpdate.type = "";
+    headerManip->duplicate = 0;
     memset( headerManip->hdrInsert.data, 0x00, sizeof( headerManip->hdrInsert.data ) );
     memset( headerManip->hdrInsertHeader[0].data, 0x00, sizeof( headerManip->hdrInsertHeader[0].data ) );
     memset( headerManip->hdrInsertHeader[1].data, 0x00, sizeof( headerManip->hdrInsertHeader[1].data ) );
 
-    checkUnknownAttr( pNode, 2, "name", "parse" );
+    checkUnknownAttr( pNode, 3, "name", "parse", "duplicate" );
 
     headerManip->name = getAttr( pNode, "name" );
 
     std::string parse = getAttr( pNode, "parse" );
+
     if (parse == "yes" || parse == "true")
         headerManip->parse = true;
     else
         headerManip->parse = false;
+
+    headerManip->duplicate = std::strtoul( getAttr( pNode, "duplicate" ).c_str(), 0, 0 );
 
      // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
@@ -1615,7 +1619,22 @@ CPCDReader::parseManipulations( xmlNodePtr pNode )
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"header" ) ) {
             CHeaderManip headerManip;
             parseHeaderManipulation( &headerManip, cur );
-            task->headermanips[headerManip.name] = headerManip;
+
+            if (headerManip.duplicate == 0)
+            {
+                task->headermanips[headerManip.name] = headerManip;
+            }
+            else
+            {
+                std::string origName = headerManip.name;
+                for (unsigned int i = 0; i < headerManip.duplicate; i++)
+                {
+                    std::stringstream ss;
+                    ss << origName << "_" << i + 1;
+                    headerManip.name = ss.str();
+                    task->headermanips[headerManip.name] = headerManip;
+                }
+            }
         }
         // comment
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {

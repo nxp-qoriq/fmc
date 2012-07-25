@@ -622,6 +622,7 @@ class CHeaderManip
     CRemoveHeader hdrRemoveHeader;
     CUpdate hdrUpdate;
     std::string   nextManip;
+    unsigned int duplicate;
 };
 
 class CClassEntry
