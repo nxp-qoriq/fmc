@@ -628,6 +628,13 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
         EMIT6( port[, index, ].htnodes[, i, ] =, model.all_ports[index].htnodes[i] );
     }
 
+#if (DPAA_VERSION >= 11)
+    EMIT4( port[, index, ].replicators_count =, model.all_ports[index].replicators.size() );
+    for ( unsigned int i = 0; i < cmodel->port[index].replicators_count; ++i ) {
+        EMIT6( port[, index, ].replicators[, i, ] =, model.all_ports[index].replicators[i] );
+    }
+#endif /* (DPAA_VERSION >= 11) */
+
     EMIT4( port[, index, ].ccroot_count =, model.all_ports[index].cctrees.size() );
     for ( unsigned int i = 0; i < cmodel->port[index].ccroot_count; ++i ) {
         EMIT6( port[, index, ].ccroot[, i, ] =, model.all_ports[index].cctrees[i] );

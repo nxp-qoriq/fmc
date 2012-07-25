@@ -116,6 +116,11 @@ typedef struct fmc_port_t {
     unsigned int         htnodes_count;             ///< Number of used CC nodes
     unsigned int         htnodes[FMC_CC_NODES_NUM]; ///< Class. nodes used by this port
 
+#if (DPAA_VERSION >= 11)
+    unsigned int         replicators_count;         ///< Number of used Frame Replicators
+    unsigned int         replicators[FMC_REPLICATORS_NUM]; ///< Replicators used by this port
+#endif /* (DPAA_VERSION >= 11) */
+
     unsigned int         ccroot_count;
     unsigned int         ccroot[FMC_CC_NODES_NUM];
     e_FmPcdEngine        ccroot_type[FMC_CC_NODES_NUM];

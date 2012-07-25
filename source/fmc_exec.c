@@ -238,6 +238,7 @@ fmc_get_handle(
     unsigned int found   = 0;
     unsigned int ccindex = 0;
     unsigned int htindex = 0;
+    unsigned int repindex = 0;
     unsigned int i;
 
     // Find engine index
@@ -308,6 +309,16 @@ fmc_get_handle(
             return model->htnode_handle[index];
         }
     }
+
+#if (DPAA_VERSION >= 11)
+    // Find replicator handle according to found engine and port
+    for ( repindex =0; repindex < model->port[port].replicators_count; repindex++ ) {
+        unsigned int index = model->port[port].replicators[repindex];
+        if ( strcmp( model->replicator_name[index], name ) == 0 ) {
+            return model->replicator_handle[index];
+        }
+    }
+#endif /* (DPAA_VERSION >= 11) */
 
     return 0;
 }
@@ -468,7 +479,12 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     }
 
     // Add CC runtime parameters
-    if ( pport->htnodes_count != 0 || pport->ccnodes_count != 0 || reasm_index > 0 ) {
+    if ( pport->htnodes_count != 0 || 
+#if (DPAA_VERSION >= 11)
+            pport->replicators_count != 0 ||
+#endif /* (DPAA_VERSION >= 11) */
+            pport->ccnodes_count != 0 || 
+            reasm_index > 0 ) {
         pport->pcdParam.p_CcParams           = &pport->ccParam;
         pport->pcdParam.p_CcParams->h_CcTree = pport->cctree_handle;
     }
