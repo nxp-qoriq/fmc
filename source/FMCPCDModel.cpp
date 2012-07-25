@@ -1498,7 +1498,7 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 
     port.htnodes.push_back( htNode.getIndex() );
 
-    htNode.name = port.name + "/htnode/" + xmlCCNode.name;
+    htNode.name = port.name + "/ccnode/" + xmlCCNode.name;
 
     //Pre-allocation
     htNode.maxNumOfKeys                = xmlCCNode.max;
@@ -1786,7 +1786,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
 #endif /* (DPAA_VERSION >= 11) */
     }
 
-    /*
+ 
     //resource pre-allocation may-use part
     for ( unsigned int i = 0; i < xmlRepl.may_use_action.size(); ++i ) {
         e_FmPcdEngine action     = getEngineByType( xmlRepl.may_use_action[i] );
@@ -1819,6 +1819,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
             applier.add_edge( n1, n2 );
             break;
             }
+#if (DPAA_VERSION >= 11)
         case e_FM_PCD_FR:
             {
             unsigned int index =
@@ -1827,11 +1828,11 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
             applier.add_edge( n1, n2 );
             break;
             }
+#endif /* (DPAA_VERSION >= 11) */
         default:
             {}
         }
     }
-    */
 
     return repl;
 }
@@ -1903,7 +1904,7 @@ CFMCModel::get_htnode_index( const CTaskDef* pTaskDef, std::string name,
     bool         found = false;
     unsigned int index;
     for ( unsigned int i = 0; i < all_htnodes.size(); ++i ) {
-        if ( ( all_htnodes[i].name           == port.name + "/htnode/" + name ) &&
+        if ( ( all_htnodes[i].name           == port.name + "/ccnode/" + name ) &&
              ( all_htnodes[i].port_signature == port.name ) ) {
             found = true;
             index = all_htnodes[i].getIndex();

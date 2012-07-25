@@ -714,6 +714,8 @@ class CReplicator
     std::string                name;
     std::vector< CReplicatorEntry > entries;
     unsigned int               max;
+    std::vector< std::string > may_use_action;
+    std::vector< std::string > may_use_actionName;
 };
 
 

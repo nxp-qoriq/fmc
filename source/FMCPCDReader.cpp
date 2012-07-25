@@ -1724,6 +1724,24 @@ CPCDReader::parseReplicator( CReplicator* replicator, xmlNodePtr pNode )
 
             replicator->entries.push_back( re );
         }
+        // may-use
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"may-use" ) ) {
+            checkUnknownAttr( cur, 0, "" );
+            xmlNodePtr pr = cur->xmlChildrenNode;
+            while ( 0 != pr ) {
+                if ( !xmlStrcmp( pr->name, (const xmlChar*)"action" ) ) {
+                    checkUnknownAttr( pr, 3, "type", "name", "condition" );
+
+                    std::string action     = stripBlanks( getAttr( pr, "type" ) );
+                    std::string actionName = stripBlanks( getAttr( pr, "name" ) );
+                    replicator->may_use_action.push_back( action );
+                    replicator->may_use_actionName.push_back( actionName );
+                }
+
+                pr = pr->next;
+            }
+
+        }
          // comment/text
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ||
                   !xmlStrcmp( cur->name, (const xmlChar*)"text" )  ) {
