@@ -623,6 +623,11 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
         EMIT6( port[, index, ].ccnodes[, i, ] =, model.all_ports[index].ccnodes[i] );
     }
 
+    EMIT4( port[, index, ].htnodes_count =, model.all_ports[index].htnodes.size() );
+    for ( unsigned int i = 0; i < cmodel->port[index].htnodes_count; ++i ) {
+        EMIT6( port[, index, ].htnodes[, i, ] =, model.all_ports[index].htnodes[i] );
+    }
+
     EMIT4( port[, index, ].ccroot_count =, model.all_ports[index].cctrees.size() );
     for ( unsigned int i = 0; i < cmodel->port[index].ccroot_count; ++i ) {
         EMIT6( port[, index, ].ccroot[, i, ] =, model.all_ports[index].cctrees[i] );

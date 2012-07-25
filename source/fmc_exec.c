@@ -468,7 +468,7 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     }
 
     // Add CC runtime parameters
-    if ( pport->ccnodes_count != 0 || reasm_index > 0 ) {
+    if ( pport->htnodes_count != 0 || pport->ccnodes_count != 0 || reasm_index > 0 ) {
         pport->pcdParam.p_CcParams           = &pport->ccParam;
         pport->pcdParam.p_CcParams->h_CcTree = pport->cctree_handle;
     }

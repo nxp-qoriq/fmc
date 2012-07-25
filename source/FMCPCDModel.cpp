@@ -343,10 +343,17 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
                 hdr.u.hdr.insrtParams.u.byHdr.u.specificL2Params.update = headerit->second.hdrInsertHeader[0].update || headerit->second.hdrInsertHeader[1].update;
 
                 hdr.u.hdr.insrtParams.u.byHdr.u.specificL2Params.size = headerit->second.hdrInsertHeader[0].size + headerit->second.hdrInsertHeader[1].size;
-
+                
                 for ( unsigned int j = 0; j < headerit->second.hdrInsertHeader[0].size; ++j ) {
                     insertData.data[j] =
                         headerit->second.hdrInsertHeader[0].data[FM_PCD_MAX_SIZE_OF_KEY - ( headerit->second.hdrInsertHeader[0].size ) + j];
+                }
+
+                for (unsigned int field = 0; field < headerit->second.hdrInsertHeader[0].fields.size(); field++)
+                {
+                    if (headerit->second.hdrInsertHeader[0].fields[field].type == "ttl")
+                    {
+                    }
                 }
 
                 for ( unsigned int j = headerit->second.hdrInsertHeader[0].size; j < headerit->second.hdrInsertHeader[0].size + headerit->second.hdrInsertHeader[1].size; ++j ) {
