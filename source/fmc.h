@@ -50,16 +50,17 @@ extern "C"
 #define FMC_SCHEMES_NUM          32
 #define FMC_SCHEME_PROTOCOLS_NUM 16
 #define FMC_CC_NODES_NUM        256
-#define FMC_REPLICATORS_NUM     256
+#define FMC_REPLICATORS_NUM      16
 #define FMC_PLC_NUM              64
 #define MAX_SP_CODE_SIZE      0x7C0
 #define FMC_MANIP_MAX             8
+#define FMC_HMANIP_MAX          256
 #define FMC_INSERT_MAX           56
 #define FM_PCD_MAX_NUM_OF_REPS   64
 
 #define FMC_APPLY_ORDER( Index, Type, Element ) \
-    .ao[Index].type  = Type,                    \
-    .ao[Index].index = Element
+    .apply_order[Index].type  = Type,                    \
+    .apply_order[Index].index = Element
 
 typedef struct fmc_fman_t {
     unsigned int       number;
@@ -84,12 +85,12 @@ typedef struct fmc_fman_t {
     t_Handle           frag_handle[FMC_MANIP_MAX];
 
     unsigned int       hdr_count;
-    t_FmPcdManipParams hdr[FMC_MANIP_MAX];
-    uint8_t            insertData[FMC_MANIP_MAX][FMC_INSERT_MAX];
-    char               hdr_name[FMC_MANIP_MAX][FMC_NAME_LEN];
-    t_Handle           hdr_handle[FMC_MANIP_MAX];
-    unsigned int       hdr_hasNext[FMC_MANIP_MAX];
-    unsigned int       hdr_next[FMC_MANIP_MAX];
+    t_FmPcdManipParams hdr[FMC_HMANIP_MAX];
+    uint8_t            insertData[FMC_HMANIP_MAX][FMC_INSERT_MAX];
+    char               hdr_name[FMC_HMANIP_MAX][FMC_NAME_LEN];
+    t_Handle           hdr_handle[FMC_HMANIP_MAX];
+    unsigned int       hdr_hasNext[FMC_HMANIP_MAX];
+    unsigned int       hdr_next[FMC_HMANIP_MAX];
 #endif /* P1023 */
 } fmc_fman;
 
