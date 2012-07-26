@@ -1823,7 +1823,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
         case e_FM_PCD_FR:
             {
             unsigned int index =
-                get_replicator_index( pTaskDef, actionName, repl.name, port );
+                get_replicator_index( pTaskDef, actionName, repl.name, port, false );
             ApplyOrder::Entry n2( ApplyOrder::Replicator, index );
             applier.add_edge( n1, n2 );
             break;
