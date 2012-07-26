@@ -281,6 +281,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
         reasm.u.reassem.hdr                                          = HEADER_TYPE_IPv6;
         reasm.u.reassem.u.ipReassem.maxNumFramesInProcess            = reasmit->second.maxInProcess;
 #if (DPAA_VERSION >= 11)
+        reasm.u.reassem.u.ipReassem.nonConsistentSpFqid              = reasmit->second.nonConsistentSpFqid;
 #else
         reasm.u.reassem.u.ipReassem.sgBpid                           = reasmit->second.sgBpid;
 #endif /* (DPAA_VERSION >= 11) */
@@ -308,6 +309,9 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 #if (DPAA_VERSION == 10)
         frag.u.frag.u.ipFrag.scratchBpid          = fragit->second.scratchBpid;
 #endif /* (DPAA_VERSION == 10) */
+#ifdef ALU_CUSTOM
+        frag.u.frag.u.ipFrag.optionsCounterEn     = fragit->second.optionsCounterEn;
+#endif /* ALU_CUSTOM */
         frag.u.frag.u.ipFrag.dontFragAction       = (e_FmPcdManipDontFragAction)
                                                     fragit->second.dontFragAction;
         frag.u.frag.u.ipFrag.sgBpid               = fragit->second.sgBpid;
@@ -1067,8 +1071,17 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     ccNode.maskSupport  = xmlCCNode.masks;
     ccNode.statistics   = getStatistic(xmlCCNode.statistics);
 
-
-
+    if (ccNode.statistics == e_FM_PCD_CC_STATS_MODE_RMON)
+    {
+        if (xmlCCNode.frameLength.size() != 0)
+        {
+           for (unsigned int i = 0; i < xmlCCNode.frameLength.size() && i < FM_PCD_CC_STATS_MAX_NUM_OF_FLR; i++)
+           {
+                ccNode.frameLength.push_back(xmlCCNode.frameLength[i]);
+           }
+        }
+    }
+    
     if (xmlCCNode.key.header)
     {
         ccNode.extract.type = e_FM_PCD_EXTRACT_BY_HDR;

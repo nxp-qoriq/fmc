@@ -251,6 +251,7 @@ public:
     std::vector< unsigned int > frag;
     std::vector< unsigned int > header;
     std::vector< unsigned int > indices;
+    std::vector <unsigned int > frameLength;
 
     CCNextEngine nextEngineOnMiss;
 

@@ -529,6 +529,7 @@ class CFragmentation
     unsigned int scratchBpid;
     unsigned int sgBpid;
     bool         sgBpidEn;
+    bool         optionsCounterEn;
 };
 
 class CReassembly
@@ -545,6 +546,7 @@ class CReassembly
     unsigned int fqidForTimeOutFrames;
     unsigned int numOfFramesPerHashEntry[2];
     unsigned int timeoutThreshold;
+    unsigned int nonConsistentSpFqid;
 };
 
 class CInsert
@@ -673,6 +675,7 @@ class CClassification
     std::string                statistics;
     std::vector< std::string > may_use_action;
     std::vector< std::string > may_use_actionName;
+    std::vector< unsigned int >frameLength;
 };
 
 

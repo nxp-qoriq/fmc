@@ -490,6 +490,9 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
     classification->vspOverrideOnMiss        = false;
     classification->vspBaseOnMiss            = 0;
     classification->statisticsOnMiss        = false;
+    for (unsigned int i = 0; i < 10; i++)
+        classification->frameLength.push_back(i+1);
+    classification->frameLength[9] = 0xFFFF;
 
     // Get known attributes
     classification->name = getAttr( pNode, "name" );
@@ -719,6 +722,13 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                 classification->statisticsOnMiss = true;
             else
                 classification->statisticsOnMiss = false;
+        }
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"framelength" ) ) {
+            //Read the frame lenghts
+             checkUnknownAttr( cur, 2, "index", "value" );
+             unsigned int index = std::strtoul( getAttr( cur, "index" ).c_str(), 0, 0 );
+             if (index < 10)
+                classification->frameLength[index] = std::strtoul( getAttr( cur, "value" ).c_str(), 0, 0 );
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"vsp" ) ) {
             //VSP for the on-miss case
@@ -1145,6 +1155,7 @@ CPCDReader::parseReassembly( CReassembly* reassembly, xmlNodePtr pNode )
     reassembly->numOfFramesPerHashEntry[0] = 1;
     reassembly->numOfFramesPerHashEntry[1] = 1;
     reassembly->timeoutThreshold = 0;
+    reassembly->nonConsistentSpFqid = 0;
 
     // Get known attributes
     reassembly->name = getAttr( pNode, "name" );
@@ -1155,6 +1166,10 @@ CPCDReader::parseReassembly( CReassembly* reassembly, xmlNodePtr pNode )
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"sgBpid" ) ) {
             std::string text = getXMLElement( cur );
             reassembly->sgBpid = std::strtol( text.c_str(), 0, 0 );
+        }
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"nonConsistentSpFqid" ) ) {
+            std::string text = getXMLElement( cur );
+            reassembly->nonConsistentSpFqid = std::strtol( text.c_str(), 0, 0 );
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"maxInProcess" ) ) {
             std::string text = getXMLElement( cur );
@@ -1230,6 +1245,7 @@ CPCDReader::parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode 
     fragmentation->scratchBpid    = 0;
     fragmentation->sgBpidEn       = false;
     fragmentation->sgBpid         = 0;
+    fragmentation->optionsCounterEn = false;
 
     checkUnknownAttr( pNode, 1, "name" );
 
@@ -1259,6 +1275,16 @@ CPCDReader::parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode 
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"scratchBpid" ) ) {
             std::string text           = getXMLElement( cur );
             fragmentation->scratchBpid = std::strtol( text.c_str(), 0, 0 );
+        }
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"optionsCounterEn" ) ) {
+            std::string text = getXMLElement( cur );
+            if ( stripBlanks( text ) == "yes" || stripBlanks( text ) == "true" || stripBlanks( text ) == "enable") {
+                fragmentation->optionsCounterEn = true;
+            }
+            else
+            {
+                fragmentation->optionsCounterEn = false;
+            }
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"sgBpid" ) ) {
             std::string text           = getXMLElement( cur );

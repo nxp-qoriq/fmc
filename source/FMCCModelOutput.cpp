@@ -305,6 +305,8 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
         EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.minFragSize[1] =,
             model.all_engines[index].reasm[i].u.reassem.u.ipReassem.minFragSize[1] );
 #if (DPAA_VERSION >= 11)
+        EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.nonConsistentSpFqid =,
+            (int)model.all_engines[index].reasm[i].u.reassem.u.ipReassem.nonConsistentSpFqid );
 #else
         EMIT7_2A( fman[, index, ].reasm[, i, ].u.reassem.u, .ipReassem.sgBpid =,
             (int)model.all_engines[index].reasm[i].u.reassem.u.ipReassem.sgBpid );
@@ -336,6 +338,10 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.scratchBpid =,
             (int)model.all_engines[index].frags[i].u.frag.u.ipFrag.scratchBpid );
 #endif /* (DPAA_VERSION == 10) */
+#ifdef ALU_CUSTOM
+        EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.optionsCounterEn =,
+            (int)model.all_engines[index].frags[i].u.frag.u.ipFrag.optionsCounterEn );
+#endif /* ALU_CUSTOM */
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.dontFragAction =,
             model.all_engines[index].frags[i].u.frag.u.ipFrag.dontFragAction );
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sgBpidEn =,
@@ -1263,6 +1269,27 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
     }
 
     EMIT4( ccnode[, index, ].keysParams.statisticsMode =, node.statistics );
+
+    if (node.statistics == e_FM_PCD_CC_STATS_MODE_RMON)
+    {
+        //Print the frame length vector
+        oss << ind(indent) << ".ccnode[" << index << "].keysParams.frameLengthRanges = {";
+
+        for (unsigned int idx = 0; idx < FM_PCD_CC_STATS_MAX_NUM_OF_FLR && idx < node.frameLength.size(); idx++)
+        {
+            cmodel->ccnode[index].keysParams.frameLengthRanges[idx] = node.frameLength[idx];
+
+            //Print the table
+            if ( idx != 0 ) {
+                oss << ",";
+            }
+
+            oss << " 0x" << std::hex << (unsigned int)node.frameLength[idx];
+        }
+
+        oss << " }," << std::endl;
+        oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
+    }
 
     if ( ( cmodel->ccnode[index].extractCcParams.type != e_FM_PCD_EXTRACT_BY_HDR ) &&
          ( node.extract.nhAction == e_FM_PCD_ACTION_INDEXED_LOOKUP ) ) {
