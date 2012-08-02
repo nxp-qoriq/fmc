@@ -80,7 +80,7 @@ $(objects) : $(headers)
 
 libfmc.a : libfmc.a($(objects))
 
-fmc_config : fmc_config.o
+fmc_config : fmc_config.o libfmc.a libfm.a
 
 libfm.a : libfm.a(FMCDummyDriver.o)
 

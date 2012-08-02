@@ -286,6 +286,7 @@ fmc_get_handle(
         unsigned int port_index = model->fman[engine].ports[port];
         if ( model->port[port_index].type   == port_type &&
              model->port[port_index].number == port_number ) {
+            port  = port_index;
             found = 1;
             break;
         }
