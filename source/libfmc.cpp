@@ -26,6 +26,10 @@
 #include "FMCCModelOutput.h"
 #include "FMCSP.h"
 
+#define DEFINE_LOGGER_INSTANCE
+#include "logger.hpp"
+
+
 #ifdef _MSC_VER
 #pragma warning(disable : 4996)
 #ifdef _DEBUG
@@ -38,17 +42,20 @@ std::string error_text;
 std::string compile_dump;
 
 #ifdef __cplusplus
-extern "C"
+extern "C" {
 #endif
-int fmc_compile(
-        fmc_model*   cmodel,
-        const char*  nameCfg,
-        const char*  namePCD,
-        const char*  namePDL,
-        const char*  nameSP,
-        unsigned int swOffset,
-        unsigned int dontWarn,
-        const char** dump
+
+
+int
+fmc_compile(
+    fmc_model*   cmodel,
+    const char*  nameCfg,
+    const char*  namePCD,
+    const char*  namePDL,
+    const char*  nameSP,
+    unsigned int swOffset,
+    unsigned int dontWarn,
+    const char** dump
 )
 {
     error_text   = "";
@@ -131,10 +138,32 @@ int fmc_compile(
 }
 
 
-#ifdef __cplusplus
-extern "C"
-#endif
-const char* fmc_get_error( void )
+const char*
+fmc_get_error( void )
 {
     return error_text.c_str();
 }
+
+
+void
+fmc_log( int32_t level )
+{
+    using namespace logger;
+
+    LOG_INIT( std::cerr, (log_level_t)level );
+}
+
+
+void
+fmc_log_write( int32_t level, const char* str )
+{
+    using namespace logger;
+
+    LOG( (log_level_t)level ) << str << std::endl;
+}
+
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+

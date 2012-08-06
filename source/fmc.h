@@ -35,6 +35,7 @@
 extern "C"
 {
 #endif
+#include <stdio.h>
 #include <std_ext.h>
 #include <error_ext.h>
 #include <part_ext.h>
@@ -239,6 +240,11 @@ t_Handle fmc_get_handle(
             unsigned int port_number,
             const char*  name
 );
+
+void fmc_log( int32_t level );
+
+void fmc_log_write( int32_t level, const char* str );
+
 
 #ifdef __cplusplus
 }  // extern "C"
