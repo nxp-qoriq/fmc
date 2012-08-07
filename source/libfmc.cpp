@@ -14,6 +14,7 @@
 
 #include <typeinfo>
 #include <string.h>
+#include <stdarg.h>
 #include <sstream>
 
 #include "fmc.h"
@@ -155,11 +156,20 @@ fmc_log( int32_t level )
 
 
 void
-fmc_log_write( int32_t level, const char* str )
+fmc_log_write( int32_t level, const char* format, ... )
 {
     using namespace logger;
 
-    LOG( (log_level_t)level ) << str << std::endl;
+    va_list args;
+    va_start( args, format );
+
+    if ( level <= LOG_GET_LEVEL() ) {
+        char buffer[256];
+        vsprintf( buffer, format, args );
+        LOG( (log_level_t)level ) << buffer << std::endl;
+    }
+
+    va_end( args );
 }
 
 

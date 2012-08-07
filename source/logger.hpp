@@ -129,7 +129,8 @@ class logger_
 
 #define LOG_GET() logger::logger_::get_logger()
 #define LOG_INIT( stream, level ) LOG_GET().init( stream, level )
-#define LOG_LEVEL( level ) LOG_GET().set_log_level( level )
+#define LOG_SET_LEVEL( level ) LOG_GET().set_log_level( level )
+#define LOG_GET_LEVEL() LOG_GET().get_log_level()
 #define LOG( level )                                              \
     if ( level > LOG_GET().get_log_level() ) ; \
     else LOG_GET() << logger::logger_::prefix( level )

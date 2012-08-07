@@ -243,7 +243,7 @@ t_Handle fmc_get_handle(
 
 void fmc_log( int32_t level );
 
-void fmc_log_write( int32_t level, const char* str );
+void fmc_log_write( int32_t level, const char* format, ... );
 
 
 #ifdef __cplusplus
