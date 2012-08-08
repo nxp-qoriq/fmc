@@ -4,3 +4,5 @@ EXPORTS
     fmc_execute
     fmc_clean
     fmc_get_error
+    fmc_log
+    fmc_log_write

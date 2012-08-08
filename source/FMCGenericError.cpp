@@ -16,6 +16,7 @@
 #include <iostream>
 #include "FMCGenericError.h"
 #include "FMCUtils.h"
+#include "logger.hpp"
 
 void errorFuncHandler( void * ctx, xmlErrorPtr error )
 {
@@ -47,11 +48,12 @@ CGenericError::CGenericError(std::string error, CErrorElem elem1, CErrorElem ele
 void CGenericError::printWarning(std::string error, CErrorElem elem1, CErrorElem elem2, CErrorElem elem3, CErrorElem elem4, CErrorElem elem5,
                                  CErrorElem elem6,  CErrorElem elem7, CErrorElem elem8, CErrorElem elem9, CErrorElem elem10)
 {
-    if (dontWarn)
+    if ( dontWarn ) {
         return;
+    }
     CGenericError tempError (error, elem1, elem2, elem3, elem4,
                              elem5, elem6, elem7, elem8, elem9, elem10);
-    std::cerr << "Warning: " << tempError.msg << std::endl;
+    LOG( logger::WARN ) << tempError.msg << std::endl;
 }
 
 
@@ -65,11 +67,12 @@ CGenericErrorLine::CGenericErrorLine(std::string error, int line,        CErrorE
 void CGenericErrorLine::printWarning(std::string error, int line,        CErrorElem elem1, CErrorElem elem2, CErrorElem elem3, CErrorElem elem4,
                                      CErrorElem elem5, CErrorElem elem6, CErrorElem elem7, CErrorElem elem8, CErrorElem elem9, CErrorElem elem10)
 {
-    if (dontWarn)
+    if ( dontWarn ) {
         return;
+    }
     CGenericErrorLine tempError (error, line,  elem1, elem2, elem3, elem4,
                                  elem5, elem6, elem7, elem8, elem9, elem10);
-    std::cerr << "Warning: " << tempError.getErrorMsg() << std::endl;
+    LOG( logger::WARN ) << tempError.getErrorMsg() << std::endl;
 }
 
 void CGenericError::createMessage(std::string error, int line,         CErrorElem elem1, CErrorElem elem2, CErrorElem elem3, CErrorElem elem4, CErrorElem elem5,

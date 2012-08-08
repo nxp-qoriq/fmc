@@ -32,6 +32,7 @@
 #define LOGGER_H
 
 #include <ostream>
+#include <string>
 
 namespace logger {
 
@@ -40,7 +41,7 @@ typedef enum { NONE, ERR, WARN, INFO, DBG1, DBG2, DBG3 } log_level_t;
 class logger_
 {
   public:
-    logger_() : log_level( NONE )
+    logger_() : log_level( NONE ), stream( &std::cerr )
     {}
     
     ~logger_()
@@ -73,21 +74,21 @@ class logger_
 
     template< typename t >
     logger_&
-    operator <<( t& data )
+    operator <<( t const& data )
     {
         *stream << data;
         return *this;
     }
 
     logger_&
-    operator <<( std::ostream& (*manip)(std::ostream &) ) 
+    operator <<( std::ostream& (*manip)(std::ostream &) )
     {
         manip( *stream );
         return *this;
     }
 
     logger_&
-    operator <<( std::ios_base& (*manip)(std::ios_base&) ) 
+    operator <<( std::ios_base& (*manip)(std::ios_base&) )
     {
         manip( *stream );
         return *this;
@@ -132,7 +133,7 @@ class logger_
 #define LOG_SET_LEVEL( level ) LOG_GET().set_log_level( level )
 #define LOG_GET_LEVEL() LOG_GET().get_log_level()
 #define LOG( level )                                              \
-    if ( level > LOG_GET().get_log_level() ) ; \
-    else LOG_GET() << logger::logger_::prefix( level )
+    if ( level > LOG_GET_LEVEL() ) ; \
+    else LOG_GET() << logger::logger_::prefix( level ).c_str()
 
 #endif // LOGGER_H

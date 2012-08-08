@@ -799,15 +799,4 @@ class CTaskDef
 
 };
 
-std::ostream& operator<<( std::ostream& os, const CTaskDef& task );
-std::ostream& operator<<( std::ostream& os, const CProtocol& protocol );
-std::ostream& operator<<( std::ostream& os, const CField& field );
-std::ostream& operator<<( std::ostream& os, const CDistribution& distribution );
-std::ostream& operator<<( std::ostream& os, const CFieldRef& fieldref );
-std::ostream& operator<<( std::ostream& os, const CAction& action );
-std::ostream& operator<<( std::ostream& os, const CPolicy& policy );
-std::ostream& operator<<( std::ostream& os, const CFragmentation& fragmentation );
-std::ostream& operator<<( std::ostream& os, const CReassembly& reassembly );
-std::ostream& operator<<( std::ostream& os, const CHeaderManip& headermanip );
-
 #endif // TASKDEF_H

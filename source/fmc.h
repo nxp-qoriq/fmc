@@ -241,6 +241,15 @@ t_Handle fmc_get_handle(
             const char*  name
 );
 
+
+#define LOG_NONE 0
+#define LOG_ERR  1
+#define LOG_WARN 2
+#define LOG_INFO 3
+#define LOG_DBG1 4
+#define LOG_DBG2 5
+#define LOG_DBG3 6
+
 void fmc_log( int32_t level );
 
 void fmc_log_write( int32_t level, const char* format, ... );
