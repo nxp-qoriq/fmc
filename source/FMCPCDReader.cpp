@@ -23,6 +23,9 @@
 #include "FMCGenericError.h"
 #include "FMCUtils.h"
 
+#include "logger.hpp"
+using namespace logger;
+
 #define FQID_BIT_SIZE 24
 #define MAX_SIZE_OF_KEY 56
 
@@ -94,6 +97,7 @@ CPCDReader::parseNetPCD( std::string filename )
     xmlKeepBlanksDefault(0);
 
     // Parse the XML file
+    LOG( INFO ) << "Start XML parsing of file: " << filename << std::endl;
     xmlDocPtr doc = xmlParseFile( filename.c_str() );
 
     // In case reader has stored something for reporting
@@ -249,6 +253,10 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
+    LOG( INFO ) << "Parsing of XML node 'distribution' named: '"
+                << getAttr( pNode, "name" )
+                << "' ... " << std::endl;
+    
     distribution->action      = "";
     distribution->actionName  = "";
 
@@ -463,6 +471,8 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
 
         cur = cur->next;
     }
+
+    LOG( INFO ) << "Done" << std::endl;
 }
 
 
@@ -474,6 +484,10 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
+    LOG( INFO ) << "Parsing of XML node 'classification' named: '"
+                << getAttr( pNode, "name" )
+                << "' ... " << std::endl;
+                
     checkUnknownAttr( pNode, 4, "name", "max", "masks", "statistics" );
 
     classification->actionOnMiss            = "";
@@ -783,6 +797,8 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
     if (!nonHeaderFound && !fielrefFound && !hashTableFound) {
         throw CGenericError( ERR_EMPTY_CLSF_KEY, classification->name );
     }
+    
+    LOG( INFO ) << "Done" << std::endl;
 }
 
 
@@ -905,6 +921,7 @@ CPCDReader::parseNonHeader( CNonHeaderEntry* nonHeaderEntry, xmlNodePtr pNode )
     return;
 }
 
+
 void
 CPCDReader::parseHashTable( CHashTable* hashTable, xmlNodePtr pNode )
 {
@@ -915,13 +932,12 @@ CPCDReader::parseHashTable( CHashTable* hashTable, xmlNodePtr pNode )
 
     checkUnknownAttr( pNode, 3, "mask", "hashshift", "keysize" );
 
-    hashTable->mask                = std::strtoul( getAttr( pNode, "mask" ).c_str(), 0, 0 );
-    hashTable->hashShift        = std::strtoul( getAttr( pNode, "hashshift" ).c_str(), 0, 0 );
-    hashTable->keySize            = std::strtoul( getAttr( pNode, "keysize" ).c_str(), 0, 0 );
+    hashTable->mask      = std::strtoul( getAttr( pNode, "mask" ).c_str(), 0, 0 );
+    hashTable->hashShift = std::strtoul( getAttr( pNode, "hashshift" ).c_str(), 0, 0 );
+    hashTable->keySize   = std::strtoul( getAttr( pNode, "keysize" ).c_str(), 0, 0 );
 
     return;
 }
-
 
 
 void
@@ -931,6 +947,10 @@ CPCDReader::parsePolicer( CPolicer* policer, xmlNodePtr pNode )
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"policer" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
+
+    LOG( INFO ) << "Parsing of XML node 'policer' named: '"
+                << getAttr( pNode, "name" )
+                << "' ... " << std::endl;
 
     // Set default parameters
     policer->name       = "";
@@ -1051,6 +1071,8 @@ CPCDReader::parsePolicer( CPolicer* policer, xmlNodePtr pNode )
 
         cur = cur->next;
     }
+    
+    LOG( INFO ) << "Done" << std::endl;
 }
 
 

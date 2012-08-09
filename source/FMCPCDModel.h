@@ -184,8 +184,8 @@ public:
     t_FmPcdKgStorageProfile storageProfile; 
 #endif /* (DPAA_VERSION >= 11) */
 
-    std::string   port_signature;
-    unsigned int  scheme_index_per_port; // Scheme index for t_Fmc type
+    std::string port_signature;
+    int         scheme_index_per_port;  // Scheme index for t_Fmc type
 };
 
 

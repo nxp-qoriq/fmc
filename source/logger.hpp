@@ -31,7 +31,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <ostream>
+#include <iostream>
 #include <string>
 
 namespace logger {

@@ -87,7 +87,7 @@ const std::string WARN_WRONG_HDR_INDEX       = "%1 '%2', fieldref '%3' has wrong
 const std::string WARN_HDR_INDEX_NA          = "%1 '%2', fieldref '%3' has not applicable header_index value. Ignored";
 const std::string WARN_EXTRACTION_BYTE_ALLIGN= "The extraction offset is not byte alligned in distribution '%1'";
 
-const std::string ERR_PCD_REQUIRED           = "PCD file required %1";
+const std::string ERR_PCD_REQUIRED           = "PCD file is required %1";
 const std::string ERR_CONFIG_REQUIRED        = "Config file required %1";
 const std::string ERR_SP_REQUIRED            = "Custom protocol file required when working in compile only mode %1";
 const std::string ERR_NO_INPUT_FILE          = "Usage: fmc <pdl_input_file> <pcd_input_file> %1";
