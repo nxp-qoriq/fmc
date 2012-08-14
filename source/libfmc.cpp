@@ -105,15 +105,34 @@ fmc_compile(
             task.checkSemantics();
 
             CFMCModel model;
+            LOG( logger::DBG1 ) << logger::ind( 2 )
+                                << "Converting parsed task definition to internal representation ..."
+                                << std::endl;
             model.createModel( &task );
+            LOG( logger::DBG1 ) << logger::ind( -2 )
+                                << "Done"
+                                << std::endl;
+            LOG( logger::DBG1 ) << std::endl;
 
             CFMCCModelOutput   modelOut;
             std::ostringstream oss;
+            LOG( logger::DBG1 ) << logger::ind( 2 )
+                                << "Output structures' initialization started ..."
+                                << std::endl;
             modelOut.output( model, cmodel, oss, 0 );
+            LOG( logger::DBG1 ) << logger::ind( -2 )
+                                << "Done"
+                                << std::endl;
+            LOG( logger::DBG1 ) << std::endl;
 
             compile_dump = oss.str();
         }
 
+        LOG( logger::DBG2 ) << "Generated init:"
+                            << std::endl
+                            << compile_dump
+                            << std::endl;
+        
         if ( dump != 0 ) {
             *dump = compile_dump.c_str();
         }
