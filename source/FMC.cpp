@@ -112,7 +112,7 @@ int main( int argc, char* argv[] )
         cmd.add( compOnly );
 
         TCLAP::ValueArg<std::string> log_level( "l", "log_level",
-            "Log level - 'none', 'err', 'warn', 'info', 'dbg1', 'dbg2', 'dbg3'",
+            "Log level: none, err, warn, info, dbg1, dbg2, dbg3",
             false, "info", "level" );
         cmd.add( log_level );
 

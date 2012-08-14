@@ -68,7 +68,7 @@ objects = ./libfmc.o ./fmc_exec.o                                       \
 
 headers = FMCCFGReader.h FMCGenericError.h FMCPCDModel.h                     \
           FMCPCDReader.h FMCPDLReader.h FMCSP.h FMCSPCreateCode.h FMCSPIR.h  \
-          FMCTaskDef.h FMCUtils.h fmc.h
+          FMCTaskDef.h FMCUtils.h fmc.h logger.hpp
 
 other_files = ./fmc ./fmc_config ./fmc_config.c ./fmc_config.o ./softparse.h \
 	          ./libfm.a ./libfmc.a ./FMCDummyDriver.o ./FMC.o

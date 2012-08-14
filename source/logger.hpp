@@ -38,10 +38,24 @@ namespace logger {
 
 typedef enum { NONE, ERR, WARN, INFO, DBG1, DBG2, DBG3 } log_level_t;
 
+
+class ind
+{
+public:
+    ind()                  : indent( 0 ) {};
+    ind( int incr_indent ) : indent( incr_indent ) {};
+public:
+    int indent;
+};
+
+
 class logger_
 {
   public:
-    logger_() : log_level( NONE ), stream( &std::cerr ), indent( 0 )
+    logger_() : log_level( NONE ),
+                stream( &std::cerr ),
+                indent( 0 ),
+                need_indent( false )
     {}
     
     ~logger_()
@@ -76,6 +90,10 @@ class logger_
     logger_&
     operator <<( t const& data )
     {
+        if ( need_indent ) {
+            *stream << std::string().append( indent, ' ' );
+            need_indent = false;
+        }
         *stream << data;
         return *this;
     }
@@ -92,32 +110,6 @@ class logger_
     {
         manip( *stream );
         return *this;
-    }
-
-    std::string
-    ind()
-    {
-        return std::string().append( indent, ' ' );
-    }
-
-    std::string
-    ind( int incr_indent )
-    {
-        std::string ret;
-        if ( incr_indent >= 0 ) {
-            ret = ind();
-        }
-
-        indent += incr_indent;
-        if ( indent < 0 ) {
-            indent = 0;
-        }
-
-        if ( incr_indent < 0 ) {
-            ret = ind();
-        }
-        
-        return ret;
     }
 
     static std::string
@@ -146,8 +138,30 @@ class logger_
     static        logger_ log;
     log_level_t   log_level;
     std::ostream* stream;
+    bool          need_indent;
     int           indent;
 };
+
+
+template<>
+inline logger_&
+logger_::operator << <logger::ind>( ind const& incr_indent )
+{
+    need_indent = true;
+
+    if ( incr_indent.indent > 0 ) {
+        *stream << std::string().append( indent, ' ' );
+        need_indent = false;
+    }
+
+    indent += incr_indent.indent;
+    if ( indent < 0 ) {
+        indent = 0;
+    }
+
+    return *this;
+}
+
 
 #ifdef DEFINE_LOGGER_INSTANCE
     logger_ logger_::log;
@@ -161,11 +175,7 @@ class logger_
 #define LOG_GET_LEVEL() LOG_GET().get_log_level()
 #define LOG( level )                                              \
     if ( level > LOG_GET_LEVEL() ) ;                              \
-    else LOG_GET() << logger::logger_::prefix( level ).c_str()    \
-                   << LOG_GET().ind()
-#define LOG_( level, indent )                                      \
-    if ( level > LOG_GET_LEVEL() ) ;                              \
-    else LOG_GET() << logger::logger_::prefix( level ).c_str()    \
-                   << LOG_GET().ind( indent )
+    else LOG_GET() << logger::logger_::prefix( level )            \
+                   << logger::ind()
 
 #endif // LOGGER_H

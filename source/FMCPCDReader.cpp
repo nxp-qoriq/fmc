@@ -97,7 +97,7 @@ CPCDReader::parseNetPCD( std::string filename )
     xmlKeepBlanksDefault(0);
 
     // Parse the XML file
-    LOG_( DBG1, 2 ) << "Start XML parsing of file: " << filename << std::endl;
+    LOG( DBG1 ) << ind(2) << "Start XML parsing of file: " << filename << std::endl;
     xmlDocPtr doc = xmlParseFile( filename.c_str() );
 
     // In case reader has stored something for reporting
@@ -197,7 +197,8 @@ CPCDReader::parseNetPCD( std::string filename )
     xmlFreeDoc( doc );
     xmlCleanupParser();
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
+    LOG( DBG1 ) << std::endl;
 }
 
 
@@ -213,7 +214,7 @@ CPCDReader::parseAlias( xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'alias' named: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'alias' named: '"
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
     
@@ -245,7 +246,7 @@ CPCDReader::parseAlias( xmlNodePtr pNode )
         cur = cur->next;
     }
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 
@@ -261,12 +262,12 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'distribution' named: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'distribution' named: '"
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
     
-    distribution->action      = "";
-    distribution->actionName  = "";
+    distribution->action     = "";
+    distribution->actionName = "";
 
     // Get known attributes
     distribution->name          = getAttr( pNode, "name" );
@@ -278,12 +279,12 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
     distribution->qbase         = 0;
     distribution->dflt0         = 0;
     distribution->dflt1         = 0;
-    distribution->vspbase        = 0;
-    distribution->vspdirect        = true;
-    distribution->vspshift        = 0;
-    distribution->vspoffset        = 0;
-    distribution->vspcount        = 0;
-    distribution->vspoverride    = false;
+    distribution->vspbase       = 0;
+    distribution->vspdirect     = true;
+    distribution->vspshift      = 0;
+    distribution->vspoffset     = 0;
+    distribution->vspcount      = 0;
+    distribution->vspoverride   = false;
 
     checkUnknownAttr( pNode, 3, "name", "comment", "description" );
 
@@ -324,6 +325,9 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
                 if ( !xmlStrcmp( pr->name, (const xmlChar*)"protocolref" ) ) {
                     CProtocolRef protocolref;
                     protocolref.name = getAttr( pr, "name" );
+                    LOG( DBG1 ) << "'protocols' contains 'protocolref': '"
+                                << protocolref.name
+                                << "'" << std::endl;
                     protocolref.opt = getAttr( pr, "opt" );
                     checkUnknownAttr( pr, 2, "name", "opt");
 
@@ -442,6 +446,13 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
             distribution->action     = stripBlanks( getAttr( cur, "type" ) );
             distribution->actionName = stripBlanks( getAttr( cur, "name" ) );
             distribution->headerManipName = stripBlanks( getAttr( cur, "header" ) );
+            LOG( DBG1 ) << "'action' is: type - "
+                        << distribution->action
+                        << ", name - "
+                        << distribution->actionName
+                        << ", manip name - "
+                        << distribution->headerManipName
+                        << std::endl;
         }
          // vsp
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"vsp" ) ) {
@@ -480,7 +491,7 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
         cur = cur->next;
     }
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 
@@ -492,7 +503,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'classification' named: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'classification' named: '"
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
                 
@@ -716,6 +727,14 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                         ce.statistics = true;
                     else
                         ce.statistics = false;
+
+                    LOG( DBG1 ) << "Entry's 'action' is: type - "
+                                << ce.action
+                                << ", name - "
+                                << ce.actionName
+                                << ", statistics - "
+                                << ce.statistics
+                                << std::endl;
                 }
 
                 pr = pr->next;
@@ -744,6 +763,14 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                 classification->statisticsOnMiss = true;
             else
                 classification->statisticsOnMiss = false;
+
+            LOG( DBG1 ) << "'action' on-miss is: type - "
+                        << classification->actionOnMiss
+                        << ", name - "
+                        << classification->actionNameOnMiss
+                        << ", statistics - "
+                        << classification->statisticsOnMiss
+                        << std::endl;
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"framelength" ) ) {
             //Read the frame lenghts
@@ -806,7 +833,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
         throw CGenericError( ERR_EMPTY_CLSF_KEY, classification->name );
     }
     
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 
@@ -818,7 +845,7 @@ CPCDReader::parseFieldRef( CFieldRef* fieldref, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'fieldref' named: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'fieldref' named: '"
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
     
@@ -830,7 +857,7 @@ CPCDReader::parseFieldRef( CFieldRef* fieldref, xmlNodePtr pNode )
     // Get known attributes
     fieldref->name            = getAttr( pNode, "name" );
     fieldref->header_index    = getAttr( pNode, "header_index" );
-    fieldref->offset        = std::strtoul( getAttr( pNode, "offset" ).c_str(), 0, 0 );
+    fieldref->offset          = std::strtoul( getAttr( pNode, "offset" ).c_str(), 0, 0 );
     fieldref->size            = std::strtoul( getAttr( pNode, "size" ).c_str(), 0, 0 );
 
     // Parse children nodes
@@ -847,7 +874,7 @@ CPCDReader::parseFieldRef( CFieldRef* fieldref, xmlNodePtr pNode )
         cur = cur->next;
     }
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 void
@@ -858,7 +885,7 @@ CPCDReader::parseNonHeader( CNonHeaderEntry* nonHeaderEntry, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'nonheader' with source: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'nonheader' with source: '"
                 << getAttr( pNode, "source" )
                 << "' ... " << std::endl;
     
@@ -936,7 +963,7 @@ CPCDReader::parseNonHeader( CNonHeaderEntry* nonHeaderEntry, xmlNodePtr pNode )
     nonHeaderEntry->size       = std::strtoul( getAttr( pNode, "size" ).c_str(), 0, 0 );
     nonHeaderEntry->icIndxMask = std::strtoul( getAttr( pNode, "ic_index_mask" ).c_str(), 0, 0 );
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 
     return;
 }
@@ -950,7 +977,7 @@ CPCDReader::parseHashTable( CHashTable* hashTable, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'hashtable'"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'hashtable'"
                 << " ... " << std::endl;
     
     checkUnknownAttr( pNode, 3, "mask", "hashshift", "keysize" );
@@ -959,7 +986,7 @@ CPCDReader::parseHashTable( CHashTable* hashTable, xmlNodePtr pNode )
     hashTable->hashShift = std::strtoul( getAttr( pNode, "hashshift" ).c_str(), 0, 0 );
     hashTable->keySize   = std::strtoul( getAttr( pNode, "keysize" ).c_str(), 0, 0 );
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 
     return;
 }
@@ -973,7 +1000,7 @@ CPCDReader::parsePolicer( CPolicer* policer, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'policer' named: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'policer' named: '"
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
 
@@ -1084,6 +1111,12 @@ CPCDReader::parsePolicer( CPolicer* policer, xmlNodePtr pNode )
             else {
                 throw CGenericError( ERR_COND_UNEXPECTED, cond, policer->name );
             }
+
+            LOG( DBG1 ) << "'action' " << cond << " type - "
+                        << type
+                        << ", name - "
+                        << name
+                        << std::endl;
         }
         // comment
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
@@ -1097,7 +1130,7 @@ CPCDReader::parsePolicer( CPolicer* policer, xmlNodePtr pNode )
         cur = cur->next;
     }
     
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 
@@ -1109,7 +1142,7 @@ CPCDReader::parsePolicy( CPolicy* policy, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'policy' named: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'policy' named: '"
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
     
@@ -1150,7 +1183,7 @@ CPCDReader::parsePolicy( CPolicy* policy, xmlNodePtr pNode )
         cur = cur->next;
     }
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 
@@ -1162,7 +1195,7 @@ CPCDReader::parseDistOrder( CPolicy* policy, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'dist_order'"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'dist_order'"
                 << " ... " << std::endl;
     
     checkUnknownAttr( pNode, 0 );
@@ -1173,6 +1206,8 @@ CPCDReader::parseDistOrder( CPolicy* policy, xmlNodePtr pNode )
         // action
         if ( !xmlStrcmp( cur->name, (const xmlChar*)"distributionref" ) ) {
             std::string name = getAttr( cur, "name" );
+            LOG( DBG1 ) << "'distributionref' found: '"
+                        << name << "'" << std::endl;
             policy->dist_order.push_back( name );
         }
         // comment
@@ -1187,7 +1222,7 @@ CPCDReader::parseDistOrder( CPolicy* policy, xmlNodePtr pNode )
         cur = cur->next;
     }
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 void
@@ -1198,7 +1233,7 @@ CPCDReader::parseReassembly( CReassembly* reassembly, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'reassembly' named: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'reassembly' named: '"
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
     
@@ -1291,7 +1326,7 @@ CPCDReader::parseReassembly( CReassembly* reassembly, xmlNodePtr pNode )
         cur = cur->next;
     }
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 void
@@ -1302,7 +1337,7 @@ CPCDReader::parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode 
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'fragmentation' named: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'fragmentation' named: '"
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
     
@@ -1371,7 +1406,7 @@ CPCDReader::parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode 
         cur = cur->next;
     }
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 void
@@ -1602,7 +1637,7 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'header' named: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'header' named: '"
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
     
@@ -1691,7 +1726,7 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
         cur = cur->next;
     }
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 void
@@ -1702,7 +1737,7 @@ CPCDReader::parseManipulations( xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'manipulations'"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'manipulations'"
                 << " ... " << std::endl;
     
     checkUnknownAttr( pNode, 0 );
@@ -1753,7 +1788,7 @@ CPCDReader::parseManipulations( xmlNodePtr pNode )
         cur = cur->next;
     }
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 void
@@ -1763,7 +1798,7 @@ CPCDReader::parseVsp( CVsp* vsp, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
     
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'vsp' named: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'vsp' named: '"
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
     
@@ -1786,7 +1821,7 @@ CPCDReader::parseVsp( CVsp* vsp, xmlNodePtr pNode )
     vsp->vspoffset = std::strtoul( getAttr( pNode, "vspoffset" ).c_str(), 0, 0 );
     vsp->vspcount  = std::strtoul( getAttr( pNode, "vspcount" ).c_str(),  0, 0 );
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 void
@@ -1796,7 +1831,7 @@ CPCDReader::parseReplicator( CReplicator* replicator, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
-    LOG_( DBG1, 2 ) << "Parsing of XML node 'replicator' named: '"
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'replicator' named: '"
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
     
@@ -1901,7 +1936,7 @@ CPCDReader::parseReplicator( CReplicator* replicator, xmlNodePtr pNode )
         replicator->max = 2;
     }
 
-    LOG_( DBG1, -2 ) << "Done" << std::endl;
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 void CPCDReader::checkUnknownAttr ( xmlNodePtr pNode, int num, ...)
