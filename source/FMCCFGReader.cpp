@@ -21,6 +21,9 @@
 #include "FMCGenericError.h"
 #include "FMCUtils.h"
 
+#include "logger.hpp"
+using namespace logger;
+
 
 // Aid function to retrieve XML element's attribute
 std::string
@@ -67,6 +70,7 @@ CCFGReader::parseCfgData( std::string filename )
     xmlKeepBlanksDefault(0);
 
     // Parse the XML file
+    LOG( DBG1 ) << ind(2) << "Start XML parsing of config file: " << filename << std::endl;
     xmlDocPtr doc = xmlParseFile( filename.c_str() );
 
     if ( !error.getErrorMsg().empty() ) {
@@ -121,6 +125,9 @@ CCFGReader::parseCfgData( std::string filename )
 
     xmlFreeDoc( doc );
     xmlCleanupParser();
+
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
+    LOG( DBG1 ) << std::endl;
 }
 
 
@@ -131,6 +138,10 @@ CCFGReader::parseEngine( xmlNodePtr pNode )
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"engine" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
+
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'engine' named: '"
+                << getXMLAttr( pNode, "name" )
+                << "' ... " << std::endl;
 
     CEngine engine;
     engine.name = getXMLAttr( pNode, "name" );
@@ -154,6 +165,12 @@ CCFGReader::parseEngine( xmlNodePtr pNode )
             port.portid = std::strtol( getXMLAttr( cur, "portid" ).c_str(),
                                        0, 0 );
 
+            LOG( DBG1 ) << "XML entity 'port' found: "
+                        << "type: "     << port.type
+                        << ", number: " << port.number
+                        << ", policy: " << port.policy
+                        << std::endl;
+
             // Find the policy entry
             if ( task->policies.find( port.policy ) == task->policies.end() ) {
                 throw CGenericError( ERR_POLICY_NOT_FOUND, port.policy,
@@ -176,6 +193,9 @@ CCFGReader::parseEngine( xmlNodePtr pNode )
         // comment
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
         }
+        // text
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"text" ) ) {
+        }
         // other
         else
             CGenericError::printWarning(WARN_UNEXPECTED_NODE,(char*)cur->name);
@@ -187,4 +207,6 @@ CCFGReader::parseEngine( xmlNodePtr pNode )
     if ( !engine.name.empty() && ( 0 != engine.ports.size() ) ) {
         task->engines[engine.name] = engine;
     }
+
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }

@@ -14,6 +14,10 @@
 
 #include "FMCPDLReader.h"
 
+#include "logger.hpp"
+using namespace logger;
+
+
 CPDLReader::CPDLReader ()
 {
     softParse = false;
@@ -90,6 +94,7 @@ CPDLReader::parseNetPDL( std::string filename )
     xmlKeepBlanksDefault(0);
 
     // Parse the XML file
+    LOG( DBG1 ) << ind(2) << "Start XML parsing of NetPDL file: " << filename << std::endl;
     xmlDocPtr doc = xmlParseFile( filename.c_str() );
 
     // In case reader has stored something for reporting
@@ -154,6 +159,9 @@ CPDLReader::parseNetPDL( std::string filename )
 
     xmlFreeDoc( doc );
     xmlCleanupParser();
+
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
+    LOG( DBG1 ) << std::endl;
 }
 
 
@@ -168,6 +176,10 @@ CPDLReader::parseProtocol( CProtocol* protocol, xmlNodePtr pNode )
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"protocol" ) ) {
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
+
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'protocol' named: '"
+                << getAttr( pNode, "name" )
+                << "' ... " << std::endl;
 
     // Get known attributes
     protocol->name            = getAttr( pNode, "name" );
@@ -187,6 +199,10 @@ CPDLReader::parseProtocol( CProtocol* protocol, xmlNodePtr pNode )
         if (prevprotonames == "")
             throw CGenericErrorLine(ERR_MISSING_ATTRIBUTE, xmlGetLineNo(pNode),
                                     "prevproto", "protocol", protocol->name);
+
+        LOG( DBG1 ) << "The protocol is attached to 'prevproto': "
+                    << prevprotonames
+                    << std::endl;
 
         // If several protocols are given, split them
         std::basic_string <char>::size_type comma_place = prevprotonames.find( ',' );
@@ -234,6 +250,8 @@ CPDLReader::parseProtocol( CProtocol* protocol, xmlNodePtr pNode )
 
         cur = cur->next;
     }
+
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 
@@ -387,6 +405,10 @@ CPDLReader::parseField( CField* field, xmlNodePtr pNode )
         throw CGenericError( ERR_WRONG_TYPE1, (char*)pNode->name );
     }
 
+    LOG( DBG1 ) << ind(2) << "Parsing of XML node 'field' named: '"
+                << getAttr( pNode, "name" )
+                << "' ... " << std::endl;
+
     // Get known attributes
     field->type         = getAttr( pNode, "type" );
     field->name         = getAttr( pNode, "name" );
@@ -463,6 +485,8 @@ CPDLReader::parseField( CField* field, xmlNodePtr pNode )
 
         cur = cur->next;
     }
+
+    LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }
 
 

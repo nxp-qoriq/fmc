@@ -97,7 +97,7 @@ CPCDReader::parseNetPCD( std::string filename )
     xmlKeepBlanksDefault(0);
 
     // Parse the XML file
-    LOG( DBG1 ) << ind(2) << "Start XML parsing of file: " << filename << std::endl;
+    LOG( DBG1 ) << ind(2) << "Start XML parsing of PCD file: " << filename << std::endl;
     xmlDocPtr doc = xmlParseFile( filename.c_str() );
 
     // In case reader has stored something for reporting
