@@ -43,6 +43,42 @@ bool save( fmc_model_t* pmodel );
 fmc_model_t model      = {0};
 fmc_model_t prev_model = {0};
 
+
+void set_log_level( std::string log_level_name )
+{
+    int int_log_value = LOG_INFO;
+
+    if ( log_level_name == "none" ) {
+        int_log_value = LOG_NONE;
+    }
+    else if ( log_level_name == "err" ) {
+        int_log_value = LOG_ERR;
+    }
+    else if ( log_level_name == "warn" ) {
+        int_log_value = LOG_WARN;
+    }
+    else if ( log_level_name == "info" ) {
+        int_log_value = LOG_INFO;
+    }
+    else if ( log_level_name == "dbg1" ) {
+        int_log_value = LOG_DBG1;
+    }
+    else if ( log_level_name == "dbg2" ) {
+        int_log_value = LOG_DBG2;
+    }
+    else if ( log_level_name == "dbg3" ) {
+        int_log_value = LOG_DBG3;
+    }
+    else {
+    }
+
+#ifdef _MSC_VER
+    fmc_log( int_log_value );
+#endif
+    LOG_INIT( std::cerr, logger::log_level_t(int_log_value) );
+}
+
+
 int main( int argc, char* argv[] )
 {
 #ifdef _DEBUG
@@ -50,11 +86,6 @@ int main( int argc, char* argv[] )
 //    _crtBreakAlloc = 2117;
 #endif
 
-#ifdef _MSC_VER
-    fmc_log( LOG_WARN );
-#endif
-    LOG_INIT( std::cerr, logger::WARN );
-    
     // Wrap everything in the 'try' block.  Do this every time,
     // because exceptions will be thrown for problems.
     try {
@@ -80,9 +111,10 @@ int main( int argc, char* argv[] )
             "Compile the custom protocol, output generated files and exit");
         cmd.add( compOnly );
 
-        TCLAP::SwitchArg dontWarn( "w", "no_warnings",
-            "Don't report warnings");
-        cmd.add( dontWarn );
+        TCLAP::ValueArg<std::string> log_level( "l", "log_level",
+            "Log level - 'none', 'err', 'warn', 'info', 'dbg1', 'dbg2', 'dbg3'",
+            false, "info", "level" );
+        cmd.add( log_level );
 
         TCLAP::ValueArg<std::string> nameSP( "s", "custom_protocol",
             "Custom protocol file name", false,
@@ -120,6 +152,8 @@ int main( int argc, char* argv[] )
 
         cmd.parse( argc, argv );
 
+        set_log_level( log_level.getValue() );
+
         // Check args
         if (compOnly.getValue() && !nameSP.isSet())
             throw CGenericError(ERR_SP_REQUIRED);
@@ -127,7 +161,7 @@ int main( int argc, char* argv[] )
             throw CGenericError(ERR_PCD_REQUIRED);
         if (!compOnly.getValue() && !nameCfg.isSet())
             throw CGenericError(ERR_CONFIG_REQUIRED);
-        CGenericError::dontWarn = dontWarn.isSet();
+        CGenericError::dontWarn = ( LOG_GET_LEVEL() < LOG_WARN );
 
         const char* dump = 0;
 
@@ -138,7 +172,7 @@ int main( int argc, char* argv[] )
                     namePDL.getValue().c_str(),
                     nameSP.getValue().c_str(),
                     strtoul( swOffset.getValue().c_str(), 0, 0 ),
-                    dontWarn.isSet(),
+                    ( LOG_GET_LEVEL() < LOG_WARN ),
                     &dump
             );
 

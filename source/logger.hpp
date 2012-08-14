@@ -41,7 +41,7 @@ typedef enum { NONE, ERR, WARN, INFO, DBG1, DBG2, DBG3 } log_level_t;
 class logger_
 {
   public:
-    logger_() : log_level( NONE ), stream( &std::cerr )
+    logger_() : log_level( NONE ), stream( &std::cerr ), indent( 0 )
     {}
     
     ~logger_()
@@ -94,6 +94,32 @@ class logger_
         return *this;
     }
 
+    std::string
+    ind()
+    {
+        return std::string().append( indent, ' ' );
+    }
+
+    std::string
+    ind( int incr_indent )
+    {
+        std::string ret;
+        if ( incr_indent >= 0 ) {
+            ret = ind();
+        }
+
+        indent += incr_indent;
+        if ( indent < 0 ) {
+            indent = 0;
+        }
+
+        if ( incr_indent < 0 ) {
+            ret = ind();
+        }
+        
+        return ret;
+    }
+
     static std::string
     prefix( log_level_t log_level )
     {
@@ -120,6 +146,7 @@ class logger_
     static        logger_ log;
     log_level_t   log_level;
     std::ostream* stream;
+    int           indent;
 };
 
 #ifdef DEFINE_LOGGER_INSTANCE
@@ -133,7 +160,12 @@ class logger_
 #define LOG_SET_LEVEL( level ) LOG_GET().set_log_level( level )
 #define LOG_GET_LEVEL() LOG_GET().get_log_level()
 #define LOG( level )                                              \
-    if ( level > LOG_GET_LEVEL() ) ; \
-    else LOG_GET() << logger::logger_::prefix( level ).c_str()
+    if ( level > LOG_GET_LEVEL() ) ;                              \
+    else LOG_GET() << logger::logger_::prefix( level ).c_str()    \
+                   << LOG_GET().ind()
+#define LOG_( level, indent )                                      \
+    if ( level > LOG_GET_LEVEL() ) ;                              \
+    else LOG_GET() << logger::logger_::prefix( level ).c_str()    \
+                   << LOG_GET().ind( indent )
 
 #endif // LOGGER_H

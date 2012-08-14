@@ -250,7 +250,7 @@ t_Handle fmc_get_handle(
 #define LOG_DBG2 5
 #define LOG_DBG3 6
 
-void fmc_log( int32_t level );
+int32_t fmc_log( int32_t level );
 
 void fmc_log_write( int32_t level, const char* format, ... );
 

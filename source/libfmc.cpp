@@ -148,12 +148,16 @@ fmc_get_error( void )
 }
 
 
-void
+int32_t
 fmc_log( int32_t level )
 {
     using namespace logger;
+    
+    int32_t ret = LOG_GET_LEVEL();
 
     LOG_INIT( std::cerr, (log_level_t)level );
+
+    return ret;
 }
 
 
