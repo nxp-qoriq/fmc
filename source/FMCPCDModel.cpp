@@ -231,6 +231,7 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
             applier.add( ApplyOrder::Entry( ApplyOrder::PortStart, port.getIndex() ) );
         }
 
+#ifndef P1023
         std::map< std::string, CHeaderManip >::iterator manipIt;
         unsigned int idx = 0;
         for ( manipIt = pTaskDef->headermanips.begin(); manipIt != pTaskDef->headermanips.end(); ++manipIt ) {
@@ -244,7 +245,8 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
                 engine.headerManips_nextNanip[engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.name)] = engine.getHeaderManipIndex(engine.name + "/hdr/" + manipIt->second.nextManip);
             }
         }
-        
+#endif // P1023
+
         applier.sort();
 
         applier.add( ApplyOrder::Entry( ApplyOrder::EngineStart, engine.getIndex() ) );
@@ -2802,6 +2804,8 @@ CFMCModel::getFieldUpdateTypeByString( std::string type )
     return e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN;
 }
 
+
+#ifndef P1023
 unsigned int
 Engine::getHeaderManipIndex(std::string name)
 {
@@ -2814,6 +2818,7 @@ Engine::getHeaderManipIndex(std::string name)
 
     return 0;
 }
+#endif // P1023
 
 
 ApplyOrder::Entry::Entry( Type typePrm, unsigned int indexPrm ) :

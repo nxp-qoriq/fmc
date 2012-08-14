@@ -1648,6 +1648,7 @@ CFMCCModelOutput::get_apply_item_name( fmc_model_t* cmodel,
     case FMCPolicer:
         return std::string( " /* " ) +
             cmodel->policer_name[e.index] + " */";
+#ifndef P1023
 #if (DPAA_VERSION >= 11)
     case FMCReplicator:
         return std::string( " /* " ) +
@@ -1656,6 +1657,7 @@ CFMCCModelOutput::get_apply_item_name( fmc_model_t* cmodel,
     case FMCManipulation:
         return std::string( " /* " ) +
             cmodel->fman[current_engine].hdr_name[e.index] + " */";
+#endif // P1023
     default:
         return "";
     }
