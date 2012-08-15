@@ -40,4 +40,4 @@ in reference to the license of the flex tool itself (which is 2-clause BSD):
 
 Only the generated scanner is contained in the Freescale FMC package.
 
-fmc.h and fmc_exec.c files are distributed under "MIT License" terms.
+fmc.h, logger.hpp and fmc_exec.c files are distributed under "MIT License" terms.

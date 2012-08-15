@@ -25,6 +25,8 @@ extern "C" {
 #include <Peripherals/fm_pcd_ext.h>
 #include <Peripherals/fm_port_ext.h>
 
+#include "fmc.h"
+
 /*
    Dummy stub functions' definitions. The file makes it possible
    to compile/link the project without the real driver integration
@@ -36,7 +38,7 @@ static unsigned int handle_no = 0;
 t_Handle
 FM_Open(uint8_t id)
 {
-    printf( "Calling IOCTL::FM_Open %d\n", handle_no + 1 );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_Open %d", handle_no + 1 );
     return (t_Handle)++handle_no;
 }
 
@@ -44,14 +46,14 @@ FM_Open(uint8_t id)
 void
 FM_Close(t_Handle h_Fm)
 {
-    printf( "Calling IOCTL::FM_Close %d\n", h_Fm );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_Close %d", h_Fm );
 }
 
 
 t_Handle
 FM_PCD_Open( t_FmPcdParams *p_FmPcdParams )
 {
-    printf( "Calling IOCTL::FM_PCD_Open %d\n", handle_no + 1 );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_Open %d", handle_no + 1 );
     return (t_Handle)++handle_no;
 }
 
@@ -59,27 +61,27 @@ FM_PCD_Open( t_FmPcdParams *p_FmPcdParams )
 void
 FM_PCD_Close(t_Handle h_FmPcd)
 {
-    printf( "Calling IOCTL::FM_PCD_Close %d\n",  h_FmPcd );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_Close %d",  h_FmPcd );
 }
 
 
 t_Handle FM_PORT_Open(t_FmPortParams *p_FmPortParams)
 {
-    printf( "Calling IOCTL::FM_PORT_Open %d\n", handle_no + 1 );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PORT_Open %d", handle_no + 1 );
     return (t_Handle)++handle_no;
 }
 
 
 void FM_PORT_Close(t_Handle h_FmPort)
 {
-    printf( "Calling IOCTL::FM_PORT_Close %d\n", h_FmPort );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PORT_Close %d", h_FmPort );
 }
 
 
 t_Error
 FM_PORT_SetPCD(t_Handle h_FmPort, t_FmPortPcdParams *p_FmPortPcd)
 {
-    printf( "Calling IOCTL::FM_PORT_SetPCD %d\n", h_FmPort );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PORT_SetPCD %d", h_FmPort );
     return E_OK;
 }
 
@@ -87,14 +89,14 @@ FM_PORT_SetPCD(t_Handle h_FmPort, t_FmPortPcdParams *p_FmPortPcd)
 t_Handle
 FM_PCD_Config( t_FmPcdParams *p_FmPcdParams )
 {
-    printf( "Calling IOCTL::FM_PCD_Config %d\n", handle_no + 1 );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_Config %d", handle_no + 1 );
     return (t_Handle)++handle_no;
 }
 
 t_Error
 FM_PCD_Init(t_Handle h_FmPcd)
 {
-    printf( "Calling IOCTL::FM_PCD_Init %d\n", h_FmPcd );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_Init %d", h_FmPcd );
     return E_OK;
 }
 
@@ -102,7 +104,7 @@ t_Handle
 FM_PCD_NetEnvCharacteristicsSet( t_Handle h_FmPcd,
                                 t_FmPcdNetEnvParams *p_Units )
 {
-    printf( "Calling IOCTL::FM_PCD_SetNetEnvCharacteristics %d\n", handle_no + 1 );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_SetNetEnvCharacteristics %d", handle_no + 1 );
     return (t_Handle)++handle_no;
 }
 
@@ -110,7 +112,7 @@ t_Handle
 FM_PCD_KgSchemeSet( t_Handle h_FmPcd,
                     t_FmPcdKgSchemeParams *p_Scheme )
 {
-    printf( "Calling IOCTL::FM_PCD_KgSetScheme %d rel=%d\n", handle_no + 1, p_Scheme->id.relativeSchemeId );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_KgSetScheme %d rel=%d", handle_no + 1, p_Scheme->id.relativeSchemeId );
     return (t_Handle)++handle_no;
 }
 
@@ -119,7 +121,7 @@ t_Handle
 FM_PCD_PlcrProfileSet( t_Handle  h_FmPcd,
                        t_FmPcdPlcrProfileParams *  p_Profile )
 {
-    printf( "Calling IOCTL::FM_PCD_PlcrSetProfile %d\n", handle_no + 1 );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_PlcrSetProfile %d", handle_no + 1 );
     return (t_Handle)++handle_no;
 }
 
@@ -128,14 +130,14 @@ t_Handle
 FM_PCD_MatchTableSet(t_Handle             h_FmPcd,
                      t_FmPcdCcNodeParams  *p_CcNodeParam)
 {
-    printf( "Calling IOCTL::FM_PCD_CcSetNode %d\n", handle_no + 1 );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_CcSetNode %d", handle_no + 1 );
     return (t_Handle)++handle_no;
 }
 
 t_Handle
 FM_PCD_HashTableSet(t_Handle h_FmPcd, t_FmPcdHashTableParams *p_Param)
 {
-    printf( "Calling IOCTL::FM_PCD_HashTableSet %d\n", handle_no + 1 );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_HashTableSet %d", handle_no + 1 );
     return (t_Handle)++handle_no;
 }
 
@@ -143,7 +145,7 @@ FM_PCD_HashTableSet(t_Handle h_FmPcd, t_FmPcdHashTableParams *p_Param)
 t_Error
 FM_PCD_ConfigKgDfltValue(t_Handle h_FmPcd, uint8_t valueId, uint32_t value)
 {
-    printf( "Calling IOCTL::FM_PCD_ConfigKgDfltValue\n" );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_ConfigKgDfltValue" );
     return E_OK;
 }
 
@@ -151,7 +153,7 @@ FM_PCD_ConfigKgDfltValue(t_Handle h_FmPcd, uint8_t valueId, uint32_t value)
 t_Error
 FM_PORT_Enable(t_Handle h_FmPort)
 {
-    printf( "Calling IOCTL::FM_PORT_Enable %d\n", h_FmPort );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PORT_Enable %d", h_FmPort );
     return E_OK;
 }
 
@@ -159,7 +161,7 @@ FM_PORT_Enable(t_Handle h_FmPort)
 t_Error
 FM_PORT_Disable(t_Handle h_FmPort)
 {
-    printf( "Calling IOCTL::FM_PORT_Disable %d\n", h_FmPort );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PORT_Disable %d", h_FmPort );
     return E_OK;
 }
 
@@ -167,14 +169,14 @@ FM_PORT_Disable(t_Handle h_FmPort)
 t_Error
 FM_PCD_Enable( t_Handle h_FmPcd )
 {
-    printf( "Calling IOCTL::FM_PCD_Enable %d\n", h_FmPcd );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_Enable %d", h_FmPcd );
     return E_OK;
 }
 
 t_Error
 FM_PCD_Disable( t_Handle h_FmPcd )
 {
-    printf( "Calling IOCTL::FM_PCD_Disable %d\n", h_FmPcd );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_Disable %d", h_FmPcd );
     return E_OK;
 }
 
@@ -182,7 +184,7 @@ FM_PCD_Disable( t_Handle h_FmPcd )
 t_Error
 FM_PORT_DeletePCD(t_Handle h_FmPort)
 {
-    printf( "Calling IOCTL::FM_PORT_DeletePCD %d\n", h_FmPort );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PORT_DeletePCD %d", h_FmPort );
     return E_OK;
 }
 
@@ -190,7 +192,7 @@ FM_PORT_DeletePCD(t_Handle h_FmPort)
 t_Error
 FM_PCD_KgSchemeDelete(t_Handle h_Scheme)
 {
-    printf( "Calling IOCTL::FM_PCD_KgDeleteScheme %d\n", h_Scheme );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_KgDeleteScheme %d", h_Scheme );
     return E_OK;
 }
 
@@ -198,7 +200,7 @@ FM_PCD_KgSchemeDelete(t_Handle h_Scheme)
 t_Error
 FM_PCD_MatchTableDelete(t_Handle h_CcNode)
 {
-    printf( "Calling IOCTL::FM_PCD_CcDeleteNode %d\n", h_CcNode );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_CcDeleteNode %d", h_CcNode );
     return E_OK;
 }
 
@@ -206,7 +208,7 @@ FM_PCD_MatchTableDelete(t_Handle h_CcNode)
 t_Error
 FM_PCD_PlcrProfileDelete(t_Handle h_Profile)
 {
-    printf( "Calling IOCTL::FM_PCD_PlcrDeleteProfile %d\n", h_Profile );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_PlcrDeleteProfile %d", h_Profile );
     return E_OK;
 }
 
@@ -214,7 +216,7 @@ FM_PCD_PlcrProfileDelete(t_Handle h_Profile)
 t_Error
 FM_PCD_NetEnvCharacteristicsDelete(t_Handle h_NetEnv)
 {
-    printf( "Calling IOCTL::FM_PCD_DeleteNetEnvCharacteristics %d\n", h_NetEnv );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_DeleteNetEnvCharacteristics %d", h_NetEnv );
     return E_OK;
 }
 
@@ -223,7 +225,7 @@ t_Handle
 FM_PCD_CcRootBuild(t_Handle             h_FmPcd,
                    t_FmPcdCcTreeParams  *p_FmPcdCcTreeParams)
 {
-    printf( "Calling IOCTL::FM_PCD_CcBuildTree %d\n", handle_no + 1 );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_CcBuildTree %d", handle_no + 1 );
     return (t_Handle)++handle_no;
 }
 
@@ -231,7 +233,7 @@ FM_PCD_CcRootBuild(t_Handle             h_FmPcd,
 t_Error
 FM_PCD_CcRootDelete(t_Handle h_CcTree)
 {
-    printf( "Calling IOCTL::FM_PCD_CcDeleteTree %d\n", h_CcTree );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_CcDeleteTree %d", h_CcTree );
     return E_OK;
 }
 
@@ -239,7 +241,7 @@ FM_PCD_CcRootDelete(t_Handle h_CcTree)
 t_Error
 FM_PCD_PrsLoadSw(t_Handle h_FmPcd, t_FmPcdPrsSwParams *p_SwPrs)
 {
-    printf( "Calling IOCTL::FM_PCD_PrsLoadSw\n" );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_PrsLoadSw" );
     return E_OK;
 }
 
@@ -248,16 +250,16 @@ FM_PCD_PrsLoadSw(t_Handle h_FmPcd, t_FmPcdPrsSwParams *p_SwPrs)
 t_Error
 FM_PCD_SetAdvancedOffloadSupport( t_Handle h_FmPcd )
 {
-    printf( "Calling IOCTL::FM_PCD_SetAdvancedOffloadSupport %d\n", h_FmPcd );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_SetAdvancedOffloadSupport %d", h_FmPcd );
     return E_OK;
 }
 
 t_Handle
 FM_PCD_ManipNodeSet(t_Handle h_FmPcd, t_FmPcdManipParams *p_FmPcdManipParams)
 {
-    printf( "Calling IOCTL::FM_PCD_ManipSetNode %d\n", handle_no + 1 );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_ManipSetNode %d", handle_no + 1 );
     if ( p_FmPcdManipParams->type == e_FM_PCD_MANIP_REASSEM ) {
-        printf( "rel= %d %d\n", p_FmPcdManipParams->u.reassem.u.ipReassem.relativeSchemeId[0],
+        fmc_log_write( LOG_DBG2, "rel= %d %d", p_FmPcdManipParams->u.reassem.u.ipReassem.relativeSchemeId[0],
                                 p_FmPcdManipParams->u.reassem.u.ipReassem.relativeSchemeId[1] );
     }
     return (t_Handle)++handle_no;
@@ -267,14 +269,14 @@ FM_PCD_ManipNodeSet(t_Handle h_FmPcd, t_FmPcdManipParams *p_FmPcdManipParams)
 t_Handle
 FM_PCD_FrmReplicSetGroup(t_Handle h_FmPcd, t_FmPcdFrmReplicGroupParams *p_FrmReplicGroupParam)
 {
-    printf( "Calling IOCTL::FM_PCD_FrmReplicSetGroup %d\n", handle_no + 1 );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_FrmReplicSetGroup %d", handle_no + 1 );
     return (t_Handle)++handle_no;
 }
 
 t_Error
 FM_PCD_FrmReplicDeleteGroup(t_Handle h_FrmReplicGroup)
 {
-    printf( "Calling IOCTL::FM_PCD_FrmReplicDeleteGroup %d\n", h_FrmReplicGroup );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_FrmReplicDeleteGroup %d", h_FrmReplicGroup );
     return E_OK;
 }
 #endif /* (DPAA_VERSION >= 11) */
@@ -283,7 +285,7 @@ FM_PCD_FrmReplicDeleteGroup(t_Handle h_FrmReplicGroup)
 t_Error
 FM_PCD_ManipNodeDelete(t_Handle h_HdrManipNode)
 {
-    printf( "Calling IOCTL::FM_PCD_ManipDeleteNode %d\n", h_HdrManipNode );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_ManipDeleteNode %d", h_HdrManipNode );
     return E_OK;
 }
 #endif /* P1023 */
@@ -291,7 +293,7 @@ FM_PCD_ManipNodeDelete(t_Handle h_HdrManipNode)
 t_Error
 FM_PCD_HashTableDelete(t_Handle h_HashTbl)
 {
-    printf( "Calling IOCTL::FM_PCD_HashTableDelete %d\n", h_HashTbl );
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_HashTableDelete %d", h_HashTbl );
     return E_OK;
 }
 

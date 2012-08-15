@@ -18,7 +18,7 @@ FMD_USPACE_LIB_PATH    ?= /usr/lib
 LIBXML2_HEADER_PATH    ?= /usr/include/libxml2
 TCLAP_HEADER_PATH      ?= /usr/include
 
-PKG_NAME = fmc-0.9.20
+PKG_NAME = fmc-0.9.21
 PKG_RELEASE = 1
 
 ifeq ($(MACHINE),p1023rds)
@@ -103,6 +103,5 @@ dist: clean
 	find $(PKG_NAME) -name \*.o   -print0 | xargs -0 /bin/rm -R -f
 	find $(PKG_NAME) -name \*.bak -print0 | xargs -0 /bin/rm -R -f
 	find $(PKG_NAME) -name \*.org -print0 | xargs -0 /bin/rm -R -f
-	rm -f $(PKG_NAME)/source/spa/fm_spa.c
 	tar -czf $(PKG_NAME)-$(PKG_RELEASE).tgz $(PKG_NAME)
 	rm -Rf $(PKG_NAME)
