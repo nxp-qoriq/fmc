@@ -747,7 +747,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
             // The condition for this action is "on-miss",
             // but we permit it to be optional, so, no verification for this
             // attribute is done
-            checkUnknownAttr( cur, 3, "type", "name", "condition" );
+            checkUnknownAttr( cur, 4, "type", "name", "condition", "statistics" );
 
             std::string condition = stripBlanks( getAttr( cur, "condition" ) );
             if ( condition != "on-miss" ) {
