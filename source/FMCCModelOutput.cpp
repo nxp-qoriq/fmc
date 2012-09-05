@@ -1268,6 +1268,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
 
     EMIT4( ccnode[, index, ].keysParams.statisticsMode =, node.statistics );
 
+#ifndef P1023
     if (node.statistics == e_FM_PCD_CC_STATS_MODE_RMON)
     {
         //Print the frame length vector
@@ -1288,6 +1289,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
         oss << " }," << std::endl;
         oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
     }
+#endif /* P1023 */
 
     if ( ( cmodel->ccnode[index].extractCcParams.type != e_FM_PCD_EXTRACT_BY_HDR ) &&
          ( node.extract.nhAction == e_FM_PCD_ACTION_INDEXED_LOOKUP ) ) {

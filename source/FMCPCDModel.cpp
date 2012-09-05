@@ -1071,6 +1071,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     ccNode.maskSupport  = xmlCCNode.masks;
     ccNode.statistics   = getStatistic(xmlCCNode.statistics);
 
+#ifndef P1023
     if (ccNode.statistics == e_FM_PCD_CC_STATS_MODE_RMON)
     {
         if (xmlCCNode.frameLength.size() != 0)
@@ -1081,6 +1082,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
            }
         }
     }
+#endif /* P1023 */
     
     if (xmlCCNode.key.header)
     {
@@ -2757,9 +2759,11 @@ CFMCModel::getStatistic( std::string statstic )
     else if (statstic == "byteframe" ) {
         return e_FM_PCD_CC_STATS_MODE_BYTE_AND_FRAME;
     }
+#ifndef P1023
     else if (statstic == "rmon" ) {
         return e_FM_PCD_CC_STATS_MODE_RMON;
     }
+#endif /* P1023 */
     
     return e_FM_PCD_CC_STATS_MODE_NONE;
 }
