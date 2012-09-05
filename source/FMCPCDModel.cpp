@@ -311,9 +311,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 #if (DPAA_VERSION == 10)
         frag.u.frag.u.ipFrag.scratchBpid          = fragit->second.scratchBpid;
 #endif /* (DPAA_VERSION == 10) */
-#ifdef ALU_CUSTOM
         frag.u.frag.u.ipFrag.optionsCounterEn     = fragit->second.optionsCounterEn;
-#endif /* ALU_CUSTOM */
         frag.u.frag.u.ipFrag.dontFragAction       = (e_FmPcdManipDontFragAction)
                                                     fragit->second.dontFragAction;
         frag.u.frag.u.ipFrag.sgBpid               = fragit->second.sgBpid;

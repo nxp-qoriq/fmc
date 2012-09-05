@@ -338,10 +338,8 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.scratchBpid =,
             (int)model.all_engines[index].frags[i].u.frag.u.ipFrag.scratchBpid );
 #endif /* (DPAA_VERSION == 10) */
-#ifdef ALU_CUSTOM
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.optionsCounterEn =,
             (int)model.all_engines[index].frags[i].u.frag.u.ipFrag.optionsCounterEn );
-#endif /* ALU_CUSTOM */
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.dontFragAction =,
             model.all_engines[index].frags[i].u.frag.u.ipFrag.dontFragAction );
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sgBpidEn =,
