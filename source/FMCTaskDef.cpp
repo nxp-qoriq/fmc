@@ -127,6 +127,9 @@ CTaskDef::checkSemanticsClassification( CClassification& clsf )
 
         uint32_t numOfKeys = (uint32_t)1 << countOnes;
 
+        if (clsf.max != 0)
+            clsf.max = numOfKeys;
+
         for(unsigned int tmp = 0; tmp < numOfKeys; tmp++)
         {
             unsigned int i = 0;
