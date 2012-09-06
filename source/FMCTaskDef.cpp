@@ -113,6 +113,59 @@ CTaskDef::checkSemanticsClassification( CClassification& clsf )
         if ( ( clsf.key.nonHeaderEntry.icIndxMask & 0x0F ) != 0 ) {
             throw CGenericError( ERR_CLSF_INDX_MASK, clsf.name );
         }
+
+        //Adjust entries according to mask
+        uint16_t glblMask = clsf.key.nonHeaderEntry.icIndxMask;
+        uint16_t countMask = (uint16_t)(glblMask >> 4);
+        unsigned int countOnes = 0;
+
+        while (countMask)
+        {
+            countOnes++;
+            countMask = (uint16_t)(countMask >> 1);
+        }
+
+        uint32_t numOfKeys = (uint32_t)1 << countOnes;
+
+        for(unsigned int tmp = 0; tmp < numOfKeys; tmp++)
+        {
+            unsigned int i = 0;
+            //Search the entry in the xml classif
+            for (i = 0; i < clsf.entries.size(); i++)
+            {
+                if (clsf.entries[i].index == tmp)
+                    break;
+            }
+            
+            if((glblMask & (tmp * 16)) == (tmp * 16))
+            {
+                //Must be initialized
+                if (i == clsf.entries.size())
+                {
+                    //It was not initialized, create a dummy entry
+                    CClassEntry dummyEntry;
+                    memset( dummyEntry.data, 0x00, sizeof( dummyEntry.data ) );
+                    memset( dummyEntry.mask, 0xFF, sizeof( dummyEntry.mask ) );
+                    dummyEntry.qbase = 0x00;
+                    dummyEntry.fragmentationName = "";
+                    dummyEntry.headerManipName   = "";
+                    dummyEntry.action = "";
+                    dummyEntry.actionName = "";
+                    dummyEntry.statistics = false;
+                    dummyEntry.index = tmp;
+                    clsf.entries.push_back(dummyEntry);
+                }
+            }
+            else
+            {
+                //Must be invalid
+                if (i != clsf.entries.size())
+                {
+                    clsf.entries.erase(clsf.entries.begin() + i);
+                }
+            }
+        }
+        
     }
 
     if (clsf.key.field)
