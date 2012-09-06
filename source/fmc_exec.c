@@ -84,6 +84,34 @@ static int fmc_clean_replicator  ( fmc_model* model, unsigned int engine,
                                    unsigned int index );
 #endif /* (DPAA_VERSION >= 11) */
 
+#define LOG_FMD_CALL( func, name )                                           \
+    fmc_log_write( LOG_DBG1, "Invocation of " #func " from %s for %s",       \
+                             __FUNCTION__, name );
+
+#define CHECK_HANDLE( func, name, handle )                                   \
+    if ( handle == 0 ) {                                                     \
+        fmc_log_write( LOG_ERR, "Invocation of " #func " for %s failed",    \
+                       name );                                               \
+        return 1;                                                            \
+    }                                                                        \
+    else {                                                                   \
+        fmc_log_write( LOG_DBG1, "Invocation of " #func " for %s succeeded", \
+                                 name );                                     \
+    }
+
+#define CHECK_ERR( func, name )                                              \
+    if ( err  != E_OK ) {                                                    \
+        fmc_log_write( LOG_ERR, "Invocation of " #func " for %s failed "    \
+                                 "with error code 0x%08X",                   \
+                       name, err );                                          \
+        return 1;                                                            \
+    }                                                                        \
+    else {                                                                   \
+        fmc_log_write( LOG_DBG1, "Invocation of " #func " for %s succeeded", \
+                                    name );                                  \
+    }
+
+
 
 /* -------------------------------------------------------------------------- */
 int
@@ -333,56 +361,52 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
 #ifndef P1023
     unsigned int i;
 #endif
-
+    t_Error err;
     t_FmPcdParams fmPcdParams = {0};
 
     fmc_log_write( LOG_DBG1, "fmc_exec_engine_start - execution started" );
     
     // Open FMan device
-    fmc_log_write( LOG_DBG1, "Invocation of FM_Open for %s",
-                             model->fman[index].name );
+    LOG_FMD_CALL( FM_Open, model->fman[index].name );
 #ifndef NETCOMM_SW
     model->fman[index].handle = FM_Open( model->fman[index].number );
 #else
     model->fman[index].handle = SYS_GetHandle( e_SYS_SUBMODULE_FM,
                                                model->fman[index].number );
 #endif
-    if ( model->fman[index].handle == 0 ) {
-        return 1;
-    }
+    CHECK_HANDLE( FM_Open, model->fman[index].name, model->fman[index].handle );
 
     // Open FMan device
     fmPcdParams.h_Fm = model->fman[index].handle;
-    fmc_log_write( LOG_DBG1, "Invocation of FM_PCD_Open for %s",
-                             model->fman[index].pcd_name );
+    LOG_FMD_CALL( FM_PCD_Open, model->fman[index].pcd_name );
 #ifndef NETCOMM_SW
     model->fman[index].pcd_handle = FM_PCD_Open( &fmPcdParams );
 #else
     model->fman[index].pcd_handle = SYS_GetHandle( e_SYS_SUBMODULE_FM_PCD,
                                                    model->fman[index].number );
 #endif
-    if ( model->fman[index].pcd_handle == 0 ) {
-        return 2;
-    }
+    CHECK_HANDLE( FM_PCD_Open,
+                  model->fman[index].pcd_name, model->fman[index].pcd_handle );
 
     if ( model->sp_enable ) {
-        fmc_log_write( LOG_DBG1, "Invocation of FM_PCD_PrsLoadSw for %s",
-                                 model->fman[index].pcd_name );
-        FM_PCD_PrsLoadSw( model->fman[index].pcd_handle, &(model->sp) );
+        LOG_FMD_CALL( FM_PCD_PrsLoadSw, model->fman[index].pcd_name );
+        err = FM_PCD_PrsLoadSw( model->fman[index].pcd_handle, &(model->sp) );
+        CHECK_ERR( FM_PCD_PrsLoadSw, model->fman[index].pcd_name );
     }
 #ifndef P1023
     if ( model->fman[index].reasm_count     > 0 ||
          model->fman[index].frag_count      > 0 ||
          model->fman[index].offload_support > 0 ) {
-        fmc_log_write( LOG_DBG1, "Invocation of FM_PCD_SetAdvancedOffloadSupport for %s",
-                                 model->fman[index].pcd_name );
-        FM_PCD_SetAdvancedOffloadSupport( model->fman[index].pcd_handle );
+        LOG_FMD_CALL( FM_PCD_SetAdvancedOffloadSupport,
+                      model->fman[index].pcd_name );
+        err = FM_PCD_SetAdvancedOffloadSupport( model->fman[index].pcd_handle );
+        CHECK_ERR( FM_PCD_SetAdvancedOffloadSupport, model->fman[index].pcd_name );
     }
 #endif /* P1023 */
 
-    fmc_log_write( LOG_DBG1, "Invocation of FM_PCD_Enable for %s",
-                             model->fman[index].pcd_name );
-    FM_PCD_Enable( model->fman[index].pcd_handle );
+    LOG_FMD_CALL( FM_PCD_Enable, model->fman[index].pcd_name );
+    err = FM_PCD_Enable( model->fman[index].pcd_handle );
+    CHECK_ERR( FM_PCD_Enable, model->fman[index].pcd_name );
 
 #ifndef P1023
     for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
@@ -397,19 +421,21 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
                 (*p_relative_scheme_index)++;
         }
 
-        fmc_log_write( LOG_DBG1, "Invocation of FM_PCD_ManipNodeSet for %s",
-                                 model->fman[index].reasm_name );
+        LOG_FMD_CALL( FM_PCD_ManipNodeSet, model->fman[index].reasm_name[i] );
         model->fman[index].reasm_handle[i] =
             FM_PCD_ManipNodeSet( model->fman[index].pcd_handle,
                                  &model->fman[index].reasm[i] );
+        CHECK_HANDLE( FM_PCD_ManipNodeSet,
+                      model->fman[index].reasm_name[i], model->fman[index].reasm_handle[i] );
     }
 
     for ( i = 0; i < model->fman[index].frag_count; i++ ) {
-        fmc_log_write( LOG_DBG1, "Invocation of FM_PCD_ManipNodeSet for %s",
-                                 model->fman[index].frag_name );
+        LOG_FMD_CALL( FM_PCD_ManipNodeSet, model->fman[index].frag_name[i] );
         model->fman[index].frag_handle[i] =
             FM_PCD_ManipNodeSet( model->fman[index].pcd_handle,
                                  &model->fman[index].frag[i] );
+        CHECK_HANDLE( FM_PCD_ManipNodeSet,
+                      model->fman[index].frag_name[i], model->fman[index].frag_handle[i] );
     }
 
 #endif /* P1023 */
@@ -442,25 +468,25 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port )
     fmPortParam.portType = pport->type;
 
 #ifndef NETCOMM_SW
-    model->port[port].handle = FM_PORT_Open( &fmPortParam );
+    LOG_FMD_CALL( FM_PORT_Open, pport->name );
+    pport->handle = FM_PORT_Open( &fmPortParam );
 #else
     if (fmPortParam.portType == e_FM_PORT_TYPE_OH_OFFLINE_PARSING)
-        model->port[port].handle = SYS_GetHandle( e_SYS_SUBMODULE_FM_PORT_HO,
-                                                  fmPortParam.portId );
+        pport->handle = SYS_GetHandle( e_SYS_SUBMODULE_FM_PORT_HO,
+                                       fmPortParam.portId );
     else
-        model->port[port].handle = SYS_GetHandle( e_SYS_SUBMODULE_FM_PORT_1GRx,
-                                                  fmPortParam.portId );
+        pport->handle = SYS_GetHandle( e_SYS_SUBMODULE_FM_PORT_1GRx,
+                                       fmPortParam.portId );
 #endif
-    if ( pport->handle == 0 ) {
-        return 3;
-    }
+    CHECK_HANDLE( FM_PORT_Open,
+                  pport->name, pport->handle );
 
+    LOG_FMD_CALL( FM_PCD_NetEnvCharacteristicsSet, model->port[port].name );
     pport->env_id_handle = FM_PCD_NetEnvCharacteristicsSet(
-                                pengine->pcd_handle,
-                                &pport->distinctionUnits );
-    if ( pport->env_id_handle == 0 ) {
-        return 4;
-    }
+                               pengine->pcd_handle,
+                               &pport->distinctionUnits );
+    CHECK_HANDLE( FM_PCD_NetEnvCharacteristicsSet,
+                  model->port[port].name, pport->env_id_handle );
 
     return 0;
 }
@@ -508,12 +534,15 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
         pport->pcdParam.p_CcParams->h_CcTree = pport->cctree_handle;
     }
 
+    LOG_FMD_CALL( FM_PORT_Disable, pport->name );
     err = FM_PORT_Disable( pport->handle );
-    if ( err ) { return 5; }
+    CHECK_ERR( FM_PORT_Disable, model->port[port].name );
+    LOG_FMD_CALL( FM_PORT_SetPCD, pport->name );
     err = FM_PORT_SetPCD( pport->handle, &pport->pcdParam );
-    if ( err ) { return 6; }
+    CHECK_ERR( FM_PORT_SetPCD, model->port[port].name );
+    LOG_FMD_CALL( FM_PORT_Enable, pport->name );
     err = FM_PORT_Enable( pport->handle );
-    if ( err ) { return 7; }
+    CHECK_ERR( FM_PORT_Enable, model->port[port].name );
 
     return 0;
 }
@@ -534,12 +563,12 @@ fmc_exec_scheme( fmc_model* model,  unsigned int engine,
                                                 model->port[port].cctree_handle;
     }
 
+    LOG_FMD_CALL( FM_PCD_KgSchemeSet, model->scheme_name[index] );
     model->scheme_handle[index] =
         FM_PCD_KgSchemeSet( model->fman[engine].pcd_handle,
                             &(model->scheme[index]) );
-    if ( model->scheme_handle[index] == 0 ) {
-        return 5;
-    }
+    CHECK_HANDLE( FM_PCD_KgSchemeSet, model->scheme_name[index],
+                  model->scheme_handle[index] );
 
     return 0;
 }
@@ -626,16 +655,16 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
     }
 
 
+    LOG_FMD_CALL( FM_PCD_MatchTableSet, model->ccnode_name[index] );
     model->ccnode_handle[index] =
         FM_PCD_MatchTableSet( model->fman[engine].pcd_handle,
-                          &(model->ccnode[index]) );
-
-    if ( model->ccnode_handle[index] == 0 ) {
-        return 6;
-    }
+                            &(model->ccnode[index]) );
+    CHECK_HANDLE( FM_PCD_MatchTableSet, model->ccnode_name[index],
+                  model->ccnode_handle[index] );
 
     return 0;
 }
+
 
 /* -------------------------------------------------------------------------- */
 static int
@@ -670,16 +699,16 @@ fmc_exec_htnode( fmc_model* model, unsigned int engine,
 #endif /* DPAA_VERSION >= 11 */
 
 
+    LOG_FMD_CALL( FM_PCD_HashTableSet, model->htnode_name[index] );
     model->htnode_handle[index] =
         FM_PCD_HashTableSet( model->fman[engine].pcd_handle,
                           &(model->htnode[index]) );
-
-    if ( model->htnode_handle[index] == 0 ) {
-        return 6;
-    }
+    CHECK_HANDLE( FM_PCD_HashTableSet, model->htnode_name[index],
+                  model->htnode_handle[index] );
 
     return 0;
 }
+
 
 #if (DPAA_VERSION >= 11)
 /* -------------------------------------------------------------------------- */
@@ -718,9 +747,12 @@ fmc_exec_replicator( fmc_model* model, unsigned int engine,
 #endif /* P1023 */
     }
 
+    LOG_FMD_CALL( FM_PCD_FrmReplicSetGroup, model->replicator_name[index] );
     model->replicator_handle[index] =
         FM_PCD_FrmReplicSetGroup( model->fman[engine].pcd_handle,
                           &(model->replicator[index]) );
+    CHECK_HANDLE( FM_PCD_FrmReplicSetGroup, model->replicator_name[index],
+                  model->replicator_handle[index] );
 
     if ( model->replicator_handle[index] == 0 ) {
         return 6;
@@ -778,12 +810,12 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
 #endif /* P1023 */
     }
 
+    LOG_FMD_CALL( FM_PCD_CcRootBuild, model->fman[engine].pcd_name );
     model->port[port].cctree_handle =
         FM_PCD_CcRootBuild( model->fman[engine].pcd_handle,
                             &ccTreeParams );
-    if ( model->port[port].cctree_handle == 0 ) {
-        return 7;
-    }
+    CHECK_HANDLE( FM_PCD_CcRootBuild, model->fman[engine].pcd_name,
+                  model->port[port].cctree_handle );
 
     return 0;
 }
@@ -837,12 +869,12 @@ fmc_exec_policer( fmc_model* model, unsigned int engine,
             break;
     }
 
+    LOG_FMD_CALL( FM_PCD_PlcrProfileSet, model->policer_name[index] );
     model->policer_handle[index] =
         FM_PCD_PlcrProfileSet( model->fman[engine].pcd_handle,
                                &(model->policer[index]) );
-    if ( model->policer_handle[index] == 0 ) {
-        return 8;
-    }
+    CHECK_HANDLE( FM_PCD_PlcrProfileSet, model->policer_name[index],
+                  model->policer_handle[index] );
 
     return 0;
 }
@@ -868,9 +900,12 @@ fmc_exec_manip( fmc_model* model, unsigned int engine,
         model->fman[engine].hdr[index].h_NextManip = model->fman[engine].hdr_handle[model->fman[engine].hdr_next[index]];
     }
 
+    LOG_FMD_CALL( FM_PCD_ManipNodeSet, model->fman[engine].hdr_name[index] );
     model->fman[engine].hdr_handle[index] =
         FM_PCD_ManipNodeSet( model->fman[engine].pcd_handle,
                              &model->fman[engine].hdr[index] );
+    CHECK_HANDLE( FM_PCD_ManipNodeSet, model->fman[engine].hdr_name[index],
+                  model->fman[engine].hdr_handle[index] );
 #endif /* P1023 */
     
     return 0;
@@ -881,18 +916,31 @@ static int
 fmc_clean_engine_start( fmc_model* model, unsigned int index )
 {
     unsigned int i;
+    t_Error      err;
 
 #ifndef P1023
     for ( i = 0; i < model->fman[index].frag_count; i++ ) {
-        FM_PCD_ManipNodeDelete( model->fman[index].frag_handle[model->fman[index].frag_count - i - 1] );
+        if ( model->fman[index].frag_handle[model->fman[index].frag_count - i - 1] != 0 ) {
+            LOG_FMD_CALL( FM_PCD_ManipNodeDelete, model->fman[index].frag_name[model->fman[index].frag_count - i - 1] );
+            err = FM_PCD_ManipNodeDelete( model->fman[index].frag_handle[model->fman[index].frag_count - i - 1] );
+            CHECK_ERR( FM_PCD_ManipNodeDelete, model->fman[index].frag_name[model->fman[index].frag_count - i - 1] );
+        }
     }
 
     for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
-        FM_PCD_ManipNodeDelete( model->fman[index].reasm_handle[model->fman[index].reasm_count - i - 1] );
+        if ( model->fman[index].reasm_handle[model->fman[index].reasm_count - i - 1] ) {
+            LOG_FMD_CALL( FM_PCD_ManipNodeDelete, model->fman[index].reasm_name[model->fman[index].reasm_count - i - 1] );
+            err = FM_PCD_ManipNodeDelete( model->fman[index].reasm_handle[model->fman[index].reasm_count - i - 1] );
+            CHECK_ERR( FM_PCD_ManipNodeDelete, model->fman[index].reasm_name[model->fman[index].reasm_count - i - 1] );
+        }
     }
 
     for ( i = 0; i < model->fman[index].hdr_count; i++ ) {
-        FM_PCD_ManipNodeDelete( model->fman[index].hdr_handle[model->fman[index].hdr_count - i - 1] );
+        if ( model->fman[index].hdr_handle[model->fman[index].hdr_count - i - 1] != 0 ) {
+            LOG_FMD_CALL( FM_PCD_ManipNodeDelete, model->fman[index].hdr_name[model->fman[index].hdr_count - i - 1] );
+            err = FM_PCD_ManipNodeDelete( model->fman[index].hdr_handle[model->fman[index].hdr_count - i - 1] );
+            CHECK_ERR( FM_PCD_ManipNodeDelete, model->fman[index].hdr_name[model->fman[index].hdr_count - i - 1] );
+        }
     }
 #endif /* P1023 */
 
@@ -915,7 +963,11 @@ fmc_clean_engine_start( fmc_model* model, unsigned int index )
 static int
 fmc_clean_engine_end( fmc_model* model, unsigned int index )
 {
-    FM_PCD_Disable( model->fman[index].pcd_handle );
+    t_Error err;
+    LOG_FMD_CALL( FM_PCD_Disable, model->fman[index].pcd_name );
+    err = FM_PCD_Disable( model->fman[index].pcd_handle );
+    CHECK_ERR( FM_PCD_Disable, model->fman[index].pcd_name );
+
     return 0;
 }
 
@@ -925,12 +977,15 @@ static int
 fmc_clean_port_start( fmc_model* model, unsigned int engine, unsigned int port )
 {
     fmc_port* pport = &model->port[port];
+    t_Error   err;
 
     if ( pport->handle == 0 ) {
         return 0;
     }
 
-    FM_PCD_NetEnvCharacteristicsDelete( pport->env_id_handle );
+    LOG_FMD_CALL( FM_PCD_NetEnvCharacteristicsDelete, pport->name );
+    err = FM_PCD_NetEnvCharacteristicsDelete( pport->env_id_handle );
+    CHECK_ERR( FM_PCD_NetEnvCharacteristicsDelete, pport->name );
 
 #ifndef NETCOMM_SW
     FM_PORT_Close( pport->handle );
@@ -951,7 +1006,9 @@ fmc_clean_port_end( fmc_model* model, unsigned int engine, unsigned int port )
         return 0;
     }
 
+    LOG_FMD_CALL( FM_PORT_DeletePCD, pport->name );
     err = FM_PORT_DeletePCD( pport->handle );
+    CHECK_ERR( FM_PORT_DeletePCD, pport->name );
     if ( err ) { return 6; }
 
     return 0;
@@ -963,8 +1020,11 @@ static int
 fmc_clean_scheme( fmc_model* model,  unsigned int engine,
                  unsigned int port, unsigned int index )
 {
+    t_Error err;
     if ( model->scheme_handle[index] != 0 ) {
-        FM_PCD_KgSchemeDelete( model->scheme_handle[index] );
+        LOG_FMD_CALL( FM_PCD_KgSchemeDelete, model->scheme_name[index] );
+        err = FM_PCD_KgSchemeDelete( model->scheme_handle[index] );
+        CHECK_ERR( FM_PCD_KgSchemeDelete, model->scheme_name[index] );
     }
 
     return 0;
@@ -976,8 +1036,11 @@ static int
 fmc_clean_ccnode( fmc_model* model, unsigned int engine,
                  unsigned int index )
 {
+    t_Error err;
     if ( model->ccnode_handle[index] != 0 ) {
-        FM_PCD_MatchTableDelete( model->ccnode_handle[index] );
+        LOG_FMD_CALL( FM_PCD_MatchTableDelete, model->ccnode_name[index] );
+        err = FM_PCD_MatchTableDelete( model->ccnode_handle[index] );
+        CHECK_ERR( FM_PCD_MatchTableDelete, model->ccnode_name[index] );
     }
 
     return 0;
@@ -988,8 +1051,11 @@ static int
 fmc_clean_htnode( fmc_model* model, unsigned int engine,
                  unsigned int index )
 {
+    t_Error err;
     if ( model->htnode_handle[index] != 0 ) {
-        FM_PCD_HashTableDelete( model->htnode_handle[index] );
+        LOG_FMD_CALL( FM_PCD_HashTableDelete, model->htnode_name[index] );
+        err = FM_PCD_HashTableDelete( model->htnode_handle[index] );
+        CHECK_ERR( FM_PCD_HashTableDelete, model->htnode_name[index] );
     }
 
     return 0;
@@ -1001,8 +1067,11 @@ static int
 fmc_clean_cctree( fmc_model* model, unsigned int engine,
                  unsigned int port )
 {
+    t_Error err;
     if ( model->port[port].cctree_handle != 0 ) {
-        FM_PCD_CcRootDelete( model->port[port].cctree_handle );
+        LOG_FMD_CALL( FM_PCD_CcRootDelete, model->port[port].name );
+        err = FM_PCD_CcRootDelete( model->port[port].cctree_handle );
+        CHECK_ERR( FM_PCD_CcRootDelete, model->port[port].name );
     }
 
     return 0;
@@ -1014,8 +1083,11 @@ static int
 fmc_clean_policer( fmc_model* model, unsigned int engine,
                   unsigned int index )
 {
+    t_Error err;
     if ( model->policer_handle[index] != 0 ) {
-        FM_PCD_PlcrProfileDelete( model->policer_handle[index] );
+        LOG_FMD_CALL( FM_PCD_PlcrProfileDelete, model->policer_name[index] );
+        err = FM_PCD_PlcrProfileDelete( model->policer_handle[index] );
+        CHECK_ERR( FM_PCD_PlcrProfileDelete, model->policer_name[index] );
     }
 
     return 0;
@@ -1027,8 +1099,11 @@ static int
 fmc_clean_replicator( fmc_model* model, unsigned int engine,
                   unsigned int index )
 {
+    t_Error err;
     if ( model->replicator_handle[index] != 0 ) {
-        FM_PCD_FrmReplicDeleteGroup( model->replicator_handle[index] );
+        LOG_FMD_CALL( FM_PCD_FrmReplicDeleteGroup, model->replicator_name[index] );
+        err = FM_PCD_FrmReplicDeleteGroup( model->replicator_handle[index] );
+        CHECK_ERR( FM_PCD_FrmReplicDeleteGroup, model->replicator_name[index] );
     }
 
     return 0;
