@@ -884,15 +884,15 @@ fmc_clean_engine_start( fmc_model* model, unsigned int index )
 
 #ifndef P1023
     for ( i = 0; i < model->fman[index].frag_count; i++ ) {
-        FM_PCD_ManipNodeDelete( model->fman[index].frag_handle[i] );
+        FM_PCD_ManipNodeDelete( model->fman[index].frag_handle[model->fman[index].frag_count - i - 1] );
     }
 
     for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
-        FM_PCD_ManipNodeDelete( model->fman[index].reasm_handle[i] );
+        FM_PCD_ManipNodeDelete( model->fman[index].reasm_handle[model->fman[index].reasm_count - i - 1] );
     }
 
     for ( i = 0; i < model->fman[index].hdr_count; i++ ) {
-        FM_PCD_ManipNodeDelete( model->fman[index].hdr_handle[i] );
+        FM_PCD_ManipNodeDelete( model->fman[index].hdr_handle[model->fman[index].hdr_count - i - 1] );
     }
 #endif /* P1023 */
 
