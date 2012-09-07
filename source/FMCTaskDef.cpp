@@ -14,6 +14,7 @@
 
 #include <iomanip>
 #include <cstdlib>
+#include <cstring>
 #include "FMCTaskDef.h"
 
 
