@@ -1430,7 +1430,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
 #endif /* (DPAA_VERSION >= 11) */
         else if ( node.nextEngines[i].nextEngine == e_FM_PCD_DONE ) {
             if ( node.nextEngines[i].doneAction == e_FM_PCD_DROP_FRAME ) {
-                EMIT6STR( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.action =, node.nextEngineOnMiss.doneAction );
+                EMIT6STR( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.action =, node.nextEngines[i].doneAction );
             }
             else if ( node.nextEngines[i].newFqid != 0 ) {
                 EMIT6( ccnode[, index, ].keysParams.keyParams[, node_num, ].ccNextEngineParams.params.enqueueParams.overrideFqid =, 1 );
