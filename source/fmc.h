@@ -50,12 +50,12 @@ extern "C"
 #define FMC_PORTS_PER_FMAN       16
 #define FMC_SCHEMES_NUM          32
 #define FMC_SCHEME_PROTOCOLS_NUM 16
-#define FMC_CC_NODES_NUM        256
+#define FMC_CC_NODES_NUM        512
 #define FMC_REPLICATORS_NUM      16
 #define FMC_PLC_NUM              64
 #define MAX_SP_CODE_SIZE      0x7C0
-#define FMC_MANIP_MAX             8
-#define FMC_HMANIP_MAX          256
+#define FMC_MANIP_MAX            64
+#define FMC_HMANIP_MAX          512
 #define FMC_INSERT_MAX           56
 #define FM_PCD_MAX_NUM_OF_REPS   64
 
