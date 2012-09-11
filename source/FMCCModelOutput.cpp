@@ -455,7 +455,7 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
                 if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.updateType == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_VLAN_VPRI)
                 {
                     EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.vlan.u, .vpri =,
-                        model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.u.vpri );
+                        (unsigned int)model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.u.vpri );
                 }
 
                 if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.vlan.updateType == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_DSCP_TO_VLAN)
