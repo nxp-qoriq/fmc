@@ -492,7 +492,7 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
                 if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates & HDR_MANIP_IPV4_TOS)
                 {
                     EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv4, .tos =,
-                        model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.tos );
+                        (unsigned int)model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.tos );
                 }
 
                 if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates & HDR_MANIP_IPV4_ID)

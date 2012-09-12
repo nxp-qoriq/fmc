@@ -1515,6 +1515,8 @@ CPCDReader::parseInsertHeader( CInsertHeader* headerInsert, xmlNodePtr pNode )
     }
 
     headerInsert->header_index = std::strtoul( getAttr( pNode, "header_index" ).c_str(), 0, 0 );
+    if (headerInsert->header_index == 0)
+        headerInsert->header_index = 1;
 
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {

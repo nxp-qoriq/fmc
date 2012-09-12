@@ -343,6 +343,8 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
                 if (headerit->second.hdrInsertHeader[0].type == "mpls")
                     hdr.u.hdr.insrtParams.u.byHdr.u.specificL2Params.specificL2 = e_FM_PCD_MANIP_HDR_INSRT_MPLS;
+                else
+                     throw CGenericError( ERR_HDR_INSERTPROTOCOL, headerit->second.name );
 
                 hdr.u.hdr.insrtParams.u.byHdr.u.specificL2Params.update = headerit->second.hdrInsertHeader[0].update || headerit->second.hdrInsertHeader[1].update;
 
@@ -1246,6 +1248,11 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
                     break;
                 }
             }
+
+            if (headerit == pTaskDef->headermanips.end())
+            {
+                 throw CGenericError( ERR_MANIP_NOT_FOUND, xmlCCNode.entries[i].headerManipName, xmlCCNode.name );
+            }
         }
 
         if ( xmlCCNode.entries[i].fragmentationName.empty() ) {
@@ -1261,6 +1268,11 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
                     ccNode.frag.push_back( frag_index );
                     break;
                 }
+            }
+
+            if (fragit == pTaskDef->fragmentations.end())
+            {
+                 throw CGenericError( ERR_MANIP_NOT_FOUND, xmlCCNode.entries[i].fragmentationName, xmlCCNode.name );
             }
         }
 
@@ -1706,6 +1718,11 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
                     break;
                 }
             }
+
+            if (headerit == pTaskDef->headermanips.end())
+            {
+                throw CGenericError( ERR_MANIP_NOT_FOUND, xmlRepl.entries[i].headerManipName, xmlRepl.name );
+            }
         }
 
         if ( xmlRepl.entries[i].fragmentationName.empty() ) {
@@ -1722,6 +1739,11 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
                     repl.frag.push_back( frag_index );
                     break;
                 }
+            }
+
+            if (fragit == pTaskDef->fragmentations.end())
+            {
+                throw CGenericError( ERR_MANIP_NOT_FOUND, xmlRepl.entries[i].fragmentationName, xmlRepl.name );
             }
         }
 

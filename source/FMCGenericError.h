@@ -111,6 +111,7 @@ const std::string ERR_CC_NOT_FOUND           = "Can't find classification's defi
 const std::string ERR_POLICER_NOT_FOUND      = "Can't find policer's definition '%1' referenced by '%2'";
 const std::string ERR_REP_NOT_FOUND          = "Can't find replicators's definition '%1' referenced by '%2'";
 const std::string ERR_VSP_NOT_FOUND          = "Can't find virtual storage profile's definition '%1' referenced by '%2'";
+const std::string ERR_MANIP_NOT_FOUND        = "Can't find manipulation definition '%1' referenced by '%2'";
 const std::string ERR_TARGET_IS_ITSELF       = "The %1 '%2' has itself as an action target";
 const std::string ERR_TARGET_INVALID         = "The %1 cannot be target for %2";
 const std::string ERR_INVALID_ENTRY_DATA     = "Invalid data entry in classification definition '%1'";
@@ -131,6 +132,9 @@ const std::string ERR_CLSF_FROMFIELD_HEADER  = "You can only extract VLAN TCI of
 const std::string ERR_REAS_MAXINPROCESS      = "The number of frames which can be processes by reassembly at the same time must be a power of 2: '%1'";
 const std::string ERR_REAS_IPV6FRAGSIZE      = "Minimum fragmentation size for IPv6 must be higher or equal to 256: '%1'";
 const std::string ERR_REAS_NUMFRAMESHASH     = "The number of frames per hash entry needed for reassembly process must be a numeric value between 1 and 8: '%1'";
+
+const std::string ERR_HDR_INSERTPROTOCOL     = "Unsupported protocol used insert_header in the header manipulation: '%1'";
+
 
 /*-------------------------Soft parser errors--------------------------*/
 const std::string ERR_INTERNAL_SP_ERROR      = "Soft parser internal error: %1";
