@@ -79,6 +79,8 @@ static int fmc_clean_cctree      ( fmc_model* model,  unsigned int engine,
                                    unsigned int port );
 static int fmc_clean_policer     ( fmc_model* model, unsigned int engine,
                                    unsigned int index );
+static int fmc_clean_manip       ( fmc_model* model, unsigned int engine,
+                                   unsigned int index );
 #if (DPAA_VERSION >= 11)
 static int fmc_clean_replicator  ( fmc_model* model, unsigned int engine,
                                    unsigned int index );
@@ -231,6 +233,9 @@ fmc_clean( fmc_model* model )
                 break;
             case FMCPolicer:
                 ret = fmc_clean_policer( model, current_engine, model->apply_order[i].index );
+                break;
+            case FMCManipulation:
+                ret = fmc_clean_manip( model, current_engine, model->apply_order[i].index );
                 break;
 #if DPAA_VERSION >= 11
             case FMCReplicator:
@@ -935,13 +940,6 @@ fmc_clean_engine_start( fmc_model* model, unsigned int index )
         }
     }
 
-    for ( i = 0; i < model->fman[index].hdr_count; i++ ) {
-        if ( model->fman[index].hdr_handle[model->fman[index].hdr_count - i - 1] != 0 ) {
-            LOG_FMD_CALL( FM_PCD_ManipNodeDelete, model->fman[index].hdr_name[model->fman[index].hdr_count - i - 1] );
-            err = FM_PCD_ManipNodeDelete( model->fman[index].hdr_handle[model->fman[index].hdr_count - i - 1] );
-            CHECK_ERR( FM_PCD_ManipNodeDelete, model->fman[index].hdr_name[model->fman[index].hdr_count - i - 1] );
-        }
-    }
 #endif /* P1023 */
 
     if ( model->fman[index].pcd_handle != 0 ) {
@@ -1088,6 +1086,21 @@ fmc_clean_policer( fmc_model* model, unsigned int engine,
         LOG_FMD_CALL( FM_PCD_PlcrProfileDelete, model->policer_name[index] );
         err = FM_PCD_PlcrProfileDelete( model->policer_handle[index] );
         CHECK_ERR( FM_PCD_PlcrProfileDelete, model->policer_name[index] );
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+static int
+fmc_clean_manip( fmc_model* model, unsigned int engine,
+                  unsigned int index )
+{
+    t_Error err;
+    if ( model->fman[engine].hdr_handle[index] != 0 ) {
+		LOG_FMD_CALL( FM_PCD_ManipNodeDelete, model->fman[engine].hdr_name[index] );
+        err = FM_PCD_ManipNodeDelete( model->fman[engine].hdr_handle[index] );
+		CHECK_ERR( FM_PCD_ManipNodeDelete, model->fman[engine].hdr_name[index] );
     }
 
     return 0;

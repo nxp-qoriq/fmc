@@ -489,25 +489,25 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
                 EMIT7_2A_HEX( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv4, .validUpdates =,
                     model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates );
 
-                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates == HDR_MANIP_IPV4_TOS)
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates & HDR_MANIP_IPV4_TOS)
                 {
                     EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv4, .tos =,
                         model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.tos );
                 }
 
-                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates == HDR_MANIP_IPV4_ID)
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates & HDR_MANIP_IPV4_ID)
                 {
                     EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv4, .id =,
                         (uint32_t)model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.id );
                 }
 
-                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates == HDR_MANIP_IPV4_SRC)
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates & HDR_MANIP_IPV4_SRC)
                 {
                     EMIT7_2A_HEX( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv4, .src =,
                         model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.src );
                 }
 
-                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates == HDR_MANIP_IPV4_DST)
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.validUpdates & HDR_MANIP_IPV4_DST)
                 {
                     EMIT7_2A_HEX( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv4, .dst =,
                         model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv4.dst );
@@ -519,13 +519,13 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
                 EMIT7_2A_HEX( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv6, .validUpdates =,
                     model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates );
 
-                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates == HDR_MANIP_IPV6_TC)
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates & HDR_MANIP_IPV6_TC)
                 {
                     EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.ipv6, .trafficClass =,
                         model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.trafficClass );
                 }
 
-                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates == HDR_MANIP_IPV6_SRC)
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates & HDR_MANIP_IPV6_SRC)
                 {
                     oss << ind(indent) << "." << "fman[" << index << "].hdr[" << i 
                             << "].u.hdr.fieldUpdateParams.u.ipv6.src = {";
@@ -547,7 +547,7 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
                      oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
                 }
 
-                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates == HDR_MANIP_IPV6_DST)
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.ipv6.validUpdates & HDR_MANIP_IPV6_DST)
                 {
                     oss << ind(indent) << "." << "fman[" << index << "].hdr[" << i 
                             << "].u.hdr.fieldUpdateParams.u.ipv6.dst = {";
@@ -575,13 +575,13 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
                 EMIT7_2A_HEX( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.tcpUdp, .validUpdates =,
                     model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates );
 
-                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates == HDR_MANIP_TCP_UDP_SRC)
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates & HDR_MANIP_TCP_UDP_SRC)
                 {
                     EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.tcpUdp, .src =,
                         model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.src );
                 }
 
-                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates == HDR_MANIP_TCP_UDP_DST)
+                if (model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates & HDR_MANIP_TCP_UDP_DST)
                 {
                     EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.fieldUpdateParams.u.tcpUdp, .dst =,
                         model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.dst );

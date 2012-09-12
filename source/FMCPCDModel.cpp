@@ -444,35 +444,36 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
             if (hdr.u.hdr.fieldUpdateParams.type == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV4)
             {
-                if (headerit->second.hdrUpdate.fields.size())
+                hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates = 0;
+                for (unsigned int i = 0; i < headerit->second.hdrUpdate.fields.size();i++)
                 {
-                    if (headerit->second.hdrUpdate.fields[0].type == "tos")
+                    if (headerit->second.hdrUpdate.fields[i].type == "tos")
                     {
-                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates = HDR_MANIP_IPV4_TOS;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates |= HDR_MANIP_IPV4_TOS;
                         hdr.u.hdr.fieldUpdateParams.u.ipv4.tos = (uint8_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
                     }
                     
-                    if (headerit->second.hdrUpdate.fields[0].type == "id")
+                    if (headerit->second.hdrUpdate.fields[i].type == "id")
                     {
-                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates = HDR_MANIP_IPV4_ID;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates |= HDR_MANIP_IPV4_ID;
                         hdr.u.hdr.fieldUpdateParams.u.ipv4.id = (uint16_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
                     }
 
-                    if (headerit->second.hdrUpdate.fields[0].type == "ttl")
+                    if (headerit->second.hdrUpdate.fields[i].type == "ttl")
                     {
                         //No value required
-                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates = HDR_MANIP_IPV4_TTL;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates |= HDR_MANIP_IPV4_TTL;
                     }
 
-                    if (headerit->second.hdrUpdate.fields[0].type == "src")
+                    if (headerit->second.hdrUpdate.fields[i].type == "src")
                     {
-                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates = HDR_MANIP_IPV4_SRC;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates |= HDR_MANIP_IPV4_SRC;
                         hdr.u.hdr.fieldUpdateParams.u.ipv4.src = (uint32_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
                     }
 
-                    if (headerit->second.hdrUpdate.fields[0].type == "dst")
+                    if (headerit->second.hdrUpdate.fields[i].type == "dst")
                     {
-                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates = HDR_MANIP_IPV4_DST;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv4.validUpdates |= HDR_MANIP_IPV4_DST;
                         hdr.u.hdr.fieldUpdateParams.u.ipv4.dst = (uint32_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
                     }
                 }
@@ -480,25 +481,26 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
             if (hdr.u.hdr.fieldUpdateParams.type == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_IPV6)
             {
-                if (headerit->second.hdrUpdate.fields.size())
+                hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates = 0;
+                for (unsigned int i = 0; i < headerit->second.hdrUpdate.fields.size(); i++)
                 {
-                    if (headerit->second.hdrUpdate.fields[0].type == "tc")
+                    if (headerit->second.hdrUpdate.fields[i].type == "tc")
                     {
-                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates = HDR_MANIP_IPV6_TC;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates |= HDR_MANIP_IPV6_TC;
                         hdr.u.hdr.fieldUpdateParams.u.ipv6.trafficClass = (uint8_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
                     }
                     
-                    if (headerit->second.hdrUpdate.fields[0].type == "hl")
+                    if (headerit->second.hdrUpdate.fields[i].type == "hl")
                     {
                         //No value required
-                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates = HDR_MANIP_IPV6_HL;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates |= HDR_MANIP_IPV6_HL;
                     }
 
-                    if (headerit->second.hdrUpdate.fields[0].type == "src")
+                    if (headerit->second.hdrUpdate.fields[i].type == "src")
                     {
-                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates = HDR_MANIP_IPV6_SRC;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates |= HDR_MANIP_IPV6_SRC;
 
-                        std::string data = stripBlanks( headerit->second.hdrUpdate.fields[0].value );
+                        std::string data = stripBlanks( headerit->second.hdrUpdate.fields[i].value );
                         if ( data.length() != 34 || data.substr( 0, 2 ) != "0x" ) {
                             throw CGenericError( ERR_INVALID_ENTRY_DATA,
                                                  "update ipv6 src" );
@@ -521,11 +523,11 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
                         }
                     }
 
-                    if (headerit->second.hdrUpdate.fields[0].type == "dst")
+                    if (headerit->second.hdrUpdate.fields[i].type == "dst")
                     {
-                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates = HDR_MANIP_IPV6_DST;
+                        hdr.u.hdr.fieldUpdateParams.u.ipv6.validUpdates |= HDR_MANIP_IPV6_DST;
 
-                        std::string data = stripBlanks( headerit->second.hdrUpdate.fields[0].value );
+                        std::string data = stripBlanks( headerit->second.hdrUpdate.fields[i].value );
                         if ( data.length() != 34 || data.substr( 0, 2 ) != "0x" ) {
                             throw CGenericError( ERR_INVALID_ENTRY_DATA,
                                                  "update ipv6 dst" );
@@ -552,23 +554,24 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
             if (hdr.u.hdr.fieldUpdateParams.type == e_FM_PCD_MANIP_HDR_FIELD_UPDATE_TCP_UDP)
             {
-                if (headerit->second.hdrUpdate.fields.size())
+                hdr.u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates = 0;
+                for (unsigned int i = 0; i < headerit->second.hdrUpdate.fields.size(); i++)
                 {
-                    if (headerit->second.hdrUpdate.fields[0].type == "checksum" || headerit->second.hdrUpdate.fields[0].type == "crc")
+                    if (headerit->second.hdrUpdate.fields[i].type == "checksum" || headerit->second.hdrUpdate.fields[i].type == "crc")
                     {
                         //No value required
-                        hdr.u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates = HDR_MANIP_TCP_UDP_CHECKSUM;
+                        hdr.u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates |= HDR_MANIP_TCP_UDP_CHECKSUM;
                     }
                     
-                    if (headerit->second.hdrUpdate.fields[0].type == "src")
+                    if (headerit->second.hdrUpdate.fields[i].type == "src")
                     {
-                        hdr.u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates = HDR_MANIP_TCP_UDP_SRC;
+                        hdr.u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates |= HDR_MANIP_TCP_UDP_SRC;
                         hdr.u.hdr.fieldUpdateParams.u.tcpUdp.src = (uint16_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
                     }
 
-                    if (headerit->second.hdrUpdate.fields[0].type == "dst")
+                    if (headerit->second.hdrUpdate.fields[i].type == "dst")
                     {
-                        hdr.u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates = HDR_MANIP_TCP_UDP_DST;
+                        hdr.u.hdr.fieldUpdateParams.u.tcpUdp.validUpdates |= HDR_MANIP_TCP_UDP_DST;
                         hdr.u.hdr.fieldUpdateParams.u.tcpUdp.dst = (uint16_t)std::strtoul( headerit->second.hdrUpdate.fields[0].value.c_str(), 0, 0 );
                     }
                 }
