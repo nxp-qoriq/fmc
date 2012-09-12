@@ -1425,7 +1425,7 @@ CPCDReader::parseInsert( CInsert* insert, xmlNodePtr pNode )
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"replace" ) ) {
             std::string text = getXMLElement( cur );
-            if (text == "yes" || text == "true")
+            if (text == "yes" || text == "true" || text == "\"yes\"" || text == "\"true\"")
                 insert->replace = true;
             else
                 insert->replace = false;
@@ -1553,7 +1553,7 @@ CPCDReader::parseInsertHeader( CInsertHeader* headerInsert, xmlNodePtr pNode )
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"replace" ) ) {
             std::string text = getXMLElement( cur );
-            if (text == "yes" || text == "true")
+            if (text == "yes" || text == "true" || text == "\"yes\"" || text == "\"true\"")
                 headerInsert->update = true;
             else
                 headerInsert->update = false;
