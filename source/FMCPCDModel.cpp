@@ -1510,6 +1510,16 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             applier.add_edge( n1, n2 );
             break;
             }
+#if (DPAA_VERSION >= 11)
+        case e_FM_PCD_FR:
+            {
+            unsigned int index =
+                get_replicator_index( pTaskDef, actionName, ccNode.name, port, false );
+            ApplyOrder::Entry n2( ApplyOrder::Replicator, index );
+            applier.add_edge( n1, n2 );
+            break;
+            }
+#endif /* (DPAA_VERSION >= 11) */
         default:
             {}
         }
@@ -1670,6 +1680,16 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             applier.add_edge( n1, n2 );
             break;
             }
+#if (DPAA_VERSION >= 11)
+        case e_FM_PCD_FR:
+            {
+            unsigned int index =
+                get_replicator_index( pTaskDef, actionName, htNode.name, port, false );
+            ApplyOrder::Entry n2( ApplyOrder::Replicator, index );
+            applier.add_edge( n1, n2 );
+            break;
+            }
+#endif /* (DPAA_VERSION >= 11) */
         default:
             {}
         }
