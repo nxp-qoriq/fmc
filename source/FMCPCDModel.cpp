@@ -311,7 +311,9 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 #if (DPAA_VERSION == 10)
         frag.u.frag.u.ipFrag.scratchBpid          = fragit->second.scratchBpid;
 #endif /* (DPAA_VERSION == 10) */
+#ifdef FM_EXP_FEATURES
         frag.u.frag.u.ipFrag.optionsCounterEn     = fragit->second.optionsCounterEn;
+#endif /* FM_EXP_FEATURES */
         frag.u.frag.u.ipFrag.dontFragAction       = (e_FmPcdManipDontFragAction)
                                                     fragit->second.dontFragAction;
         frag.u.frag.u.ipFrag.sgBpid               = fragit->second.sgBpid;
@@ -1077,6 +1079,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     ccNode.statistics   = getStatistic(xmlCCNode.statistics);
 
 #ifndef P1023
+#if (DPAA_VERSION >= 11)
     if (ccNode.statistics == e_FM_PCD_CC_STATS_MODE_RMON)
     {
         if (xmlCCNode.frameLength.size() != 0)
@@ -1087,6 +1090,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
            }
         }
     }
+#endif /* (DPAA_VERSION >= 11) */
 #endif /* P1023 */
     
     if (xmlCCNode.key.header)
@@ -2804,10 +2808,13 @@ CFMCModel::getStatistic( std::string statstic )
     else if (statstic == "byteframe" ) {
         return e_FM_PCD_CC_STATS_MODE_BYTE_AND_FRAME;
     }
+
 #ifndef P1023
+#if (DPAA_VERSION >= 11)
     else if (statstic == "rmon" ) {
         return e_FM_PCD_CC_STATS_MODE_RMON;
     }
+#endif /* (DPAA_VERSION >= 11) */
 #endif /* P1023 */
     
     return e_FM_PCD_CC_STATS_MODE_NONE;

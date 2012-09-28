@@ -338,8 +338,10 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.scratchBpid =,
             (int)model.all_engines[index].frags[i].u.frag.u.ipFrag.scratchBpid );
 #endif /* (DPAA_VERSION == 10) */
+#ifdef FM_EXP_FEATURES
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.optionsCounterEn =,
             (int)model.all_engines[index].frags[i].u.frag.u.ipFrag.optionsCounterEn );
+#endif /* FM_EXP_FEATURES */
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.dontFragAction =,
             model.all_engines[index].frags[i].u.frag.u.ipFrag.dontFragAction );
         EMIT7_2A( fman[, index, ].frag[, i,].u.frag.u, .ipFrag.sgBpidEn =,
@@ -1269,6 +1271,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
     EMIT4( ccnode[, index, ].keysParams.statisticsMode =, node.statistics );
 
 #ifndef P1023
+#if (DPAA_VERSION >= 11)
     if (node.statistics == e_FM_PCD_CC_STATS_MODE_RMON)
     {
         //Print the frame length vector
@@ -1289,6 +1292,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
         oss << " }," << std::endl;
         oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
     }
+#endif /* (DPAA_VERSION >= 11) */
 #endif /* P1023 */
 
     if ( ( cmodel->ccnode[index].extractCcParams.type != e_FM_PCD_EXTRACT_BY_HDR ) &&
