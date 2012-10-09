@@ -191,6 +191,18 @@ typedef struct fmc_model_t {
     char                     htnode_name         [FMC_CC_NODES_NUM][FMC_NAME_LEN];
     t_Handle                 htnode_handle       [FMC_CC_NODES_NUM];
     t_FmPcdHashTableParams   htnode              [FMC_CC_NODES_NUM];
+    //-- ht table prefilled entries
+    unsigned int             htentry_count       [FMC_CC_NODES_NUM];
+    t_FmPcdCcKeyParams       htentry             [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
+    uint8_t                  htkeydata           [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS]
+                                                 [FM_PCD_MAX_SIZE_OF_KEY];
+    unsigned char            htmask              [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS]
+                                                 [FM_PCD_MAX_SIZE_OF_KEY];
+    unsigned int             htentry_action_index[FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
+    e_FmPcdEngine            htentry_action_type [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
+    unsigned char            htentry_frag        [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
+    unsigned char            htentry_manip       [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
+    //-- end of prefilled entries
     unsigned int             htmiss_action_index [FMC_CC_NODES_NUM];
     e_FmPcdEngine            htmiss_action_type  [FMC_CC_NODES_NUM];
 

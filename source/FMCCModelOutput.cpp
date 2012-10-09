@@ -1511,6 +1511,98 @@ CFMCCModelOutput::output_fmc_htnode( const CFMCModel& model, fmc_model_t* cmodel
             EMIT4( htnode[, index, ].ccNextEngineParamsForMiss.params.enqueueParams.overrideFqid =, 0 );
         }
     }
+
+    oss << ind( indent ) << ".htkeydata[" << index << "] = {" << std::endl;
+    for ( unsigned int i = 0; i < node.keys.size(); ++i ) {
+        oss << ind( indent + 4 ) << "{";
+        for ( unsigned int j = 0; j < node.matchKeySize; ++j ) {
+            if ( j != 0 ) {
+                oss << ",";
+            }
+            oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)node.keys[i].data[j];
+            oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
+            cmodel->htkeydata[index][i][j] = node.keys[i].data[j];
+        }
+        oss << " }," << std::endl;
+    }
+    EMIT1( "}," );
+
+    oss << ind( indent ) << ".htmask[" << index << "] = {" << std::endl;
+    for ( unsigned int i = 0; i < node.masks.size(); ++i ) {
+        oss << ind( indent + 4 ) << "{";
+        for ( unsigned int j = 0; j < node.matchKeySize; ++j ) {
+            if ( j != 0 ) {
+                oss << ",";
+            }
+            oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)node.masks[i].data[j];
+            oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
+            cmodel->htmask[index][i][j] = node.masks[i].data[j];
+        }
+        oss << " }," << std::endl;
+    }
+    EMIT1( "}," );
+
+    EMIT4( htentry_count[, index, ] =, (unsigned int)node.keys.size() );
+
+    for ( unsigned int i = 0; i < node.keys.size(); ++i ) {
+        int node_num = node.indices[i];
+
+        if ( node.frag[i] != 0 ) {
+            EMIT6( htentry_frag[, index, ][, node_num, ] =, node.frag[i] );
+        }
+
+        if ( node.header[i] != 0 ) {
+            EMIT6( htentry_manip[, index, ][, node_num, ] =, node.header[i] );
+        }
+
+        EMIT6STR( htentry[, index, ][, node_num, ].ccNextEngineParams.nextEngine =, node.nextEngines[i].nextEngine );
+        EMIT6( htentry[, index, ][, node_num, ].ccNextEngineParams.statisticsEn =, node.nextEngines[i].statistics );
+        if ( node.nextEngines[i].nextEngine == e_FM_PCD_PLCR ) {
+            EMIT5( htentry[, index, ][, node_num, ].ccNextEngineParams.params.plcrParams.overrideParams = 1 );
+            EMIT5( htentry[, index, ][, node_num, ].ccNextEngineParams.params.plcrParams.sharedProfile = 1 );
+            EMIT6( htentry[, index, ][, node_num, ].ccNextEngineParams.params.plcrParams.newRelativeProfileId =, node.nextEngines[i].actionHandleIndex );
+            EMIT6( htentry[, index, ][, node_num, ].ccNextEngineParams.params.plcrParams.newFqid =, node.nextEngines[i].newFqid );
+#if (DPAA_VERSION >= 11)
+            EMIT6( htentry[, index, ][, node_num, ].ccNextEngineParams.params.plcrParams.newRelativeStorageProfileId =, node.nextEngines[i].newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
+        }
+        else if ( node.nextEngines[i].nextEngine == e_FM_PCD_KG ) {
+            if ( node.nextEngines[i].newFqid != 0 ) {
+                EMIT5( htentry[, index, ][, node_num, ].ccNextEngineParams.params.kgParams.overrideFqid = 1 );
+#if (DPAA_VERSION >= 11)
+                EMIT6( htentry[, index, ][, node_num, ].ccNextEngineParams.params.kgParams.newRelativeStorageProfileId =, node.nextEngines[i].newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
+            }
+            else {
+                EMIT5( htentry[, index, ][, node_num, ].ccNextEngineParams.params.kgParams.overrideFqid = 0 );
+            }
+            EMIT6( htentry_action_index[, index, ][, node_num, ] =, node.nextEngines[i].actionHandleIndex );
+        }
+        else if ( node.nextEngines[i].nextEngine == e_FM_PCD_CC ) {
+            EMIT6( htentry_action_type[, index, ][, node_num, ] =, node.nextEngines[i].nextEngineTrueType ); //We save the real type (CC of HT)
+            EMIT6( htentry_action_index[, index, ][, node_num, ] =, node.nextEngines[i].actionHandleIndex );
+        }
+#if (DPAA_VERSION >= 11)
+        else if ( node.nextEngines[i].nextEngine == e_FM_PCD_FR ) {
+            EMIT6( htentry_action_index[, index, ][, node_num, ] =, node.nextEngines[i].actionHandleIndex );
+        }
+#endif /* (DPAA_VERSION >= 11) */
+        else if ( node.nextEngines[i].nextEngine == e_FM_PCD_DONE ) {
+            if ( node.nextEngines[i].doneAction == e_FM_PCD_DROP_FRAME ) {
+                EMIT6STR( htentry[, index, ][, node_num, ].ccNextEngineParams.params.enqueueParams.action =, node.nextEngines[i].doneAction );
+            }
+            else if ( node.nextEngines[i].newFqid != 0 ) {
+                EMIT6( htentry[, index, ][, node_num, ].ccNextEngineParams.params.enqueueParams.overrideFqid =, 1 );
+                EMIT6( htentry[, index, ][, node_num, ].ccNextEngineParams.params.enqueueParams.newFqid =, node.nextEngines[i].newFqid );
+#if (DPAA_VERSION >= 11)
+                EMIT6( htentry[, index, ][, node_num, ].ccNextEngineParams.params.enqueueParams.newRelativeStorageProfileId =, node.nextEngines[i].newRelativeStorageProfileId );
+#endif /* (DPAA_VERSION >= 11) */
+            }
+            else {
+                EMIT6( htentry[, index, ][, node_num, ].ccNextEngineParams.params.enqueueParams.overrideFqid =, 0 );
+            }
+        }
+    }
 }// End of HT node output
 
 

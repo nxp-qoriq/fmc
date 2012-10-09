@@ -279,6 +279,11 @@ public:
         bool statistics;
         e_FmPcdEngine     nextEngineTrueType;
     };
+    class CCData
+    {
+    public:
+        unsigned char data[FM_PCD_MAX_SIZE_OF_KEY];
+    };
 
     std::string name;                   ///< Node name
 
@@ -289,6 +294,13 @@ public:
     unsigned int hashResMask;           ///< Mask that will be used on the hash-result
     unsigned int matchKeySize;          ///< The key data size in bits
     unsigned int hashShift;             ///< Byte offset from the beginning of the KeyGen hash result to the 2-bytes to be used as hash index.
+
+    std::vector< CCData >       keys;   ///< The list of data entries
+    std::vector< CCData >       masks;  ///< The list of masks corresponding to data entries
+    std::vector< CCNextEngine > nextEngines;
+    std::vector< unsigned int > frag;
+    std::vector< unsigned int > header;
+    std::vector< unsigned int > indices;
 
     CCNextEngine nextEngineOnMiss;
 

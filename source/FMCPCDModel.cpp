@@ -1551,6 +1551,165 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     htNode.hashShift                   = xmlCCNode.key.hashTableEntry.hashShift;
     htNode.matchKeySize                = xmlCCNode.key.hashTableEntry.keySize;
     htNode.port_signature              = port.name;
+
+    //entries for prefilled ht
+    // For each entry ...
+    for ( unsigned int i = 0; i < xmlCCNode.entries.size(); ++i ) {
+        // ... copy the data according to the key size
+        htNode.keys.push_back( HTNode::CCData() );
+        htNode.masks.push_back( HTNode::CCData() );
+        htNode.indices.push_back( xmlCCNode.entries[i].index );
+
+        if ( xmlCCNode.entries[i].headerManipName.empty() ) {
+            htNode.header.push_back( 0 );
+        }
+        else {
+            std::map< std::string, CHeaderManip >::const_iterator headerit;
+            unsigned int hdr_index = 0;
+            for ( headerit = pTaskDef->headermanips.begin(); headerit != pTaskDef->headermanips.end(); ++headerit ) {
+                hdr_index++;
+                if ( headerit->second.name == xmlCCNode.entries[i].headerManipName ) {
+                    htNode.header.push_back( hdr_index );
+                    break;
+                }
+            }
+
+            if (headerit == pTaskDef->headermanips.end())
+            {
+                 throw CGenericError( ERR_MANIP_NOT_FOUND, xmlCCNode.entries[i].headerManipName, xmlCCNode.name );
+            }
+        }
+
+        if ( xmlCCNode.entries[i].fragmentationName.empty() ) {
+            htNode.frag.push_back( 0 );
+        }
+        else {
+            std::map< std::string, CFragmentation >::const_iterator fragit;
+            unsigned int frag_index = 0;
+            for ( fragit = pTaskDef->fragmentations.begin(); fragit != pTaskDef->fragmentations.end(); ++fragit ) {
+                frag_index++;
+                if (fragit->second.name == xmlCCNode.entries[i].fragmentationName)
+                {
+                    htNode.frag.push_back( frag_index );
+                    break;
+                }
+            }
+
+            if (fragit == pTaskDef->fragmentations.end())
+            {
+                 throw CGenericError( ERR_MANIP_NOT_FOUND, xmlCCNode.entries[i].fragmentationName, xmlCCNode.name );
+            }
+        }
+
+        for ( unsigned int j = 0; j < htNode.matchKeySize; ++j ) {
+            htNode.keys[i].data[j] =
+                xmlCCNode.entries[i].data[FM_PCD_MAX_SIZE_OF_KEY - htNode.matchKeySize + j];
+            htNode.masks[i].data[j] =
+                xmlCCNode.entries[i].mask[FM_PCD_MAX_SIZE_OF_KEY - htNode.matchKeySize + j];
+        }
+
+        htNode.nextEngines.push_back( HTNode::CCNextEngine() );
+        htNode.nextEngines[i].nextEngine        = getEngineByType( xmlCCNode.entries[i].action );
+
+        //Save the true type of the next engine
+        htNode.nextEngines[i].nextEngineTrueType = htNode.nextEngines[i].nextEngine;
+        if ( htNode.nextEngines[i].nextEngine == e_FM_PCD_CC ) {
+            std::map< std::string, CClassification >::const_iterator nodeIt;
+            nodeIt = pTaskDef->classifications.find( xmlCCNode.entries[i].actionName );
+            // Does such node exist?
+            if ( nodeIt == pTaskDef->classifications.end() ) {
+                throw CGenericError( ERR_CC_NOT_FOUND, xmlCCNode.entries[i].actionName, xmlCCNode.name );
+            }
+
+            if ( nodeIt->second.key.hashTable )
+                htNode.nextEngines[i].nextEngineTrueType = e_FM_PCD_HASH;
+            else
+                htNode.nextEngines[i].nextEngineTrueType = e_FM_PCD_CC;
+        }
+
+        htNode.nextEngines[i].nextEngineStr = getEngineByTypeStr( xmlCCNode.entries[i].action );
+        htNode.nextEngines[i].newFqid       = xmlCCNode.entries[i].qbase;
+        htNode.nextEngines[i].statistics    = xmlCCNode.entries[i].statistics;
+
+#if (DPAA_VERSION >= 11)
+    //Change the VSP
+    if ( xmlCCNode.entries[i].vspOverride ) {
+        if ( xmlCCNode.entries[i].vspName != "" ) {
+            std::map< std::string, CVsp >::const_iterator vspIt;
+            vspIt = pTaskDef->vsps.find( xmlCCNode.entries[i].vspName );
+            // Does such VSP exist?
+            if ( vspIt == pTaskDef->vsps.end() ) {
+                throw CGenericError( ERR_VSP_NOT_FOUND, xmlCCNode.entries[i].vspName, xmlCCNode.name );
+            }
+
+            htNode.nextEngines[i].newRelativeStorageProfileId = vspIt->second.base;
+        }
+        else {
+            htNode.nextEngines[i].newRelativeStorageProfileId = xmlCCNode.entries[i].vspBase;
+        }
+    }
+    else {
+        htNode.nextEngines[i].newRelativeStorageProfileId = 0;
+    }
+#endif /* (DPAA_VERSION >= 11) */
+
+        htNode.nextEngines[i].doneAction        = e_FM_PCD_ENQ_FRAME;
+        htNode.nextEngines[i].doneActionStr     = "e_FM_PCD_ENQ_FRAME";
+        htNode.nextEngines[i].actionHandleIndex = 0xFFFFFFFF;
+        if ( htNode.nextEngines[i].nextEngine == e_FM_PCD_DONE &&
+             xmlCCNode.entries[i].action      == "drop" ) {
+            htNode.nextEngines[i].doneAction    = e_FM_PCD_DROP_FRAME;
+            htNode.nextEngines[i].doneActionStr = "e_FM_PCD_DROP_FRAME";
+        }
+        if ( htNode.nextEngines[i].nextEngine == e_FM_PCD_CC ||
+             htNode.nextEngines[i].nextEngine == e_FM_PCD_HASH ) {
+            if ( htNode.nextEngines[i].nextEngineTrueType == e_FM_PCD_HASH ) {
+                htNode.nextEngines[i].actionHandleIndex =
+                get_htnode_index( pTaskDef,
+                                  xmlCCNode.entries[i].actionName,
+                                  htNode.name, port, false );
+                ApplyOrder::Entry n2( ApplyOrder::HTNode,
+                                      htNode.nextEngines[i].actionHandleIndex );
+                applier.add_edge( n1, n2 );
+            }
+            else {
+                htNode.nextEngines[i].actionHandleIndex =
+                    get_ccnode_index( pTaskDef,
+                                      xmlCCNode.entries[i].actionName,
+                                      htNode.name, port, false );
+                ApplyOrder::Entry n2( ApplyOrder::CCNode,
+                                      htNode.nextEngines[i].actionHandleIndex );
+                applier.add_edge( n1, n2 );
+            }
+        }
+        else if ( htNode.nextEngines[i].nextEngine == e_FM_PCD_KG ) {
+            htNode.nextEngines[i].actionHandleIndex =
+                get_scheme_index( pTaskDef, xmlCCNode.entries[i].actionName,
+                                  htNode.name, port, true );
+            ApplyOrder::Entry n2( ApplyOrder::Scheme,
+                                  htNode.nextEngines[i].actionHandleIndex );
+            applier.add_edge( n1, n2 );
+        }
+        else if ( htNode.nextEngines[i].nextEngine == e_FM_PCD_PLCR ) {
+            htNode.nextEngines[i].actionHandleIndex =
+                get_policer_index( pTaskDef, xmlCCNode.entries[i].actionName,
+                                   htNode.name, port );
+            ApplyOrder::Entry n2( ApplyOrder::Policer,
+                                  htNode.nextEngines[i].actionHandleIndex );
+            applier.add_edge( n1, n2 );
+        }
+#if (DPAA_VERSION >= 11)
+        else if ( htNode.nextEngines[i].nextEngine == e_FM_PCD_FR ) {
+            htNode.nextEngines[i].actionHandleIndex =
+                get_replicator_index( pTaskDef, xmlCCNode.entries[i].actionName,
+                                   htNode.name, port, false );
+            ApplyOrder::Entry n2( ApplyOrder::Replicator,
+                                  htNode.nextEngines[i].actionHandleIndex );
+            applier.add_edge( n1, n2 );
+        }
+#endif /* (DPAA_VERSION >= 11) */
+    }
+    //--end of entry
     htNode.nextEngineOnMiss.nextEngine = getEngineByType( xmlCCNode.actionOnMiss );
 
     //Save the true type of the next engine

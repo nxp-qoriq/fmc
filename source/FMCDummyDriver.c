@@ -141,6 +141,13 @@ FM_PCD_HashTableSet(t_Handle h_FmPcd, t_FmPcdHashTableParams *p_Param)
     return (t_Handle)++handle_no;
 }
 
+t_Error
+FM_PCD_HashTableAddKey(t_Handle h_HashTbl, uint8_t keySize, t_FmPcdCcKeyParams  *p_KeyParams)
+{
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_HashTableAddKey size %d", keySize );
+    return E_OK;
+}
+
 
 t_Error
 FM_PCD_ConfigKgDfltValue(t_Handle h_FmPcd, uint8_t valueId, uint32_t value)
