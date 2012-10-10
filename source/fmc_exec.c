@@ -750,8 +750,7 @@ fmc_exec_htnode( fmc_model* model, unsigned int engine,
 
         model->htentry[index][i].p_Key =
             model->htkeydata[index][i];
-        model->htentry[index][i].p_Mask =
-            model->htmask[index][i];
+        model->htentry[index][i].p_Mask = NULL;
 
         LOG_FMD_CALL( FM_PCD_HashTableAddKey, model->htnode_name[index] );
         res = FM_PCD_HashTableAddKey( model->htnode_handle[index], 

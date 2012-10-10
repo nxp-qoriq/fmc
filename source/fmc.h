@@ -196,8 +196,6 @@ typedef struct fmc_model_t {
     t_FmPcdCcKeyParams       htentry             [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     uint8_t                  htkeydata           [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS]
                                                  [FM_PCD_MAX_SIZE_OF_KEY];
-    unsigned char            htmask              [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS]
-                                                 [FM_PCD_MAX_SIZE_OF_KEY];
     unsigned int             htentry_action_index[FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     e_FmPcdEngine            htentry_action_type [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned char            htentry_frag        [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];

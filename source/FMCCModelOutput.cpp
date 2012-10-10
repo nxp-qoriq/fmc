@@ -1527,21 +1527,6 @@ CFMCCModelOutput::output_fmc_htnode( const CFMCModel& model, fmc_model_t* cmodel
     }
     EMIT1( "}," );
 
-    oss << ind( indent ) << ".htmask[" << index << "] = {" << std::endl;
-    for ( unsigned int i = 0; i < node.masks.size(); ++i ) {
-        oss << ind( indent + 4 ) << "{";
-        for ( unsigned int j = 0; j < node.matchKeySize; ++j ) {
-            if ( j != 0 ) {
-                oss << ",";
-            }
-            oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)node.masks[i].data[j];
-            oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
-            cmodel->htmask[index][i][j] = node.masks[i].data[j];
-        }
-        oss << " }," << std::endl;
-    }
-    EMIT1( "}," );
-
     EMIT4( htentry_count[, index, ] =, (unsigned int)node.keys.size() );
 
     for ( unsigned int i = 0; i < node.keys.size(); ++i ) {
