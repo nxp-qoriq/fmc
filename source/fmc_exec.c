@@ -504,6 +504,8 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     t_Error err;
     fmc_port* pport = &model->port[port];
     unsigned int i;
+    unsigned int index;
+    unsigned int action_index;
     unsigned int reasm_index = 0;
 
 #ifndef P1023
@@ -538,6 +540,57 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
         pport->pcdParam.p_CcParams           = &pport->ccParam;
         pport->pcdParam.p_CcParams->h_CcTree = pport->cctree_handle;
     }
+
+    //Add HT entries (must be called after schemes)
+    for ( index = 0; index < model->htnode_count; index++ )
+    {
+        for ( i = 0; i < model->htentry_count[index]; ++i ) {
+            action_index = model->htentry_action_index[index][i];
+            if ( model->htentry[index][i].ccNextEngineParams.nextEngine == e_FM_PCD_KG ) {
+                model->htentry[index][i].ccNextEngineParams.params.kgParams.h_DirectScheme =
+                                                 model->scheme_handle[action_index];
+            }
+            else if ( model->htentry[index][i].ccNextEngineParams.nextEngine == e_FM_PCD_CC) {
+                if ( model->htentry_action_type[index][i] == e_FM_PCD_CC ) {
+                    model->htentry[index][i].ccNextEngineParams.params.ccParams.h_CcNode =
+                                                     model->ccnode_handle[action_index];
+                }
+                else if (model->htentry_action_type[index][i] == e_FM_PCD_HASH) {
+                     model->htentry[index][i].ccNextEngineParams.params.ccParams.h_CcNode =
+                                                     model->htnode_handle[action_index];
+                }
+            }
+    #if (DPAA_VERSION >= 11)
+            else if ( model->htentry[index][i].ccNextEngineParams.nextEngine == e_FM_PCD_FR) {
+                model->htentry[index][i].ccNextEngineParams.params.frParams.h_FrmReplic =
+                                                 model->replicator_handle[action_index];
+            }
+    #endif /* (DPAA_VERSION >= 11) */
+
+    #ifndef P1023
+            if ( model->htentry_frag[index][i] != 0 ) {
+                model->htentry[index][i].ccNextEngineParams.h_Manip =
+                    model->fman[engine].frag_handle[ model->htentry_frag[index][i] - 1 ];
+            }
+
+            if ( model->htentry_manip[index][i] != 0 ) {
+                model->htentry[index][i].ccNextEngineParams.h_Manip =
+                    model->fman[engine].hdr_handle[ model->htentry_manip[index][i] - 1 ];
+            }
+    #endif /* P1023 */
+
+            model->htentry[index][i].p_Key =
+                model->htkeydata[index][i];
+            model->htentry[index][i].p_Mask = NULL;
+
+            LOG_FMD_CALL( FM_PCD_HashTableAddKey, model->htnode_name[index] );
+            err = FM_PCD_HashTableAddKey( model->htnode_handle[index], 
+                                model->htnode[index].matchKeySize,
+                                &(model->htentry[index][i]) );
+            //CHECK_HANDLE( FM_PCD_HashTableAddKey, model->htnode_name[index], !res );
+        }
+    }
+    //End of adding HT entries
 
     LOG_FMD_CALL( FM_PORT_Disable, pport->name );
     err = FM_PORT_Disable( pport->handle );
@@ -678,7 +731,6 @@ fmc_exec_htnode( fmc_model* model, unsigned int engine,
 {
     unsigned int i;
     unsigned int action_index;
-    t_Error res;
 
     action_index = model->htmiss_action_index[index];
     if ( model->htnode[index].ccNextEngineParamsForMiss
@@ -712,52 +764,6 @@ fmc_exec_htnode( fmc_model* model, unsigned int engine,
                           &(model->htnode[index]) );
     CHECK_HANDLE( FM_PCD_HashTableSet, model->htnode_name[index],
                   model->htnode_handle[index] );
-
-    for ( i = 0; i < model->htentry_count[index]; ++i ) {
-        action_index = model->htentry_action_index[index][i];
-        if ( model->htentry[index][i].ccNextEngineParams.nextEngine == e_FM_PCD_KG ) {
-            model->htentry[index][i].ccNextEngineParams.params.kgParams.h_DirectScheme =
-                                             model->scheme_handle[action_index];
-        }
-        else if ( model->htentry[index][i].ccNextEngineParams.nextEngine == e_FM_PCD_CC) {
-            if ( model->htentry_action_type[index][i] == e_FM_PCD_CC ) {
-                model->htentry[index][i].ccNextEngineParams.params.ccParams.h_CcNode =
-                                                 model->ccnode_handle[action_index];
-            }
-            else if (model->htentry_action_type[index][i] == e_FM_PCD_HASH) {
-                 model->htentry[index][i].ccNextEngineParams.params.ccParams.h_CcNode =
-                                                 model->htnode_handle[action_index];
-            }
-        }
-#if (DPAA_VERSION >= 11)
-        else if ( model->htentry[index][i].ccNextEngineParams.nextEngine == e_FM_PCD_FR) {
-            model->htentry[index][i].ccNextEngineParams.params.frParams.h_FrmReplic =
-                                             model->replicator_handle[action_index];
-        }
-#endif /* (DPAA_VERSION >= 11) */
-
-#ifndef P1023
-        if ( model->htentry_frag[index][i] != 0 ) {
-            model->htentry[index][i].ccNextEngineParams.h_Manip =
-                model->fman[engine].frag_handle[ model->htentry_frag[index][i] - 1 ];
-        }
-
-        if ( model->htentry_manip[index][i] != 0 ) {
-            model->htentry[index][i].ccNextEngineParams.h_Manip =
-                model->fman[engine].hdr_handle[ model->htentry_manip[index][i] - 1 ];
-        }
-#endif /* P1023 */
-
-        model->htentry[index][i].p_Key =
-            model->htkeydata[index][i];
-        model->htentry[index][i].p_Mask = NULL;
-
-        LOG_FMD_CALL( FM_PCD_HashTableAddKey, model->htnode_name[index] );
-        res = FM_PCD_HashTableAddKey( model->htnode_handle[index], 
-                            model->htnode[index].matchKeySize,
-                            &(model->htentry[index][i]) );
-        //CHECK_HANDLE( FM_PCD_HashTableAddKey, model->htnode_name[index], !res );
-    }
 
     return 0;
 }
