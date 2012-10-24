@@ -1594,8 +1594,6 @@ CPCDReader::parseUpdate( CUpdate* update, xmlNodePtr pNode )
             field.type = getAttr( cur, "type" );
             field.value = getAttr( cur, "value" );
             field.index = std::strtoul( getAttr( cur, "index" ).c_str(), 0, 0 );
-            if (field.index == 0)
-                field.index = 1;
 
             field.fill = false;
             field.fillValue = 0;
