@@ -645,6 +645,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
             ce.action = "";
             ce.actionName = "";
             ce.statistics = false;
+            ce.vspBase = 0;
 
             // Calculate entry index
             if ( !getAttr( cur, "index" ).empty() ) {
