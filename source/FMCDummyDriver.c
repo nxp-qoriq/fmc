@@ -150,14 +150,6 @@ FM_PCD_HashTableAddKey(t_Handle h_HashTbl, uint8_t keySize, t_FmPcdCcKeyParams  
 
 
 t_Error
-FM_PCD_ConfigKgDfltValue(t_Handle h_FmPcd, uint8_t valueId, uint32_t value)
-{
-    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_ConfigKgDfltValue" );
-    return E_OK;
-}
-
-
-t_Error
 FM_PORT_Enable(t_Handle h_FmPort)
 {
     fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PORT_Enable %d", h_FmPort );
