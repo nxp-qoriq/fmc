@@ -2524,6 +2524,7 @@ CFMCModel::getNetCommHeaderType( std::string protoname )
     net_types[ "mpls" ]      = HEADER_TYPE_MPLS;
     net_types[ "ipv4" ]      = HEADER_TYPE_IPv4;
     net_types[ "ipv6" ]      = HEADER_TYPE_IPv6;
+    net_types[ "ip" ]        = HEADER_TYPE_IP;
     net_types[ "tcp" ]       = HEADER_TYPE_TCP;
     net_types[ "udp" ]       = HEADER_TYPE_UDP;
     net_types[ "gre" ]       = HEADER_TYPE_GRE;
@@ -2561,6 +2562,7 @@ CFMCModel::getNetCommHeaderTypeStr( std::string protoname )
     net_types[ "mpls" ]      = "HEADER_TYPE_MPLS";
     net_types[ "ipv4" ]      = "HEADER_TYPE_IPv4";
     net_types[ "ipv6" ]      = "HEADER_TYPE_IPv6";
+    net_types[ "ip" ]        = "HEADER_TYPE_IP";
     net_types[ "tcp" ]       = "HEADER_TYPE_TCP";
     net_types[ "udp" ]       = "HEADER_TYPE_UDP";
     net_types[ "gre" ]       = "HEADER_TYPE_GRE";
@@ -2597,6 +2599,7 @@ CFMCModel::getNetCommHeaderTypeStr( e_NetHeaderType proto )
     net_types[ HEADER_TYPE_MPLS ]               = "HEADER_TYPE_MPLS";
     net_types[ HEADER_TYPE_IPv4 ]               = "HEADER_TYPE_IPv4";
     net_types[ HEADER_TYPE_IPv6 ]               = "HEADER_TYPE_IPv6";
+    net_types[ HEADER_TYPE_IP ]                 = "HEADER_TYPE_IP";
     net_types[ HEADER_TYPE_TCP ]                = "HEADER_TYPE_TCP";
     net_types[ HEADER_TYPE_UDP ]                = "HEADER_TYPE_UDP";
     net_types[ HEADER_TYPE_GRE ]                = "HEADER_TYPE_GRE";
@@ -2658,6 +2661,8 @@ CFMCModel::getNetCommFieldType( std::string fieldname )
     fields["ipv6.src"]            = NET_HEADER_FIELD_IPv6_SRC_IP;
     fields["ipv6.dst"]            = NET_HEADER_FIELD_IPv6_DST_IP;
     fields["ipv6.hop"]            = NET_HEADER_FIELD_IPv6_HOP_LIMIT;
+    fields["ip.nextp"]            = NET_HEADER_FIELD_IP_PROTO;
+    fields["ip.dscp"]             = NET_HEADER_FIELD_IP_DSCP;
     fields["tcp.sport"]           = NET_HEADER_FIELD_TCP_PORT_SRC;
     fields["tcp.dport"]           = NET_HEADER_FIELD_TCP_PORT_DST;
     fields["tcp.seq"]             = NET_HEADER_FIELD_TCP_SEQ;
@@ -2734,6 +2739,8 @@ CFMCModel::getNetCommFieldTypeStr( std::string fieldname )
     fields["ipv6.src"]            = "NET_HEADER_FIELD_IPv6_SRC_IP";
     fields["ipv6.dst"]            = "NET_HEADER_FIELD_IPv6_DST_IP";
     fields["ipv6.hop"]            = "NET_HEADER_FIELD_IPv6_HOP_LIMIT";
+    fields["ip.nextp"]            = "NET_HEADER_FIELD_IP_PROTO";
+    fields["ip.dscp"]             = "NET_HEADER_FIELD_IP_DSCP";
     fields["tcp.sport"]           = "NET_HEADER_FIELD_TCP_PORT_SRC";
     fields["tcp.dport"]           = "NET_HEADER_FIELD_TCP_PORT_DST";
     fields["tcp.seq"]             = "NET_HEADER_FIELD_TCP_SEQ";
@@ -2795,6 +2802,8 @@ CFMCModel::isFullFieldForCC( std::string fieldName )
         "ipv6.dst",
         "ipv6.src",
         "ipv6.hop",
+        "ip.nextp",
+        "ip.dscp",
         "gre.type",
         "minencap.dst",
         // NET_HEADER_FIELD_MINENCAP_TYPE

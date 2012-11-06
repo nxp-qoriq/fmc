@@ -1122,6 +1122,10 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
                     EMIT5_2STR( ccnode[, index, ].extractCcParams, .extractByHdr.extractByHdrType.fullField.ipv6 =,
                         node.extract.fieldType );
                     break;
+                case HEADER_TYPE_IP:
+                    EMIT5_2STR( ccnode[, index, ].extractCcParams, .extractByHdr.extractByHdrType.fullField.ip =,
+                        node.extract.fieldType );
+                    break;
                 case HEADER_TYPE_UDP:
                     EMIT5_2STR( ccnode[, index, ].extractCcParams, .extractByHdr.extractByHdrType.fullField.udp =,
                         node.extract.fieldType );

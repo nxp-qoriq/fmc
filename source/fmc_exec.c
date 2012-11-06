@@ -729,7 +729,6 @@ static int
 fmc_exec_htnode( fmc_model* model, unsigned int engine,
                  unsigned int index )
 {
-    unsigned int i;
     unsigned int action_index;
 
     action_index = model->htmiss_action_index[index];

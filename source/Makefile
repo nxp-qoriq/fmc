@@ -18,14 +18,19 @@ FMD_USPACE_LIB_PATH    ?= /usr/lib
 LIBXML2_HEADER_PATH    ?= /usr/include/libxml2
 TCLAP_HEADER_PATH      ?= /usr/include
 
-PKG_NAME = fmc-0.9.23
+PKG_NAME = fmc-0.9.24
 PKG_RELEASE = 1
 
 ifeq ($(MACHINE),p1023rds)
-CFLAGS += -DP1023
+  CFLAGS += -DP1023
 else
-CFLAGS += -DP4080
+  ifeq ($(MACHINE),B4860)
+    CFLAGS += -DB4860
+  else
+    CFLAGS += -DP4080
+  endif
 endif
+
 ifdef 64BIT5020
 CFLAGS += -m64
 endif
