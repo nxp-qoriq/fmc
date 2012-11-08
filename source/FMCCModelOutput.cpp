@@ -136,6 +136,26 @@ static std::string ind( size_t count )
        oss << QUOTE(e_FM_PCD_MANIP_HDR_FIELD_UPDATE_DSCP_TO_VLAN); \
     oss << "," << std::endl;
 
+#define EMIT7_2A_CUSTOMTYPE( A, B, C, D, E, F, G ) \
+    cmodel->A B C D E F G;              \
+    oss << ind( indent ) << "."                                         \
+        << QUOTE( A ) << B << QUOTE( C ) << D                 \
+        << QUOTE( E ) << QUOTE( F ); \
+    if (G == e_FM_PCD_MANIP_HDR_CUSTOM_IP_REPLACE) \
+       oss << QUOTE(e_FM_PCD_MANIP_HDR_CUSTOM_IP_REPLACE); \
+    oss << "," << std::endl;
+
+#define EMIT7_2A_CUSTOMREPLACETYPE( A, B, C, D, E, F, G ) \
+    cmodel->A B C D E F G;              \
+    oss << ind( indent ) << "."                                         \
+        << QUOTE( A ) << B << QUOTE( C ) << D                 \
+        << QUOTE( E ) << QUOTE( F ); \
+    if (G == e_FM_PCD_MANIP_HDR_CUSTOM_REPLACE_IPV4_BY_IPV6) \
+       oss << QUOTE(e_FM_PCD_MANIP_HDR_CUSTOM_REPLACE_IPV4_BY_IPV6); \
+    if (G == e_FM_PCD_MANIP_HDR_CUSTOM_REPLACE_IPV6_BY_IPV4) \
+       oss << QUOTE(e_FM_PCD_MANIP_HDR_CUSTOM_REPLACE_IPV6_BY_IPV4); \
+    oss << "," << std::endl;
+
 
 #define EMIT7_2STR( A, B, C, D, E, F, G )  \
     cmodel->A B C D E F G;                  \
@@ -589,6 +609,50 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
                         model.all_engines[index].headerManips[i].u.hdr.fieldUpdateParams.u.tcpUdp.dst );
                 }
             }
+        }
+
+        if ( model.all_engines[index].headerManips[i].u.hdr.custom )
+        {
+            EMIT7_2A_CUSTOMTYPE( fman[, index, ].hdr[, i,].u.hdr.customParams, .type =,
+                e_FM_PCD_MANIP_HDR_CUSTOM_IP_REPLACE );
+            EMIT7_2A_CUSTOMREPLACETYPE( fman[, index, ].hdr[, i,].u.hdr.customParams.u.ipHdrReplace, .replaceType =,
+                model.all_engines[index].headerManips[i].u.hdr.customParams.u.ipHdrReplace.replaceType );
+            if (model.all_engines[index].headerManips[i].u.hdr.customParams.u.ipHdrReplace.replaceType == e_FM_PCD_MANIP_HDR_CUSTOM_REPLACE_IPV6_BY_IPV4)
+            {
+                EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.customParams.u.ipHdrReplace, .updateIpv4Id =,
+                    model.all_engines[index].headerManips[i].u.hdr.customParams.u.ipHdrReplace.updateIpv4Id );
+
+                if (model.all_engines[index].headerManips[i].u.hdr.customParams.u.ipHdrReplace.updateIpv4Id)
+                {
+                    EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.customParams.u.ipHdrReplace, .id =,
+                        (int)model.all_engines[index].headerManips[i].u.hdr.customParams.u.ipHdrReplace.id );
+                }
+            }
+
+            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.customParams.u.ipHdrReplace, .decTtlHl =,
+                (int)model.all_engines[index].headerManips[i].u.hdr.customParams.u.ipHdrReplace.decTtlHl );
+
+            EMIT7_2A( fman[, index, ].hdr[, i,].u.hdr.customParams.u.ipHdrReplace, .hdrSize =,
+                (int)model.all_engines[index].headerManips[i].u.hdr.customParams.u.ipHdrReplace.hdrSize );
+
+            oss << ind(indent) << "." << "fman[" << index << "].hdr[" << i 
+                            << "].u.hdr.customParams.u.ipHdrReplace.hdr = {";
+
+            for (unsigned int idx = 0; idx < model.all_engines[index].headerManips[i].u.hdr.customParams.u.ipHdrReplace.hdrSize; idx++)
+            {
+                cmodel->fman[index].hdr[i].u.hdr.customParams.u.ipHdrReplace.hdr[idx] = 
+                    model.all_engines[index].headerManips[i].u.hdr.customParams.u.ipHdrReplace.hdr[idx];
+
+                //Print the table
+                if ( idx != 0 ) {
+                    oss << ",";
+                }
+
+                oss << " 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << (unsigned int)model.all_engines[index].headerManips[i].u.hdr.customParams.u.ipHdrReplace.hdr[idx];
+            }
+
+             oss << " }," << std::endl;
+             oss << std::dec << std::resetiosflags(std::ios::basefield | std::ios::internal);
         }
 
         if ( model.all_engines[index].headerManips_hasNext[i] ) {

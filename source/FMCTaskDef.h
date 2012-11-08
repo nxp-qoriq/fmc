@@ -35,6 +35,7 @@
 
 #define MAX_CC_KEY 56
 #define MAX_INSERT_SIZE 56 //TODO check max size with driver team
+#define MAX_IPREPLACE_SIZE 256
 
 class CExecuteExpression;
 class CExecuteSection;
@@ -608,6 +609,18 @@ class CUpdate
    std::vector < CUpdateField > fields;
 };
 
+class CCustom
+{
+ public:
+   std::string type;
+   unsigned int size;
+   std::string data;
+   bool decTtl;   
+   bool decHl;
+   bool updateIpv4Id;
+   unsigned int id;
+};
+
 class CHeaderManip
 {
  public:
@@ -618,11 +631,13 @@ class CHeaderManip
     bool insertHeader;
     bool removeHeader;
     bool update;
+    bool custom;
     CInsert hdrInsert;
     CRemove hdrRemove;
     CInsertHeader hdrInsertHeader[2];
     CRemoveHeader hdrRemoveHeader;
     CUpdate hdrUpdate;
+    CCustom hdrCustom;
     std::string   nextManip;
     unsigned int duplicate;
 };

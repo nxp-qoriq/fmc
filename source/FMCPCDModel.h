@@ -254,6 +254,8 @@ public:
     std::vector <unsigned int > frameLength;
 
     CCNextEngine nextEngineOnMiss;
+    unsigned int fragOnMiss;
+    unsigned int headerOnMiss;
 
     std::string   port_signature;
 };
@@ -303,6 +305,8 @@ public:
     std::vector< unsigned int > indices;
 
     CCNextEngine nextEngineOnMiss;
+    unsigned int fragOnMiss;
+    unsigned int headerOnMiss;
 
     std::string   port_signature;
 };

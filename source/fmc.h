@@ -183,9 +183,11 @@ typedef struct fmc_model_t {
     unsigned int             ccentry_action_index[FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     e_FmPcdEngine            ccentry_action_type [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned char            ccentry_frag        [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
-    unsigned char            ccentry_manip       [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
+    unsigned int             ccentry_manip       [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned int             ccmiss_action_index [FMC_CC_NODES_NUM];
     e_FmPcdEngine            ccmiss_action_type  [FMC_CC_NODES_NUM];
+    unsigned char            ccmiss_frag         [FMC_CC_NODES_NUM];
+    unsigned int             ccmiss_manip        [FMC_CC_NODES_NUM];
 
     unsigned int             htnode_count;       ///< Number of used HT nodes
     char                     htnode_name         [FMC_CC_NODES_NUM][FMC_NAME_LEN];
@@ -199,10 +201,12 @@ typedef struct fmc_model_t {
     unsigned int             htentry_action_index[FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     e_FmPcdEngine            htentry_action_type [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     unsigned char            htentry_frag        [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
-    unsigned char            htentry_manip       [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
+    unsigned int             htentry_manip       [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS];
     //-- end of prefilled entries
     unsigned int             htmiss_action_index [FMC_CC_NODES_NUM];
     e_FmPcdEngine            htmiss_action_type  [FMC_CC_NODES_NUM];
+    unsigned char            htmiss_frag         [FMC_CC_NODES_NUM];
+    unsigned int             htmiss_manip        [FMC_CC_NODES_NUM];
 
 
 #if (DPAA_VERSION >= 11)
@@ -212,7 +216,7 @@ typedef struct fmc_model_t {
     t_FmPcdFrmReplicGroupParams      replicator    [FMC_REPLICATORS_NUM];
     unsigned int             repentry_action_index [FMC_REPLICATORS_NUM][FM_PCD_MAX_NUM_OF_REPS];
     unsigned char            repentry_frag         [FMC_REPLICATORS_NUM][FM_PCD_MAX_NUM_OF_REPS];
-    unsigned char            repentry_manip        [FMC_REPLICATORS_NUM][FM_PCD_MAX_NUM_OF_REPS];
+    unsigned int             repentry_manip        [FMC_REPLICATORS_NUM][FM_PCD_MAX_NUM_OF_REPS];
 #endif /* (DPAA_VERSION >= 11) */
    
     unsigned int             policer_count; ///< Number of used policers

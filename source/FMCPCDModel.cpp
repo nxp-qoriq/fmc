@@ -333,7 +333,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
         hdr.u.hdr.insrt = headerit->second.insert || headerit->second.insertHeader;
         hdr.u.hdr.rmv   = headerit->second.remove || headerit->second.removeHeader;
         hdr.u.hdr.fieldUpdate = headerit->second.update;
-        hdr.u.hdr.custom   = false;
+        hdr.u.hdr.custom   = headerit->second.custom;
         hdr.u.hdr.dontParseAfterManip = !headerit->second.parse;
 
         if ( hdr.u.hdr.insrt )
@@ -378,7 +378,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
                 for ( unsigned int j = 0; j < headerit->second.hdrInsert.size; ++j ) {
                     insertData.data[j] =
-                        headerit->second.hdrInsert.data[FM_PCD_MAX_SIZE_OF_KEY - headerit->second.hdrInsert.size + j];
+                        headerit->second.hdrInsert.data[MAX_INSERT_SIZE - headerit->second.hdrInsert.size + j];
                 }
             }
             
@@ -398,6 +398,47 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
                 hdr.u.hdr.rmvParams.u.generic.size   = headerit->second.hdrRemove.size;
                 hdr.u.hdr.rmvParams.u.generic.offset = headerit->second.hdrRemove.offset;
             }
+        }
+
+        if ( hdr.u.hdr.custom )
+        {
+            hdr.u.hdr.customParams.type = e_FM_PCD_MANIP_HDR_CUSTOM_IP_REPLACE;
+            hdr.u.hdr.customParams.u.ipHdrReplace.updateIpv4Id = headerit->second.hdrCustom.updateIpv4Id;
+            hdr.u.hdr.customParams.u.ipHdrReplace.id = headerit->second.hdrCustom.id;
+            if (headerit->second.hdrCustom.type == "ipv4" || headerit->second.hdrCustom.type == "ipv4byipv6")
+            {
+                hdr.u.hdr.customParams.u.ipHdrReplace.replaceType = e_FM_PCD_MANIP_HDR_CUSTOM_REPLACE_IPV4_BY_IPV6;
+                hdr.u.hdr.customParams.u.ipHdrReplace.updateIpv4Id = false;
+                hdr.u.hdr.customParams.u.ipHdrReplace.id = 0;
+            }else if (headerit->second.hdrCustom.type == "ipv6" || headerit->second.hdrCustom.type == "ipv6byipv4")
+            {
+                hdr.u.hdr.customParams.u.ipHdrReplace.replaceType = e_FM_PCD_MANIP_HDR_CUSTOM_REPLACE_IPV6_BY_IPV4;
+            }
+            hdr.u.hdr.customParams.u.ipHdrReplace.hdrSize = headerit->second.hdrCustom.size;
+            hdr.u.hdr.customParams.u.ipHdrReplace.decTtlHl = headerit->second.hdrCustom.decTtl || headerit->second.hdrCustom.decHl;
+
+            std::string data = stripBlanks( headerit->second.hdrCustom.data );
+            if ( data.length() > FM_PCD_MANIP_MAX_HDR_SIZE*2 + 2 || data.substr( 0, 2 ) != "0x" ) {
+                throw CGenericError( ERR_INVALID_MANIP_DATA,
+                                     headerit->second.name );
+            }
+
+            // Convert data to numeric array
+            data = data.substr( 2 );
+            int index = headerit->second.hdrCustom.size;
+            while ( data.length() > 0 && index >= 1 ) {
+                std::string tmp;
+                if ( data.length() > 1 ) {
+                    tmp  = "0x" + data.substr( data.length() - 2, 2 );
+                    data = data.substr( 0, data.length() - 2 );
+                }
+                else {
+                    tmp  = "0x" + data;
+                    data = "";
+                }
+                hdr.u.hdr.customParams.u.ipHdrReplace.hdr[--index] = (uint8_t)std::strtol( tmp.c_str(), 0, 0 );
+            }
+
         }
 
         if ( hdr.u.hdr.fieldUpdate )
@@ -533,8 +574,8 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 
                         std::string data = stripBlanks( headerit->second.hdrUpdate.fields[i].value );
                         if ( data.length() != 34 || data.substr( 0, 2 ) != "0x" ) {
-                            throw CGenericError( ERR_INVALID_ENTRY_DATA,
-                                                 "update ipv6 dst" );
+                            throw CGenericError( ERR_INVALID_MANIP_DATA,
+                                headerit->second.name );
                         }
 
                         // Convert data to numeric array

@@ -1632,6 +1632,43 @@ CPCDReader::parseUpdate( CUpdate* update, xmlNodePtr pNode )
 }
 
 void
+CPCDReader::parseCustom( CCustom* headerCustom, xmlNodePtr pNode )
+{
+    checkUnknownAttr( pNode, 1, "type" );
+
+    headerCustom->type = getAttr( pNode, "type" );
+
+    xmlNodePtr cur = pNode->xmlChildrenNode;
+    while ( 0 != cur ) {
+        if ( !xmlStrcmp( cur->name, (const xmlChar*)"dechl" ) ) {
+            std::string text = getXMLElement( cur );
+            if (text == "yes" || text == "true" || text == "\"yes\"" || text == "\"true\"")
+                headerCustom->decHl = true;
+            else
+                headerCustom->decHl = false;
+        } else if ( !xmlStrcmp( cur->name, (const xmlChar*)"decttl" ) ) {
+            std::string text = getXMLElement( cur );
+            if (text == "yes" || text == "true" || text == "\"yes\"" || text == "\"true\"")
+                headerCustom->decTtl = true;
+            else
+                headerCustom->decTtl = false;
+        }else if ( !xmlStrcmp( cur->name, (const xmlChar*)"size" ) ) {
+            std::string text = getXMLElement( cur );
+            headerCustom->size = std::strtol( text.c_str(), 0, 0 );
+        }else if ( !xmlStrcmp( cur->name, (const xmlChar*)"data" ) ) {
+            std::string text = getXMLElement( cur );
+            headerCustom->data = text;
+        }else if ( !xmlStrcmp( cur->name, (const xmlChar*)"id" ) || !xmlStrcmp( cur->name, (const xmlChar*)"ipid" ) ) {
+            std::string text = getXMLElement( cur );
+            headerCustom->updateIpv4Id = true;
+            headerCustom->id = std::strtol( text.c_str(), 0, 0 );
+        }
+
+        cur = cur->next;
+    }
+}
+
+void
 CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode )
 {
     if ( xmlStrcmp( pNode->name, (const xmlChar*)"header" ) ) {
@@ -1649,6 +1686,7 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
     headerManip->insertHeader      = false;
     headerManip->removeHeader      = false;
     headerManip->update            = false;
+    headerManip->custom            = false;
     headerManip->hdrInsert.size    = 0;
     headerManip->hdrInsert.offset  = 0;
     headerManip->hdrInsert.replace = false;
@@ -1664,6 +1702,13 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
     headerManip->hdrInsertHeader[1].update = false;
     headerManip->hdrRemoveHeader.type = "";
     headerManip->hdrUpdate.type = "";
+    headerManip->hdrCustom.type = "ipv4";
+    headerManip->hdrCustom.updateIpv4Id = false;
+    headerManip->hdrCustom.id = 0;
+    headerManip->hdrCustom.decHl = false;
+    headerManip->hdrCustom.decTtl = false;
+    headerManip->hdrCustom.data = "0x00";
+    headerManip->hdrCustom.size = 0;
     headerManip->duplicate = 0;
     memset( headerManip->hdrInsert.data, 0x00, sizeof( headerManip->hdrInsert.data ) );
     memset( headerManip->hdrInsertHeader[0].data, 0x00, sizeof( headerManip->hdrInsertHeader[0].data ) );
@@ -1711,6 +1756,10 @@ CPCDReader::parseHeaderManipulation( CHeaderManip* headerManip, xmlNodePtr pNode
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"update" ) ) {
             headerManip->update = true;
             parseUpdate( &headerManip->hdrUpdate, cur );
+        }
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"custom" ) ) {
+            headerManip->custom = true;
+            parseCustom( &headerManip->hdrCustom, cur );
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"nextmanip" ) ) {
             headerManip->nextManip = stripBlanks( getAttr( cur, "name" ) );
