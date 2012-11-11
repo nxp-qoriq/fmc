@@ -3178,6 +3178,10 @@ ApplyOrder::sort()
         }
     }
 
+    if ( !all.empty() ) {
+        throw CGenericError( ERR_LOOP_DEPENDENCY1 );
+    }
+
     for ( unsigned int i = result.size(); i != 0; --i ) {
         entries.push_back( result[i - 1] );
     }

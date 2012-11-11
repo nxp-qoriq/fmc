@@ -125,6 +125,7 @@ const std::string ERR_EMPTY_CLSF_KEY         = "<key> element can't be empty for
 const std::string ERR_UNKNOWN_PROTOCOL       = "The protocol or shim index is unknown for entity '%1'";
 const std::string ERR_COND_UNEXPECTED        = "'condition=\"%1\"' unexpected in policer '%2'";
 const std::string ERR_LOOP_DEPENDENCY        = "Cycled dependency is found. Possible candidates are: \n%1";
+const std::string ERR_LOOP_DEPENDENCY1       = "Unresolved cycled dependencies are found.";
 
 const std::string ERR_CLSF_INDX_MASK         = "'ic_index_mask' last nible is not 0 in classification '%1'";
 const std::string ERR_CLSF_FROMFIELD_NO      = "The number of extracts must be 1 when offset or size is not 0 in classification: '%1'";
