@@ -21,6 +21,8 @@ TCLAP_HEADER_PATH      ?= /usr/include
 PKG_NAME = fmc-0.9.24
 PKG_RELEASE = 1
 
+CFLAGS += -fPIC
+
 ifeq ($(MACHINE),p1023rds)
   CFLAGS += -DP1023
 else
