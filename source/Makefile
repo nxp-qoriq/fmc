@@ -22,20 +22,26 @@ PKG_NAME = fmc-0.9.24
 PKG_RELEASE = 1
 
 CFLAGS += -fPIC
+PLATFORM_FLAG = -DP4080
 
 ifeq ($(MACHINE),p1023rds)
-  CFLAGS += -DP1023
-else
-  ifeq ($(MACHINE),B4860)
-    CFLAGS += -DB4860
-  else
-    CFLAGS += -DP4080
-  endif
+  PLATFORM_FLAG = -DP1023
 endif
 
-ifdef 64BIT5020
-CFLAGS += -m64
+ifeq ($(MACHINE),b4860qds)
+  PLATFORM_FLAG = -DB4860
 endif
+
+ifeq ($(MACHINE),t4240qds)
+  PLATFORM_FLAG = -DT4240
+endif
+
+CFLAGS += $(PLATFORM_FLAG)
+
+ifdef M64BIT
+  CFLAGS += -m64
+endif
+
 CFLAGS += -DNCSW_LINUX -O2 -D__STDC_LIMIT_MACROS\
           -I$(TCLAP_HEADER_PATH) \
           -I$(LIBXML2_HEADER_PATH) \
@@ -47,12 +53,13 @@ CXXFLAGS = $(CFLAGS)
 LDLIBS   = -lfmc -lfm -lxml2 -lm
 
 ifdef FMCHOSTMODE
-LDFLAGS += -L.
+  LDFLAGS += -L.
 else
-LDFLAGS += -L. -L$(FMD_USPACE_LIB_PATH)
+  LDFLAGS += -L. -L$(FMD_USPACE_LIB_PATH)
 endif
-ifdef 64BIT5020
-LDFLAGS += -m64
+
+ifdef M64BIT
+  LDFLAGS += -m64
 endif
 
 .PHONY: default

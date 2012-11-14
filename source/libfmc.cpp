@@ -63,6 +63,12 @@ fmc_compile(
     error_text   = "";
     compile_dump = "";
 
+    if ( cmodel == 0 ) {
+        return 2;
+    }
+    
+    memset( cmodel, 0, sizeof( *cmodel ) );
+
     try {
         if ( nameSP != 0 && std::string( nameSP ) == "nodefault" ) {
             nameSP = 0;
