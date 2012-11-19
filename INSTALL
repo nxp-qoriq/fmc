@@ -1,5 +1,6 @@
-# Copyright 2009-2012 Freescale Semiconductor, Inc., All Rights Reserved.#
-##########################################################################
+# The MIT License (MIT)                                                   #
+# Copyright 2009-2012, Freescale Semiconductor, Inc.                      #
+###########################################################################
 
 Build steps for FMC:
    - The package is dependent on the following external packages that should
