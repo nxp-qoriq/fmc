@@ -1150,9 +1150,9 @@ fmc_clean_manip( fmc_model* model, unsigned int engine,
 {
     t_Error err;
     if ( model->fman[engine].hdr_handle[index] != 0 ) {
-		LOG_FMD_CALL( FM_PCD_ManipNodeDelete, model->fman[engine].hdr_name[index] );
+        LOG_FMD_CALL( FM_PCD_ManipNodeDelete, model->fman[engine].hdr_name[index] );
         err = FM_PCD_ManipNodeDelete( model->fman[engine].hdr_handle[index] );
-		CHECK_ERR( FM_PCD_ManipNodeDelete, model->fman[engine].hdr_name[index] );
+        CHECK_ERR( FM_PCD_ManipNodeDelete, model->fman[engine].hdr_name[index] );
     }
 
     return 0;
