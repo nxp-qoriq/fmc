@@ -737,8 +737,9 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
     if ( model.all_ports[index].reasm_index != 0 ) {
         numOfDistUnits += 2;
     }
-    EMIT4( port[, index, ].distinctionUnits.numOfDistinctionUnits =, numOfDistUnits );
 
+    bool was_ipv4frag = false;
+    bool was_ipv6frag = false;
     std::map< Protocol,
         std::pair< unsigned int, DistinctionUnitElement > >::const_iterator protoIt;
     for ( protoIt  = model.all_ports[index].protocols.begin();
@@ -747,6 +748,9 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
         EMIT6STR( port[, index, ].distinctionUnits.units[, protoIt->second.first, ].hdrs[0].hdr =, protoIt->second.second.hdr );
         if ( protoIt->second.second.opt != "" )
         {
+            ipv4ProtocolOpt_t opt_ipv4;
+            ipv6ProtocolOpt_t opt_ipv6;
+
             switch (cmodel->port[index].distinctionUnits.units[protoIt->second.first].hdrs[0].hdr)
             {
             case HEADER_TYPE_ETH:
@@ -759,10 +763,20 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
                 EMIT6( port[, index, ].distinctionUnits.units[, protoIt->second.first, ].hdrs[0].opt.mplsOpt =, strtoul( protoIt->second.second.opt.c_str(), 0, 16 ) );
                 break;
             case HEADER_TYPE_IPv4:
-                EMIT6( port[, index, ].distinctionUnits.units[, protoIt->second.first, ].hdrs[0].opt.ipv4Opt =, strtoul( protoIt->second.second.opt.c_str(), 0, 16 ) );
+                opt_ipv4 = strtoul( protoIt->second.second.opt.c_str(), 0, 16 );
+                EMIT6( port[, index, ].distinctionUnits.units[, protoIt->second.first, ].hdrs[0].opt.ipv4Opt =, opt_ipv4 );
+                if ( opt_ipv4 == IPV4_FRAG_1 ) {
+                    was_ipv4frag = true;
+                    --numOfDistUnits;
+                }
                 break;
             case HEADER_TYPE_IPv6:
-                EMIT6( port[, index, ].distinctionUnits.units[, protoIt->second.first, ].hdrs[0].opt.ipv6Opt =, strtoul( protoIt->second.second.opt.c_str(), 0, 16 ) );
+                opt_ipv6 = strtoul( protoIt->second.second.opt.c_str(), 0, 16 );
+                EMIT6( port[, index, ].distinctionUnits.units[, protoIt->second.first, ].hdrs[0].opt.ipv6Opt =, opt_ipv6 );
+                if ( opt_ipv6 == IPV6_FRAG_1 ) {
+                    --numOfDistUnits;
+                    was_ipv6frag = true;
+                }
                 break;
             }
         }
@@ -770,12 +784,18 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
 
 #ifndef P1023
     if ( model.all_ports[index].reasm_index != 0 ) {
-        EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 2,].hdrs[0].hdr = HEADER_TYPE_IPv4 );
-        EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 2,].hdrs[0].opt.ipv4Opt = IPV4_FRAG_1 );
-        EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 1,].hdrs[0].hdr = HEADER_TYPE_IPv6 );
-        EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 1,].hdrs[0].opt.ipv6Opt = IPV6_FRAG_1 );
+        if ( !was_ipv4frag ) {
+            EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 2,].hdrs[0].hdr = HEADER_TYPE_IPv4 );
+            EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 2,].hdrs[0].opt.ipv4Opt = IPV4_FRAG_1 );
+        }
+        if ( !was_ipv6frag ) {
+            EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 1,].hdrs[0].hdr = HEADER_TYPE_IPv6 );
+            EMIT5( port[, index, ].distinctionUnits.units[, numOfDistUnits - 1,].hdrs[0].opt.ipv6Opt = IPV6_FRAG_1 );
+        }
     }
 #endif /* P1023 */
+
+    EMIT4( port[, index, ].distinctionUnits.numOfDistinctionUnits =, numOfDistUnits );
 
     // Fill PCD params
     if ( ( !model.all_ports[index].cctrees.empty() || model.all_ports[index].reasm_index != 0 )

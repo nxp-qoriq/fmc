@@ -248,9 +248,6 @@ const char* fmc_get_error( void );
 
 t_Handle fmc_get_handle(
             fmc_model*   model,
-            unsigned int engine_number,
-            e_FmPortType port_type,
-            unsigned int port_number,
             const char*  name
 );
 

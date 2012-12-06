@@ -526,17 +526,17 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
 
     classification->actionOnMiss            = "";
     classification->actionNameOnMiss        = "";
-    classification->vspNameOnMiss            = "";
+    classification->vspNameOnMiss           = "";
     classification->fragmentationNameOnMiss = "";
     classification->qbase                   = 0;
     classification->key.field               = false;
-    classification->key.header                = false;
-    classification->key.hashTable            = false;
+    classification->key.header              = false;
+    classification->key.hashTable           = false;
     classification->max                     = 0;
     classification->masks                   = false;
-    classification->statistics                = "none";
-    classification->vspOverrideOnMiss        = false;
-    classification->vspBaseOnMiss            = 0;
+    classification->statistics              = "none";
+    classification->vspOverrideOnMiss       = false;
+    classification->vspBaseOnMiss           = 0;
     classification->statisticsOnMiss        = false;
     for (unsigned int i = 0; i < 10; i++)
         classification->frameLength.push_back(i+1);
@@ -548,8 +548,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
     classification->max = std::strtol( getAttr( pNode, "max" ).c_str(), 0, 0 );
 
     classification->statistics = getAttr( pNode, "statistics" );
-    if (classification->statistics == "")
-    {
+    if ( classification->statistics == "" ) {
         classification->statistics = "none";
     }
 

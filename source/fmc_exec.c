@@ -259,99 +259,77 @@ fmc_clean( fmc_model* model )
 t_Handle
 fmc_get_handle(
             fmc_model*   model,
-            unsigned int engine_number,
-            e_FmPortType port_type,
-            unsigned int port_number,
             const char*  name
 )
 {
-    unsigned int engine  = 0;
-    unsigned int port    = 0;
-    unsigned int found   = 0;
-    unsigned int ccindex = 0;
-    unsigned int htindex = 0;
-    unsigned int repindex = 0;
+    unsigned int engine     = 0;
+    unsigned int port_index = 0;
+    unsigned int ccindex    = 0;
+    unsigned int htindex    = 0;
+    unsigned int repindex   = 0;
     unsigned int i;
 
     // Find engine index
     for ( engine = 0; engine < model->fman_count; engine++ ) {
-        if ( model->fman[engine].number == engine_number ) {
-            found = 1;
-            break;
+        // Check whether it is a 'policy' name. Return PCD handle then
+        if ( strcmp( model->fman[engine].pcd_name, name ) == 0 ) {
+            return model->fman[engine].pcd_handle;
         }
-    }
-    if ( !found ) {
-        return 0;
-    }
-
-    // Check whether it is a 'policy' name. Return PCD handle then
-    if ( strcmp( model->fman[engine].pcd_name, name ) == 0 ) {
-        return model->fman[engine].pcd_handle;
-    }
 
 #ifndef P1023
-    // Check fragmentation names
-    for ( i = 0; i < model->fman[engine].frag_count; i++ ) {
-        if ( strcmp( model->fman[engine].frag_name[i], name ) == 0 ) {
-            return model->fman[engine].frag_handle[i];
+        // Check fragmentation names
+        for ( i = 0; i < model->fman[engine].frag_count; i++ ) {
+            if ( strcmp( model->fman[engine].frag_name[i], name ) == 0 ) {
+                return model->fman[engine].frag_handle[i];
+            }
         }
-    }
 
-    // Check reassembly names
-    for ( i = 0; i < model->fman[engine].reasm_count; i++ ) {
-        if ( strcmp( model->fman[engine].reasm_name[i], name ) == 0 ) {
-            return model->fman[engine].reasm_handle[i];
+        // Check reassembly names
+        for ( i = 0; i < model->fman[engine].reasm_count; i++ ) {
+            if ( strcmp( model->fman[engine].reasm_name[i], name ) == 0 ) {
+                return model->fman[engine].reasm_handle[i];
+            }
         }
-    }
 
-    // Check header manip names
-    for ( i = 0; i < model->fman[engine].hdr_count; i++ ) {
-        if ( strcmp( model->fman[engine].hdr_name[i], name ) == 0 ) {
-            return model->fman[engine].hdr_handle[i];
+        // Check header manip names
+        for ( i = 0; i < model->fman[engine].hdr_count; i++ ) {
+            if ( strcmp( model->fman[engine].hdr_name[i], name ) == 0 ) {
+                return model->fman[engine].hdr_handle[i];
+            }
         }
-    }
 #endif /* P1023 */
 
-    // Find port index
-    found = 0;
-    for ( port = 0; port < model->fman[engine].port_count; port++ ) {
-        unsigned int port_index = model->fman[engine].ports[port];
-        if ( model->port[port_index].type   == port_type &&
-             model->port[port_index].number == port_number ) {
-            port  = port_index;
-            found = 1;
-            break;
-        }
-    }
-    if ( !found ) {
-        return 0;
-    }
+        // Find port index
+        for ( port_index = 0; port_index < model->fman[engine].port_count; port_index++ ) {
+            unsigned int port = model->fman[engine].ports[port_index];
 
-    // Find CC handle according to found engine and port
-    for ( ccindex =0; ccindex < model->port[port].ccnodes_count; ccindex++ ) {
-        unsigned int index = model->port[port].ccnodes[ccindex];
-        if ( strcmp( model->ccnode_name[index], name ) == 0 ) {
-            return model->ccnode_handle[index];
-        }
-    }
+            // Find CC handle according to found engine and port
+            for ( ccindex = 0; ccindex < model->port[port].ccnodes_count; ccindex++ ) {
+                unsigned int index = model->port[port].ccnodes[ccindex];
+                if ( strcmp( model->ccnode_name[index], name ) == 0 ) {
+                    return model->ccnode_handle[index];
+                }
+            }
 
-    // Find HT handle according to found engine and port
-    for ( htindex =0; htindex < model->port[port].htnodes_count; htindex++ ) {
-        unsigned int index = model->port[port].htnodes[htindex];
-        if ( strcmp( model->htnode_name[index], name ) == 0 ) {
-            return model->htnode_handle[index];
-        }
-    }
+            // Find HT handle according to found engine and port
+            for ( htindex =0; htindex < model->port[port].htnodes_count; htindex++ ) {
+                unsigned int index = model->port[port].htnodes[htindex];
+                if ( strcmp( model->htnode_name[index], name ) == 0 ) {
+                    return model->htnode_handle[index];
+                }
+            }
 
-#if (DPAA_VERSION >= 11)
-    // Find replicator handle according to found engine and port
-    for ( repindex =0; repindex < model->port[port].replicators_count; repindex++ ) {
-        unsigned int index = model->port[port].replicators[repindex];
-        if ( strcmp( model->replicator_name[index], name ) == 0 ) {
-            return model->replicator_handle[index];
+        #if (DPAA_VERSION >= 11)
+            // Find replicator handle according to found engine and port
+            for ( repindex =0; repindex < model->port[port].replicators_count; repindex++ ) {
+                unsigned int index = model->port[port].replicators[repindex];
+                if ( strcmp( model->replicator_name[index], name ) == 0 ) {
+                    return model->replicator_handle[index];
+                }
+            }
+        #endif /* (DPAA_VERSION >= 11) */
         }
     }
-#endif /* (DPAA_VERSION >= 11) */
 
     return 0;
 }

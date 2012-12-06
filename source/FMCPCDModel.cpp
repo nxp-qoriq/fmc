@@ -3024,18 +3024,18 @@ CFMCModel::getEngineByTypeStr( std::string enginename )
 }
 
 e_FmPcdCcStatsMode
-CFMCModel::getStatistic( std::string statstic )
+CFMCModel::getStatistic( std::string statistic )
 {
-    if ( statstic == "frame" ) {
+    if ( statistic == "frame" ) {
         return e_FM_PCD_CC_STATS_MODE_FRAME;
     }
-    else if (statstic == "byteframe" ) {
+    else if (statistic == "byteframe" ) {
         return e_FM_PCD_CC_STATS_MODE_BYTE_AND_FRAME;
     }
 
 #ifndef P1023
 #if (DPAA_VERSION >= 11)
-    else if (statstic == "rmon" ) {
+    else if (statistic == "rmon" ) {
         return e_FM_PCD_CC_STATS_MODE_RMON;
     }
 #endif /* (DPAA_VERSION >= 11) */
