@@ -243,4 +243,6 @@ const std::string ERR_HT_ONE_ENTRY           = "There can be only 1 hash table e
 
 const std::string ERR_DIST_HDRINDEX          = "Header index %1 not available for field %2: '%3'"; //ADDED
 const std::string ERR_CLSF_EXTRACTION        = "Extraction not supported (%1): '%2'"; //ADDED
+
+const std::string ERR_NOT_ENOUGH_RESOURCES   = "The number of used %1 (%2) exceeds reserved number %3";
 #endif // GENERICERROR_H

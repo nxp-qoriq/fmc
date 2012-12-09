@@ -34,6 +34,7 @@
 #include <string.h>
 
 #include "FMCCModelOutput.h"
+#include "FMCGenericError.h"
 
 
 static std::string ind( size_t count )
@@ -193,6 +194,7 @@ static std::string ind( size_t count )
 #define OUT_EMPTY   \
     oss << std::endl;
 
+
 void
 CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostream& oss,
                           size_t indent )
@@ -223,18 +225,23 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
     OUT_EMPTY;
 
     // Output all engines
+    check_bounds( model.all_engines.size(), FMC_FMAN_NUM, "engines" );
     EMIT2( fman_count =, model.all_engines.size() );
     for ( unsigned int i = 0; i < cmodel->fman_count; ++i ) {
         output_fmc_fman( model, cmodel, i, oss, indent );
     }
     OUT_EMPTY;
     // Output all ports
+    check_bounds( model.all_ports.size(),
+                  FMC_PORTS_PER_FMAN * FMC_FMAN_NUM, "ports" );
     EMIT2( port_count =, model.all_ports.size() )
     for ( unsigned int i = 0; i < cmodel->port_count; ++i ) {
         output_fmc_port( model, cmodel, i, oss, indent );
     }
     OUT_EMPTY;
     // Output all schemes
+    check_bounds( model.all_schemes.size(),
+                  FMC_SCHEMES_NUM, "KeyGen schemes" );
     EMIT2( scheme_count =, model.all_schemes.size() )
     for ( unsigned int i = 0; i < cmodel->scheme_count; ++i ) {
         OUT_EMPTY;
@@ -242,6 +249,8 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
     }
     OUT_EMPTY;
     // Output CC nodes
+    check_bounds( model.all_ccnodes.size(),
+                  FMC_CC_NODES_NUM, "Coarse Classifications" );
     EMIT2( ccnode_count =, model.all_ccnodes.size() )
     for ( unsigned int i = 0; i < cmodel->ccnode_count; ++i ) {
         OUT_EMPTY;
@@ -249,6 +258,8 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
     }
     OUT_EMPTY;
      // Output HT nodes
+    check_bounds( model.all_htnodes.size(),
+                  FMC_CC_NODES_NUM, "HT nodes" );
     EMIT2( htnode_count =, model.all_htnodes.size() )
     for ( unsigned int i = 0; i < cmodel->htnode_count; ++i ) {
         OUT_EMPTY;
@@ -257,6 +268,8 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
     OUT_EMPTY;
 #if (DPAA_VERSION >= 11)
     // Output Replicators
+    check_bounds( model.all_replicators.size(),
+                  FMC_REPLICATORS_NUM, "replicators" );
     EMIT2( replicator_count =, model.all_replicators.size() )
     for ( unsigned int i = 0; i < cmodel->replicator_count; ++i ) {
         OUT_EMPTY;
@@ -265,6 +278,8 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
 #endif /* (DPAA_VERSION >= 11) */
     OUT_EMPTY;
     // Output policers
+    check_bounds( model.all_policers.size(),
+                  FMC_PLC_NUM, "policers" );
     EMIT2( policer_count =, model.all_policers.size() )
     for ( unsigned int i = 0; i < cmodel->policer_count; ++i ) {
         OUT_EMPTY;
@@ -272,6 +287,9 @@ CFMCCModelOutput::output( const CFMCModel& model, fmc_model_t* cmodel, std::ostr
     }
     OUT_EMPTY;
     // Output apply order
+    check_bounds( model.applier.size(),
+                  FMC_FMAN_NUM*FMC_PORTS_PER_FMAN*(FMC_SCHEMES_NUM+FMC_CC_NODES_NUM),
+                  "apply entries" );
     EMIT2( apply_order_count =, model.applier.size() )
     for ( int i = cmodel->apply_order_count - 1; i >= 0; --i ) {
         output_fmc_applier( model, cmodel, i, oss, indent );
@@ -1937,4 +1955,16 @@ CFMCCModelOutput::get_fmc_type_str( ApplyOrder::Type t ) const
             return "FMCManipulation";
     }
     return "";
+}
+
+
+void
+CFMCCModelOutput::check_bounds( unsigned int used,
+                                unsigned int available,
+                                std::string  entity )
+{
+    if ( used > available ) {
+        throw CGenericError( ERR_NOT_ENOUGH_RESOURCES,
+                             entity, used, available );
+    }
 }

@@ -72,6 +72,10 @@ protected:
     std::string       get_fmc_type_str( ApplyOrder::Type t ) const;
     std::string       get_apply_item_name( fmc_model_t* cmodel,
                                            ApplyOrder::Entry e );
+
+    void check_bounds( unsigned int used,
+                       unsigned int available,
+                       std::string  entity );
 };
 
 #endif
