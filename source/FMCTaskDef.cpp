@@ -629,7 +629,7 @@ CTaskDef::getShimNoFromCustom( const std::string protocol_name ) const
 
 /*Gets the size of the protocol's header according to its fields*/
 bool
-CProtocol::GetHeaderSize(uint32_t&     size) const
+CProtocol::GetHeaderSize( uint32_t& size ) const
 {
     uint32_t max=0;
     for (unsigned int i=0; i<fields.size(); i++)
@@ -671,9 +671,9 @@ CProtocol::GetFieldProperties( const std::string fieldname,
     bitsize   = 0;
     bitoffset = 0;
 
-    bool prev_was_bit           = false;
-    bool prev_last_bit_mask_one = false;
-    uint32_t prev_size = 0;
+    bool     prev_was_bit           = false;
+    bool     prev_last_bit_mask_one = false;
+    uint32_t prev_size              = 0;
 
     std::vector< CField >::const_iterator fieldit;
     for ( fieldit = fields.begin();
@@ -684,25 +684,40 @@ CProtocol::GetFieldProperties( const std::string fieldname,
         uint32_t fsize   = std::strtoul( fieldit->size.c_str(), 0, 0 ) * 8;
         uint32_t foffset = 0;
 
+        bool     offset_provided = !fieldit->offset.empty();
+        uint32_t offset          = std::strtoul( fieldit->offset.c_str(), 0, 0 );
+
         if ( fieldit->type == "fixed" ) {
-            bitoffset  += prev_size;
+            if ( offset_provided ) {
+                bitoffset = offset;
+            }
+            else {
+                bitoffset  += prev_size;
+            }
             bitsize     = fsize;
             prev_was_bit = false;
         }
         else if ( fieldit->type == "bit" ) {
-            if (prev_last_bit_mask_one || !prev_was_bit)
-                bitoffset  += prev_size;
+            if ( offset_provided ) {
+                bitoffset = offset;
+            }
+            else {
+                if ( prev_last_bit_mask_one || !prev_was_bit ) {
+                    bitoffset  += prev_size;
+                }
+            }
+
             bool isOK =
                 findConseqBits( strtoull( fieldit->mask.c_str(), 0, 0 ),
                                 bitsize, foffset );
             foffset -= sizeof(uint64_t)*8 - fsize;
             if ( !isOK ) {
-                throw CGenericError(ERR_NO_BITS_FOUND);
+                throw CGenericError( ERR_NO_BITS_FOUND );
             }
             prev_was_bit = true;
 
             /*If the last bit in the mask is one we move to the next byte range*/
-            if (strtoull( fieldit->mask.c_str(), 0, 0 )& 0x1)
+            if ( strtoull( fieldit->mask.c_str(), 0, 0 ) & 0x1 )
                 prev_last_bit_mask_one = true;
             else
                 prev_last_bit_mask_one = false;

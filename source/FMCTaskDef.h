@@ -128,8 +128,7 @@ class CField
     std::string comment;
     std::string align;
     std::string enddiscard;
-
-    std::vector< CField > fields;
+    std::string offset;
 };
 
 typedef enum e_FmPcdExtractSource {
@@ -317,37 +316,29 @@ class CBlock
 class CProtocol
 {
   public:
-    ProtoType   type;
-    std::string name;
-    std::string longname;
-    std::string showsumtemplate;
-    std::string comment;
-    std::string description;
+    CProtocol () : line(NO_LINE) {};
+    bool         FieldExists( const std::string fieldname) const;
+    bool         GetFieldProperties( const std::string fieldname,
+                                     uint32_t&         bitsize,
+                                     uint32_t&         bitoffset ) const;
+    bool         GetHeaderSize( uint32_t &size) const;
+    bool         PossibleLayer4() const;
+    static bool  PossibleLayer4( ProtoType pt );
+    short        ProtocolLayer() const;
+    static short ProtocolLayer( ProtoType pt );
+
+  public:
+    ProtoType                  type;
+    std::string                name;
+    std::string                longname;
+    std::string                showsumtemplate;
+    std::string                comment;
+    std::string                description;
     std::vector< std::string > prevproto;
     std::vector< ProtoType >   prevType;
-    int         line;
-
-    CProtocol () : line(NO_LINE) {}
-
-    std::vector< CBlock > protocol_blocks;  // The blocks belonging to 'protocol'
-
-    std::vector< CField > fields;       // The fields belonging to 'fields'
-    std::vector< CBlock > blocks;       // The blocks belonging to 'fields'
-    CExecuteCode executeCode    ;       // The blocks belonging to 'executeCode'
-    //std::vector< CField > switches;     // The switches belonging to 'fields'
-    //std::vector< CBlock > ifs;          // The ifs belonging to 'fields'
-    //std::vector< CField > loops;        // The loops belonging to 'fields'
-    //std::vector< CBlock > includeblks;  // The includeblks belonging to 'fields'
-
-    bool FieldExists       ( const std::string fieldname) const;
-    bool GetFieldProperties( const std::string fieldname,
-                             uint32_t&     bitsize,
-                             uint32_t&     bitoffset ) const;
-    bool GetHeaderSize     ( uint32_t      &size)      const;
-    bool         PossibleLayer4()            const;
-    static bool  PossibleLayer4(ProtoType pt);
-    short        ProtocolLayer()             const;
-    static short ProtocolLayer(ProtoType      pt);
+    int                        line;
+    std::vector< CField >      fields;
+    CExecuteCode               executeCode;
 };
 
 class CLabel
@@ -677,35 +668,35 @@ class CClassEntry
 class CClassKey
 {
 public:
-    bool                       header;
-    bool                       field;
-    bool                       hashTable;
-    std::vector< CFieldRef >   fields;
-    CNonHeaderEntry            nonHeaderEntry;
-    CHashTable                 hashTableEntry;
+    bool                     header;
+    bool                     field;
+    bool                     hashTable;
+    std::vector< CFieldRef > fields;
+    CNonHeaderEntry          nonHeaderEntry;
+    CHashTable               hashTableEntry;
 };
 
 class CClassification
 {
   public:
-    std::string                name;
-    CClassKey                  key;
-    std::vector< CClassEntry > entries;
-    std::string                actionOnMiss;
-    std::string                actionNameOnMiss;
-    std::string                fragmentationNameOnMiss;
-    std::string                   vspNameOnMiss;
-    bool                       vspOverrideOnMiss;
-    bool                       statisticsOnMiss;
-    unsigned int               vspBaseOnMiss;
-    unsigned int               qbase;
+    std::string                 name;
+    CClassKey                   key;
+    std::vector< CClassEntry >  entries;
+    std::string                 actionOnMiss;
+    std::string                 actionNameOnMiss;
+    std::string                 fragmentationNameOnMiss;
+    std::string                 vspNameOnMiss;
+    bool                        vspOverrideOnMiss;
+    bool                        statisticsOnMiss;
+    unsigned int                vspBaseOnMiss;
+    unsigned int                qbase;
     //Pre-allocation
-    unsigned int               max;
-    bool                       masks;
-    std::string                statistics;
-    std::vector< std::string > may_use_action;
-    std::vector< std::string > may_use_actionName;
-    std::vector< unsigned int >frameLength;
+    unsigned int                max;
+    bool                        masks;
+    std::string                 statistics;
+    std::vector< std::string >  may_use_action;
+    std::vector< std::string >  may_use_actionName;
+    std::vector< unsigned int > frameLength;
 };
 
 
