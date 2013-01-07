@@ -35,6 +35,9 @@
 
 #include "fmc.h"
 
+#ifdef NETCOMM_SW
+    #define fmc_log_write( ... )
+#endif
 
 // Forward declaration of static functions
 static int fmc_exec_engine_start( fmc_model* model, unsigned int index,
