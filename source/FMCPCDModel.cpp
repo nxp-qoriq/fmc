@@ -790,22 +790,13 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
         nonheader.typeStr = "e_FM_PCD_EXTRACT_NON_HDR";
 
         nonheader.nhSource = (e_FmPcdExtractFrom)xmlDist.nonHeader[i].source;
-        switch (xmlDist.nonHeader[i].source)
-        {
+        switch ( nonheader.nhSource ) {
             case e_FM_PCD_EXTRACT_FROM_FRAME_START:
-                nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_FRAME_START";
-                break;
             case e_FM_PCD_EXTRACT_FROM_DFLT_VALUE:
-                nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_DFLT_VALUE";
-                break;
             case e_FM_PCD_EXTRACT_FROM_CURR_END_OF_PARSE:
-                nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_CURR_END_OF_PARSE";
-                break;
             case e_FM_PCD_EXTRACT_FROM_PARSE_RESULT:
-                nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_PARSE_RESULT";
-                break;
             case e_FM_PCD_EXTRACT_FROM_ENQ_FQID:
-                nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_ENQ_FQID";
+                nonheader.nhSourceStr = getExtractFromStr( nonheader.nhSource );
                 break;
             default:
                 nonheader.nhSourceStr  = "e_FM_PCD_EXTRACT_FROM_DFLT_VALUE";
@@ -1243,30 +1234,9 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     }
     else
     {// Non header extract
-        ccNode.extract.nhSource = (e_FmPcdExtractFrom)xmlCCNode.key.nonHeaderEntry.source;
-        switch (ccNode.extract.nhSource)
-        {
-        case e_FM_PCD_EXTRACT_FROM_FRAME_START:
-            ccNode.extract.nhSourceStr = "e_FM_PCD_EXTRACT_FROM_FRAME_START";
-            break;
-        case e_FM_PCD_EXTRACT_FROM_KEY:
-            ccNode.extract.nhSourceStr = "e_FM_PCD_EXTRACT_FROM_KEY";
-            break;
-        case e_FM_PCD_EXTRACT_FROM_HASH:
-            ccNode.extract.nhSourceStr = "e_FM_PCD_EXTRACT_FROM_HASH";
-            break;
-        case e_FM_PCD_EXTRACT_FROM_PARSE_RESULT:
-            ccNode.extract.nhSourceStr = "e_FM_PCD_EXTRACT_FROM_PARSE_RESULT";
-            break;
-        case e_FM_PCD_EXTRACT_FROM_ENQ_FQID:
-            ccNode.extract.nhSourceStr = "e_FM_PCD_EXTRACT_FROM_ENQ_FQID";
-            break;
-        case e_FM_PCD_EXTRACT_FROM_FLOW_ID:
-            ccNode.extract.nhSourceStr = "e_FM_PCD_EXTRACT_FROM_FLOW_ID";
-            break;
-        }
-
-        ccNode.extract.nhAction = (e_FmPcdAction)xmlCCNode.key.nonHeaderEntry.action;
+        ccNode.extract.nhSource    = (e_FmPcdExtractFrom)xmlCCNode.key.nonHeaderEntry.source;
+        ccNode.extract.nhSourceStr = getExtractFromStr( ccNode.extract.nhSource );
+        ccNode.extract.nhAction    = (e_FmPcdAction)xmlCCNode.key.nonHeaderEntry.action;
 
         switch (ccNode.extract.nhAction)
         {
@@ -3024,6 +2994,43 @@ CFMCModel::getEngineByTypeStr( std::string enginename )
 
     return "e_FM_PCD_DONE";
 }
+
+
+std::string
+CFMCModel::getExtractFromStr( e_FmPcdExtractFrom extract )
+{
+    std::string ret = "e_FM_PCD_EXTRACT_FROM_DFLT_VALUE";
+    switch ( extract )
+    {
+    case e_FM_PCD_EXTRACT_FROM_FRAME_START:
+        ret = "e_FM_PCD_EXTRACT_FROM_FRAME_START";
+        break;
+    case e_FM_PCD_EXTRACT_FROM_DFLT_VALUE:
+        ret = "e_FM_PCD_EXTRACT_FROM_DFLT_VALUE";
+        break;
+    case e_FM_PCD_EXTRACT_FROM_KEY:
+        ret = "e_FM_PCD_EXTRACT_FROM_KEY";
+        break;
+    case e_FM_PCD_EXTRACT_FROM_HASH:
+        ret = "e_FM_PCD_EXTRACT_FROM_HASH";
+        break;
+    case e_FM_PCD_EXTRACT_FROM_PARSE_RESULT:
+        ret = "e_FM_PCD_EXTRACT_FROM_PARSE_RESULT";
+        break;
+    case e_FM_PCD_EXTRACT_FROM_ENQ_FQID:
+        ret = "e_FM_PCD_EXTRACT_FROM_ENQ_FQID";
+        break;
+    case e_FM_PCD_EXTRACT_FROM_FLOW_ID:
+        ret = "e_FM_PCD_EXTRACT_FROM_FLOW_ID";
+        break;
+    case e_FM_PCD_EXTRACT_FROM_CURR_END_OF_PARSE:
+        ret = "e_FM_PCD_EXTRACT_FROM_CURR_END_OF_PARSE";
+        break;
+    }
+
+    return ret;
+}
+
 
 e_FmPcdCcStatsMode
 CFMCModel::getStatistic( std::string statistic )
