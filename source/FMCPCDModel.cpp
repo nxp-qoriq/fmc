@@ -1159,6 +1159,8 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         ccNode.extract.type = e_FM_PCD_EXTRACT_NON_HDR;
         ccNode.extract.typeStr = "e_FM_PCD_EXTRACT_NON_HDR";
     }
+    ccNode.extract.nhAction    = e_FM_PCD_ACTION_NONE;
+    ccNode.extract.nhActionStr = "e_FM_PCD_ACTION_NONE";
 
     ccNode.keySize = 0;
 
@@ -1264,7 +1266,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             break;
         }
 
-        ccNode.extract.nhAction        = (e_FmPcdAction)xmlCCNode.key.nonHeaderEntry.action;
+        ccNode.extract.nhAction = (e_FmPcdAction)xmlCCNode.key.nonHeaderEntry.action;
 
         switch (ccNode.extract.nhAction)
         {

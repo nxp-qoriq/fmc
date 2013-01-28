@@ -300,8 +300,8 @@ fmc_get_handle( fmc_model*  model,
                 return model->fman[i].hdr_handle[j];
             }
         }
-    }
 #endif /* P1023 */
+    }
 
     // Check port's name
     for ( i = 0; i < model->port_count; i++ ) {
@@ -1142,12 +1142,14 @@ static int
 fmc_clean_manip( fmc_model* model, unsigned int engine,
                   unsigned int index )
 {
+#ifndef P1023
     t_Error err;
     if ( model->fman[engine].hdr_handle[index] != 0 ) {
         LOG_FMD_CALL( FM_PCD_ManipNodeDelete, model->fman[engine].hdr_name[index] );
         err = FM_PCD_ManipNodeDelete( model->fman[engine].hdr_handle[index] );
         CHECK_ERR( FM_PCD_ManipNodeDelete, model->fman[engine].hdr_name[index] );
     }
+#endif // P1023
 
     return 0;
 }
