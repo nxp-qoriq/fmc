@@ -1103,6 +1103,48 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
 }
 
 
+static uint8_t getByteMask( int size_in_bits, int start_bit_offset, int byteNo )
+{
+    uint8_t ret = 0xFF;
+
+    uint8_t ending[] = {
+        0xFF,
+        0xFE,
+        0xFC,
+        0xF8,
+        0xF0,
+        0xE0,
+        0xC0,
+        0x80,
+    };
+    uint8_t starting[] = {
+        0xFF,
+        0x7F,
+        0x3F,
+        0x1F,
+        0x0F,
+        0x07,
+        0x03,
+        0x01,
+    };
+
+    int len = ( start_bit_offset + size_in_bits + 7 ) / 8;
+    if ( ( byteNo >= len ) ||
+         ( ( byteNo > 0 ) && ( byteNo < len - 1 ) ) ) {
+        return ret;
+    }
+
+    if ( byteNo == 0 ) { // First byte from right
+        ret &= ending[len * 8 - size_in_bits - start_bit_offset];
+    }
+    if ( byteNo == len - 1 ) { // Last byte from right
+        ret &= starting[start_bit_offset];
+    }
+
+    return ret;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 /// Converts classification parameters provided throught XML file
 /// to the internal representation
@@ -1158,6 +1200,10 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     ExtractData field;
     field.fieldType    = 0;
     field.fieldTypeStr = "";
+
+    unsigned int bitsize   = 0;
+    unsigned int bitoffset = 0;
+
     // For each 'extract key' entry
     if (ccNode.extract.type == e_FM_PCD_EXTRACT_BY_HDR)
     {
@@ -1192,8 +1238,6 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
                 field.fieldTypeStr += getNetCommFieldTypeStr( field.fieldName );
 
                 // Find the protocol and get the field's length
-                unsigned int bitsize;
-                unsigned int bitoffset;
                 if ( pTaskDef->GetFieldProperties( xmlCCNode.key.fields[i].name,
                                                    bitsize, bitoffset ) ) {
                     ccNode.keySize += bitsize;
@@ -1218,10 +1262,8 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
                 else {
                     field.hdrtype    = e_FM_PCD_EXTRACT_FROM_HDR;
                     field.hdrtypeStr = "e_FM_PCD_EXTRACT_FROM_HDR";
-                    // For classification purposes, only byte aligned fields are supported
-                    field.size       = bitsize / 8;
+                    field.size       = ( bitsize + 7 ) / 8;
                     field.offset     = bitoffset / 8;
-                    // TODO: Apply mask
                 }
             }
             else {
@@ -1311,7 +1353,12 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         for ( unsigned int j = 0; j < ccNode.keySize; ++j ) {
             ccNode.keys[i].data[j] =
                 xmlCCNode.entries[i].data[FM_PCD_MAX_SIZE_OF_KEY - ccNode.keySize + j];
-            ccNode.masks[i].data[j] =
+            uint8_t byteMask = 0xFF;
+            if ( ccNode.extract.type    == e_FM_PCD_EXTRACT_BY_HDR &&
+                 ccNode.extract.hdrtype == e_FM_PCD_EXTRACT_FROM_HDR ) {
+                byteMask = getByteMask( bitsize, bitoffset % 8, ccNode.keySize - j - 1 );
+            }
+            ccNode.masks[i].data[j] = byteMask &
                 xmlCCNode.entries[i].mask[FM_PCD_MAX_SIZE_OF_KEY - ccNode.keySize + j];
         }
 
