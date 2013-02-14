@@ -250,6 +250,7 @@ public:
     e_FmPcdCcStatsMode statistics;      ///< Statistics mode (none/frame)
 
     bool maskSupport;                   ///< Reservation of memory for key masks
+    bool shared;
 
     ExtractData extract;                ///< Extract parameters
 
@@ -510,9 +511,9 @@ public:
 
 public:
     void  add( Entry entry );                     ///< Add new entry
-    void  add( Entry entry, unsigned int index ); ///< Add new entry at position
     void  add_edge( Entry n1, Entry n2 );         ///< Add edge between entries
     void  sort();                                 ///< Topological sort of entries
+    void  reverse_port_apply_order();
 
     unsigned int size() const;                    ///< Return number of entries
     Entry get( unsigned int index ) const;        ///< Return entry at position

@@ -688,6 +688,7 @@ class CClassification
     std::string                 vspNameOnMiss;
     bool                        vspOverrideOnMiss;
     bool                        statisticsOnMiss;
+    bool                        shared;
     unsigned int                vspBaseOnMiss;
     unsigned int                qbase;
     //Pre-allocation

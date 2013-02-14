@@ -268,6 +268,8 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
         createSoftParse( pTaskDef );
     }
 
+    applier.reverse_port_apply_order();
+
     return true;
 }
 
@@ -1159,13 +1161,20 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 
     port.ccnodes.push_back( ccNode.getIndex() );
 
-    ccNode.name           = port.name + "/ccnode/" + xmlCCNode.name;
+    ccNode.shared = xmlCCNode.shared;
+    if ( ccNode.shared ) {
+        ccNode.name = port.name.substr( 0, 3 ) + "/ccnode/" + xmlCCNode.name;
+    }
+    else {
+        ccNode.name = port.name + "/ccnode/" + xmlCCNode.name;
+    }
     ccNode.port_signature = port.name;
 
     //Pre-allocation
     ccNode.maxNumOfKeys = xmlCCNode.max;
     ccNode.maskSupport  = xmlCCNode.masks;
     ccNode.statistics   = getStatistic(xmlCCNode.statistics);
+    ccNode.shared       = xmlCCNode.shared;
 
 #ifndef P1023
 #if (DPAA_VERSION >= 11)
@@ -2158,10 +2167,18 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
     bool         found = false;
     unsigned int index;
     for ( unsigned int i = 0; i < all_ccnodes.size(); ++i ) {
-        if ( ( all_ccnodes[i].name           == port.name + "/ccnode/" + name ) &&
-             ( all_ccnodes[i].port_signature == port.name ) ) {
-            found = true;
-            index = all_ccnodes[i].getIndex();
+        if ( all_ccnodes[i].shared ) {
+            if ( ( all_ccnodes[i].name == port.name.substr( 0, 3 ) + "/ccnode/" + name ) ) {
+                found = true;
+                index = all_ccnodes[i].getIndex();
+            }
+        }
+        else {
+            if ( ( all_ccnodes[i].name           == port.name + "/ccnode/" + name ) &&
+                 ( all_ccnodes[i].port_signature == port.name ) ) {
+                found = true;
+                index = all_ccnodes[i].getIndex();
+            }
         }
     }
 
@@ -3169,13 +3186,6 @@ ApplyOrder::add( Entry entry )
 
 
 void
-ApplyOrder::add( Entry entry, unsigned int index )
-{
-    entries.insert( entries.begin() + index, entry );
-}
-
-
-void
 ApplyOrder::add_edge( Entry n1, Entry n2 )
 {
     edges.push_back( std::pair< Entry, Entry >( n1, n2 ) );
@@ -3254,8 +3264,63 @@ ApplyOrder::sort()
     }
 
     for ( unsigned int i = result.size(); i != 0; --i ) {
-        entries.push_back( result[i - 1] );
+        // As some shared items might be already in the list,
+        // add only those which were not added previously
+        if ( find( entries.begin(), entries.end(), result[i - 1] ) == entries.end() ) {
+            entries.push_back( result[i - 1] );
+        }
     }
+}
+
+
+void
+ApplyOrder::reverse_port_apply_order()
+{
+    std::vector< Entry >                engine_entries;
+    std::vector< std::vector< Entry > > ports_of_engine;
+    std::vector< Entry >                result_entries;
+
+    bool   within_port = false;
+    size_t port_index = 0;
+
+    for ( int i = 0; i < entries.size(); ++i ) {
+        switch( entries[i].type ) {
+        case EngineEnd:
+            engine_entries.clear();
+            ports_of_engine.clear();
+            within_port = false;
+            port_index  = 0;
+            result_entries.push_back( entries[i] );
+            break;
+        case EngineStart:
+            for ( int j = ports_of_engine.size() - 1; j >= 0; --j ) {
+                result_entries.insert( result_entries.end(),
+                                       ports_of_engine[j].begin(),
+                                       ports_of_engine[j].end() );
+            }
+            result_entries.push_back( entries[i] );
+            break;
+        case PortEnd:
+            within_port = true;
+            ports_of_engine.push_back( std::vector< Entry >() );
+            ports_of_engine[port_index].push_back( entries[i] );
+            break;
+        case PortStart:
+            within_port = false;
+            ports_of_engine[port_index].push_back( entries[i] );
+            ++port_index;
+            break;
+        default:
+            if ( within_port ) {
+                ports_of_engine[port_index].push_back( entries[i] );
+            }
+            else {
+                result_entries.push_back( entries[i] );
+            }
+        }
+    }
+
+    entries = result_entries;
 }
 
 

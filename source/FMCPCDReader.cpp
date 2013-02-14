@@ -522,7 +522,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
                 
-    checkUnknownAttr( pNode, 4, "name", "max", "masks", "statistics" );
+    checkUnknownAttr( pNode, 5, "name", "max", "masks", "statistics", "shared" );
 
     classification->actionOnMiss            = "";
     classification->actionNameOnMiss        = "";
@@ -538,6 +538,8 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
     classification->vspOverrideOnMiss       = false;
     classification->vspBaseOnMiss           = 0;
     classification->statisticsOnMiss        = false;
+    classification->shared                  = false;
+
     for (unsigned int i = 0; i < 10; i++)
         classification->frameLength.push_back(i+1);
     classification->frameLength[9] = 0xFFFF;
@@ -553,7 +555,11 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
     }
 
     if ( getAttr( pNode, "masks" ) == "true" || getAttr( pNode, "masks" ) == "yes" ) {
-            classification->masks = true;
+        classification->masks = true;
+    }
+
+    if ( getAttr( pNode, "shared" ) == "true" || getAttr( pNode, "shared" ) == "yes" ) {
+        classification->shared = true;
     }
 
     // 'Key presents' flags
