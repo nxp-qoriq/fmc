@@ -42,7 +42,7 @@ extern "C"
 #include <Peripherals/fm_pcd_ext.h>
 #include <Peripherals/fm_port_ext.h>
 
-#define FMC_OUTPUT_FORMAT_VER 0x105
+#define FMC_OUTPUT_FORMAT_VER 0x106
 
 #define FMC_NAME_LEN             64
 #define FMC_FMAN_NUM              2
@@ -104,6 +104,7 @@ typedef struct fmc_port_t {
     t_FmPortPcdKgParams  kgParam;
     t_FmPortPcdCcParams  ccParam;
     char                 name[FMC_NAME_LEN];
+    char                 cctree_name[FMC_NAME_LEN];
     t_Handle             handle;
     t_Handle             env_id_handle;
     t_Handle             cctree_handle;

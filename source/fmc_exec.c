@@ -303,10 +303,13 @@ fmc_get_handle( fmc_model*  model,
 #endif /* P1023 */
     }
 
-    // Check port's name
+    // Check port's and cctree's name
     for ( i = 0; i < model->port_count; i++ ) {
         if ( strcmp( model->port[i].name, name ) == 0 ) {
             return model->port[i].handle;
+        }
+        if ( strcmp( model->port[i].cctree_name, name ) == 0 ) {
+            return model->port[i].cctree_handle;
         }
     }
 
@@ -864,11 +867,11 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
 #endif /* P1023 */
     }
 
-    LOG_FMD_CALL( FM_PCD_CcRootBuild, model->fman[engine].pcd_name );
+    LOG_FMD_CALL( FM_PCD_CcRootBuild, model->port[port].name );
     model->port[port].cctree_handle =
         FM_PCD_CcRootBuild( model->fman[engine].pcd_handle,
                             &ccTreeParams );
-    CHECK_HANDLE( FM_PCD_CcRootBuild, model->fman[engine].pcd_name,
+    CHECK_HANDLE( FM_PCD_CcRootBuild, model->port[port].name,
                   model->port[port].cctree_handle );
 
     return 0;

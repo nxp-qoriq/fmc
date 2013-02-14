@@ -713,6 +713,11 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
     cmodel->port[index].name[FMC_NAME_LEN - 1] = 0;
     oss << ind( indent ) << ".port[" << index << "].name = \"" << model.all_ports[index].name << "\"," << std::endl;
 
+    std::string cctree_name =  model.all_ports[index].name + "/cctree";
+    strncpy( cmodel->port[index].cctree_name, cctree_name.c_str(), FMC_NAME_LEN - 1 );
+    cmodel->port[index].cctree_name[FMC_NAME_LEN - 1] = 0;
+    oss << ind( indent ) << ".port[" << index << "].cctree_name = \"" << cctree_name << "\"," << std::endl;
+
     EMIT4STR( port[, index, ].type =, model.all_ports[index].type );
     EMIT4( port[, index, ].number  = ,  model.all_ports[index].number );
 
