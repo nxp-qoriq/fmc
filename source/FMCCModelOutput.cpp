@@ -907,6 +907,9 @@ CFMCCModelOutput::output_fmc_scheme( const CFMCModel& model, fmc_model_t* cmodel
     unsigned int useHash = sch.key.empty() ? 0 : 1;
     EMIT4( scheme[, index, ].useHash =,  useHash );
     EMIT4( scheme[, index, ].baseFqid =, sch.qbase );
+    if (sch.bypass) {
+        EMIT4( scheme[, index, ].bypassFqidGeneration =, sch.bypass );
+    }
 
 #if (DPAA_VERSION >= 11)
     EMIT4( scheme[, index, ].overrideStorageProfile =,  sch.overrideStorageProfile );

@@ -506,6 +506,7 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     unsigned int index;
     unsigned int action_index;
     unsigned int reasm_index = 0;
+    unsigned int port_ht_index = 0;
 
 #ifndef P1023
     reasm_index = model->port[port].reasm_index;
@@ -541,8 +542,9 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     }
 
     //Add HT entries (must be called after schemes)
-    for ( index = 0; index < model->htnode_count; index++ )
+    for ( port_ht_index = 0; port_ht_index < pport->htnodes_count; port_ht_index++ )
     {
+        index = pport->htnodes[port_ht_index];
         for ( i = 0; i < model->htentry_count[index]; ++i ) {
             action_index = model->htentry_action_index[index][i];
             if ( model->htentry[index][i].ccNextEngineParams.nextEngine == e_FM_PCD_KG ) {

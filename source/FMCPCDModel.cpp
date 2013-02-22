@@ -711,6 +711,7 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
     }
     scheme.qbase                 = xmlDist.qbase;
     scheme.qcount                = xmlDist.qcount;
+    scheme.bypass                = xmlDist.bypass;
     scheme.privateDflt0          = xmlDist.dflt0;
     scheme.privateDflt1          = xmlDist.dflt1;
     scheme.hashShift             = xmlDist.keyShift;

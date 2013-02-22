@@ -173,6 +173,7 @@ public:
 
     unsigned int qbase;                 ///< Queue base
     unsigned int qcount;                ///< Number of queues
+    bool bypass;                        ///< Bypass fqid generation
 
     uint32_t privateDflt0;              ///< Scheme default register 0
     uint32_t privateDflt1;              ///< Scheme default register 1
