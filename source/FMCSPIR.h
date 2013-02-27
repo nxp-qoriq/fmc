@@ -70,7 +70,7 @@ typedef enum ENodeType {                // Expression node types
     /*Dyadic*/
     EAND, EOR,                          //  &&, ||
     /*Monadic*/
-    ENOT, EBITNOT,                        //    not, bitwnot
+    ENOT, EBITNOT                       //    not, bitwnot
 }ENodeType;
 
 typedef enum ObjectType {
@@ -168,7 +168,7 @@ typedef enum StatementType {
     ST_SWITCH,          //  switch statement
     ST_INLINE,          //  inline assembly
     ST_IFGOTO,          //  if expression is true goto 'label'
-    ST_IFNGOTO,         //  if expression is NOT true goto 'label
+    ST_IFNGOTO          //  if expression is NOT true goto 'label
                         //  the statement must be replaced in reviseIR process
                         //  since it's not recognized in the createCode process
 } StatementType;

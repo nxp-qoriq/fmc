@@ -39,7 +39,7 @@
     #define fmc_log_write( ... )
 #endif
 
-// Forward declaration of static functions
+/* Forward declaration of static functions */
 static int fmc_exec_engine_start( fmc_model* model, unsigned int index,
                                   unsigned int* p_relative_scheme_index );
 static int fmc_exec_engine_end  ( fmc_model* model, unsigned int index );
@@ -94,7 +94,7 @@ static int fmc_clean_replicator  ( fmc_model* model, unsigned int engine,
 
 #define CHECK_HANDLE( func, name, handle )                                   \
     if ( handle == 0 ) {                                                     \
-        fmc_log_write( LOG_ERR, "Invocation of " #func " for %s failed",    \
+        fmc_log_write( LOG_ERR, "Invocation of " #func " for %s failed",     \
                        name );                                               \
         return 1;                                                            \
     }                                                                        \
@@ -105,7 +105,7 @@ static int fmc_clean_replicator  ( fmc_model* model, unsigned int engine,
 
 #define CHECK_ERR( func, name )                                              \
     if ( err  != E_OK ) {                                                    \
-        fmc_log_write( LOG_ERR, "Invocation of " #func " for %s failed "    \
+        fmc_log_write( LOG_ERR, "Invocation of " #func " for %s failed "     \
                                  "with error code 0x%08X",                   \
                        name, err );                                          \
         return 1;                                                            \
@@ -177,7 +177,7 @@ fmc_execute( fmc_model* model )
                 break;
         }
 
-        // Exit the loop in case of failure
+        /* Exit the loop in case of failure */
         if ( ret != 0 ) {
             break;
         }
@@ -201,7 +201,7 @@ fmc_clean( fmc_model* model )
     }
 
     for ( j = 0; j < model->apply_order_count; j++ ) {
-        // Clean entities in reverse order of applying
+        /* Clean entities in reverse order of applying */
         i = model->apply_order_count - j - 1;
         switch ( model->apply_order[i].type ) {
             case FMCEngineStart:
@@ -248,7 +248,7 @@ fmc_clean( fmc_model* model )
                 break;
         }
 
-        // Exit the loop in case of failure
+        /* Exit the loop in case of failure */
         if ( ret != 0 ) {
             break;
         }
@@ -269,32 +269,32 @@ fmc_get_handle( fmc_model*  model,
     for ( i = 0; i < model->fman_count; ++i ) {
         unsigned int j;
 
-        // Check engine's name
+        /* Check engine's name */
         if ( strcmp( model->fman[i].name, name ) == 0 ) {
             return model->fman[i].handle;
         }
 
-        // Check policy's name
+        /* Check policy's name */
         if ( strcmp( model->fman[i].pcd_name, name ) == 0 ) {
             return model->fman[i].pcd_handle;
         }
 
 #ifndef P1023
-        // Check fragmentation names
+        /* Check fragmentation names */
         for ( j = 0; j < model->fman[i].frag_count; j++ ) {
             if ( strcmp( model->fman[i].frag_name[j], name ) == 0 ) {
                 return model->fman[i].frag_handle[j];
             }
         }
 
-        // Check reassembly names
+        /* Check reassembly names */
         for ( j = 0; j < model->fman[i].reasm_count; j++ ) {
             if ( strcmp( model->fman[i].reasm_name[j], name ) == 0 ) {
                 return model->fman[i].reasm_handle[j];
             }
         }
 
-        // Check header manip names
+        /* Check header manip names */
         for ( j = 0; j < model->fman[i].hdr_count; j++ ) {
             if ( strcmp( model->fman[i].hdr_name[j], name ) == 0 ) {
                 return model->fman[i].hdr_handle[j];
@@ -303,7 +303,7 @@ fmc_get_handle( fmc_model*  model,
 #endif /* P1023 */
     }
 
-    // Check port's and cctree's name
+    /* Check port's and cctree's name */
     for ( i = 0; i < model->port_count; i++ ) {
         if ( strcmp( model->port[i].name, name ) == 0 ) {
             return model->port[i].handle;
@@ -313,21 +313,21 @@ fmc_get_handle( fmc_model*  model,
         }
     }
 
-    // Find scheme name
+    /* Find scheme name */
     for ( i = 0; i < model->scheme_count; i++ ) {
         if ( strcmp( model->scheme_name[i], name ) == 0 ) {
             return model->scheme_handle[i];
         }
     }
 
-    // Find CC handle according to found engine and port
+    /* Find CC handle according to found engine and port */
     for ( i = 0; i < model->ccnode_count; i++ ) {
         if ( strcmp( model->ccnode_name[i], name ) == 0 ) {
             return model->ccnode_handle[i];
         }
     }
 
-    // Find HT handle according to found engine and port
+    /* Find HT handle according to found engine and port */
     for ( i =0; i < model->htnode_count; i++ ) {
         if ( strcmp( model->htnode_name[i], name ) == 0 ) {
             return model->htnode_handle[i];
@@ -335,7 +335,7 @@ fmc_get_handle( fmc_model*  model,
     }
 
 #if (DPAA_VERSION >= 11)
-    // Find replicator handle according to found engine and port
+    /* Find replicator handle according to found engine and port */
     for ( i =0; i < model->replicator_count; i++ ) {
         if ( strcmp( model->replicator_name[i], name ) == 0 ) {
             return model->replicator_handle[i];
@@ -343,7 +343,7 @@ fmc_get_handle( fmc_model*  model,
     }
 #endif /* (DPAA_VERSION >= 11) */
 
-    // Find policer name
+    /* Find policer name */
     for ( i = 0; i < model->policer_count; i++ ) {
         if ( strcmp( model->policer_name[i], name ) == 0 ) {
             return model->policer_handle[i];
@@ -367,7 +367,7 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
 
     fmc_log_write( LOG_DBG1, "fmc_exec_engine_start - execution started" );
     
-    // Open FMan device
+    /* Open FMan device */
     LOG_FMD_CALL( FM_Open, model->fman[index].name );
 #ifndef NETCOMM_SW
     model->fman[index].handle = FM_Open( model->fman[index].number );
@@ -377,7 +377,7 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
 #endif
     CHECK_HANDLE( FM_Open, model->fman[index].name, model->fman[index].handle );
 
-    // Open FMan device
+    /* Open FMan device */
     fmPcdParams.h_Fm = model->fman[index].handle;
     LOG_FMD_CALL( FM_PCD_Open, model->fman[index].pcd_name );
 #ifndef NETCOMM_SW
@@ -519,7 +519,7 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     pport->pcdParam.h_NetEnv    = pport->env_id_handle;
     pport->pcdParam.p_PrsParams = &pport->prsParam;
 
-    // Add KeyGen runtime parameters
+    /* Add KeyGen runtime parameters */
     if ( pport->schemes_count != 0 ) {
         pport->kgParam.numOfSchemes = pport->schemes_count;
 
@@ -530,7 +530,7 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
         }
     }
 
-    // Add CC runtime parameters
+    /* Add CC runtime parameters */
     if ( pport->htnodes_count != 0 || 
 #if (DPAA_VERSION >= 11)
             pport->replicators_count != 0 ||
@@ -541,7 +541,7 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
         pport->pcdParam.p_CcParams->h_CcTree = pport->cctree_handle;
     }
 
-    //Add HT entries (must be called after schemes)
+    /* Add HT entries (must be called after schemes) */
     for ( port_ht_index = 0; port_ht_index < pport->htnodes_count; port_ht_index++ )
     {
         index = pport->htnodes[port_ht_index];
@@ -588,10 +588,10 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
             err = FM_PCD_HashTableAddKey( model->htnode_handle[index], 
                                 model->htnode[index].matchKeySize,
                                 &(model->htentry[index][i]) );
-            //CHECK_HANDLE( FM_PCD_HashTableAddKey, model->htnode_name[index], !res );
+            /*CHECK_HANDLE( FM_PCD_HashTableAddKey, model->htnode_name[index], !res ); */
         }
     }
-    //End of adding HT entries
+    /* End of adding HT entries */
 
     LOG_FMD_CALL( FM_PORT_Disable, pport->name );
     err = FM_PORT_Disable( pport->handle );
@@ -616,7 +616,7 @@ fmc_exec_scheme( fmc_model* model,  unsigned int engine,
     model->scheme[index].netEnvParams.h_NetEnv = model->port[port].env_id_handle;
     model->scheme[index].id.relativeSchemeId   = relative_scheme_index;
 
-    // Fill next engine handles
+    /* Fill next engine handles */
     if ( model->scheme[index].nextEngine == e_FM_PCD_CC ) {
         model->scheme[index].kgNextEngineParams.cc.h_CcTree =
                                                 model->port[port].cctree_handle;
@@ -887,7 +887,7 @@ fmc_exec_policer( fmc_model* model, unsigned int engine,
 {
     unsigned int action_index;
 
-    // Fill next engine handles
+    /* Fill next engine handles */
     action_index = model->policer_action_index[index][0];
     switch ( model->policer[index].nextEngineOnGreen ) {
         case e_FM_PCD_PLCR:
@@ -1157,7 +1157,7 @@ fmc_clean_manip( fmc_model* model, unsigned int engine,
         err = FM_PCD_ManipNodeDelete( model->fman[engine].hdr_handle[index] );
         CHECK_ERR( FM_PCD_ManipNodeDelete, model->fman[engine].hdr_name[index] );
     }
-#endif // P1023
+#endif /* P1023 */
 
     return 0;
 }

@@ -2345,7 +2345,7 @@ CFMCModel::createSoftParse( const CTaskDef* pTaskDef )
             }
         }
     }
-};
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3284,7 +3284,7 @@ ApplyOrder::reverse_port_apply_order()
     bool   within_port = false;
     size_t port_index = 0;
 
-    for ( int i = 0; i < entries.size(); ++i ) {
+    for ( size_t i = 0; i < entries.size(); ++i ) {
         switch( entries[i].type ) {
         case EngineEnd:
             engine_entries.clear();

@@ -60,7 +60,7 @@ typedef enum OpType {
     OT_REG,
     OT_SHIFT,
     OT_TEXT,
-    OT_VAL,
+    OT_VAL
 } PCodeOpType;
 
 typedef enum Opcode {

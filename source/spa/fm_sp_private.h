@@ -267,7 +267,7 @@ typedef enum
    _fmsp_assembler_addsub_wr_wr_to_wr_e,
    _fmsp_assembler_addsub_wr_iv_to_wr_e,
    _fmsp_assembler_jmp_nxt_eth_type_e,
-   _fmsp_assembler_jmp_nxt_ip_proto_e,
+   _fmsp_assembler_jmp_nxt_ip_proto_e
 
 } _fmsp_assembler_instruction_type_t;
 
@@ -282,7 +282,7 @@ typedef enum _fmsp_variable
    _fmsp_uint16_type_e,
    _fmsp_uint32_type_e,
    _fmsp_uint48_type_e,
-   _fmsp_uint64_type_e,
+   _fmsp_uint64_type_e
 
 } _fmsp_assembler_variable_type_t;
 

@@ -166,7 +166,7 @@ logger_::operator << <logger::ind>( ind const& incr_indent )
     logger_ logger_::log;
 #endif // DEFINE_LOGGER_INSTANCE
 
-}; // namespace logger
+} // namespace logger
 
 #define LOG_GET() logger::logger_::get_logger()
 #define LOG_INIT( stream, level ) LOG_GET().init( stream, level )
