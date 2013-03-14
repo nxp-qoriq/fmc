@@ -3299,6 +3299,9 @@ ApplyOrder::reverse_port_apply_order()
                                        ports_of_engine[j].begin(),
                                        ports_of_engine[j].end() );
             }
+            result_entries.insert( result_entries.end(),
+                                   engine_entries.begin(),
+                                   engine_entries.end() );
             result_entries.push_back( entries[i] );
             break;
         case PortEnd:
@@ -3316,7 +3319,7 @@ ApplyOrder::reverse_port_apply_order()
                 ports_of_engine[port_index].push_back( entries[i] );
             }
             else {
-                result_entries.push_back( entries[i] );
+                engine_entries.push_back( entries[i] );
             }
         }
     }
