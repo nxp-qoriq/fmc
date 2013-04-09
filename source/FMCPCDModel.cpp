@@ -244,6 +244,7 @@ CFMCModel::createModel( CTaskDef* pTaskDef )
             }
 
             applier.add( ApplyOrder::Entry( ApplyOrder::PortStart, port.getIndex() ) );
+            engine.offload_support = (unsigned int)(engine.offload_support || port.replicators.size());
         }
 
 #ifndef P1023
