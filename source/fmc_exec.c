@@ -35,7 +35,7 @@
 
 #include "fmc.h"
 
-#ifdef NETCOMM_SW
+#if defined(NETCOMM_SW) || defined(NO_FMC_LOG)
     #define fmc_log_write( ... )
 #endif
 

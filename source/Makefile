@@ -36,7 +36,6 @@ TCLAP_HEADER_PATH      ?= /usr/include
 PKG_NAME = fmc-0.9.29
 PKG_RELEASE = 1
 
-CFLAGS += -fPIC
 PLATFORM_FLAG = -DP4080
 
 ifeq ($(MACHINE),p1023rds)
@@ -64,18 +63,20 @@ CFLAGS += -DNCSW_LINUX -O2 -D__STDC_LIMIT_MACROS\
           -I$(FMD_USPACE_HEADER_PATH)/etc \
           -I$(FMD_USPACE_HEADER_PATH)/Peripherals \
           -I$(FMD_USPACE_HEADER_PATH)/integrations
-CXXFLAGS = $(CFLAGS)
 LDLIBS   = -lfmc -lfm -lxml2 -lm
 
 ifdef FMCHOSTMODE
   LDFLAGS += -L.
 else
+  CFLAGS += -fPIC
   LDFLAGS += -L. -L$(FMD_USPACE_LIB_PATH)
 endif
 
 ifdef M64BIT
   LDFLAGS += -m64
 endif
+
+CXXFLAGS = $(CFLAGS)
 
 .PHONY: default
 ifdef FMCHOSTMODE
