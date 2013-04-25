@@ -313,6 +313,7 @@ public:
     unsigned int hashResMask;           ///< Mask that will be used on the hash-result
     unsigned int matchKeySize;          ///< The key data size in bits
     unsigned int hashShift;             ///< Byte offset from the beginning of the KeyGen hash result to the 2-bytes to be used as hash index.
+    unsigned int kgHashShift;           ///< KG-Hash-shift as it was configured in the KG-scheme that leads to this hash-table.
 
     std::vector< CCData >       keys;   ///< The list of data entries
     std::vector< CCData >       masks;  ///< The list of masks corresponding to data entries
@@ -579,8 +580,8 @@ private:
     Port&    createPort( Engine& engine, const CPort& xmlPort, const CTaskDef* pTaskDef );
     Scheme&  createScheme( const CTaskDef* pTaskDef, Port& port, const CDistribution& xmlDist,
                            bool isDirect );
-    CCNode&  createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode );
-    HTNode&  createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode );
+    CCNode&  createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode, unsigned int kgHashShift);
+    HTNode&  createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode, unsigned int kgHashShift);
     CRepl&   createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplicator& xmlRepl );
     Policer& createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& xmlPolicer );
     void     createSoftParse( const CTaskDef* pTaskDef );
@@ -588,9 +589,9 @@ private:
     unsigned int get_scheme_index( const CTaskDef* pTaskDef, std::string name,
                                    std::string from, Port& port, bool isDirect );
     unsigned int get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
-                                   std::string from, Port& port, bool isRoot, unsigned int manip = 0 );
+                                   std::string from, Port& port, bool isRoot, unsigned int kgHashShift, unsigned int manip = 0);
     unsigned int get_htnode_index( const CTaskDef* pTaskDef, std::string name,
-                                   std::string from, Port& port, bool isRoot, unsigned int manip = 0 );
+                                   std::string from, Port& port, bool isRoot, unsigned int kgHashShift, unsigned int manip = 0);
 #if (DPAA_VERSION >= 11)
     unsigned int get_replicator_index( const CTaskDef* pTaskDef, std::string name,
                                    std::string from, Port& port, bool isRoot, unsigned int manip = 0 );

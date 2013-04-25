@@ -1046,7 +1046,7 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
             scheme.actionHandleIndex =
             get_ccnode_index( pTaskDef,
                               xmlDist.actionName,
-                              xmlDist.name, port, true, hdr_index );
+                              xmlDist.name, port, true, scheme.hashShift, hdr_index );
         }
 #if (DPAA_VERSION >= 11)
         else
@@ -1154,7 +1154,7 @@ static uint8_t getByteMask( int size_in_bits, int start_bit_offset, int byteNo )
 /// to the internal representation
 ////////////////////////////////////////////////////////////////////////////////
 CCNode&
-CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode )
+CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode, unsigned int kgHashShift)
 {
     CCNode& ccNode = all_ccnodes[FMBlock::assignIndex( all_ccnodes )];
 
@@ -1432,7 +1432,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
                 ccNode.nextEngines[i].actionHandleIndex =
                 get_htnode_index( pTaskDef,
                                   xmlCCNode.entries[i].actionName,
-                                  ccNode.name, port, false );
+                                  ccNode.name, port, false, kgHashShift );
                 ApplyOrder::Entry n2( ApplyOrder::HTNode,
                                       ccNode.nextEngines[i].actionHandleIndex );
                 applier.add_edge( n1, n2 );
@@ -1441,7 +1441,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
                 ccNode.nextEngines[i].actionHandleIndex =
                     get_ccnode_index( pTaskDef,
                                       xmlCCNode.entries[i].actionName,
-                                      ccNode.name, port, false );
+                                      ccNode.name, port, false, kgHashShift );
                 ApplyOrder::Entry n2( ApplyOrder::CCNode,
                                       ccNode.nextEngines[i].actionHandleIndex );
                 applier.add_edge( n1, n2 );
@@ -1534,7 +1534,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             ccNode.nextEngineOnMiss.actionHandleIndex =
                 get_htnode_index( pTaskDef,
                                   xmlCCNode.actionNameOnMiss,
-                                  ccNode.name, port, false );
+                                  ccNode.name, port, false, kgHashShift );
             ApplyOrder::Entry n2( ApplyOrder::HTNode,
                                   ccNode.nextEngineOnMiss.actionHandleIndex );
             applier.add_edge( n1, n2 );
@@ -1543,7 +1543,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             ccNode.nextEngineOnMiss.actionHandleIndex =
                 get_ccnode_index( pTaskDef,
                                   xmlCCNode.actionNameOnMiss,
-                                  ccNode.name, port, false );
+                                  ccNode.name, port, false, kgHashShift );
             ApplyOrder::Entry n2( ApplyOrder::CCNode,
                                   ccNode.nextEngineOnMiss.actionHandleIndex );
             applier.add_edge( n1, n2 );
@@ -1578,7 +1578,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             {
             unsigned int index =
                 get_ccnode_index( pTaskDef, actionName, ccNode.name, port,
-                                  false );
+                                  false, kgHashShift );
             ApplyOrder::Entry n2( ApplyOrder::CCNode, index );
             applier.add_edge( n1, n2 );
             break;
@@ -1619,7 +1619,7 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 }
 
 HTNode&
-CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode )
+CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassification& xmlCCNode, unsigned int kgHashShift)
 {
     HTNode& htNode = all_htnodes[FMBlock::assignIndex( all_htnodes )];
 
@@ -1630,11 +1630,13 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
 
     htNode.name = port.name + "/ccnode/" + xmlCCNode.name;
 
+    
     //Pre-allocation
     htNode.maxNumOfKeys                = xmlCCNode.max;
     htNode.statistics                  = getStatistic(xmlCCNode.statistics);
     htNode.hashResMask                 = xmlCCNode.key.hashTableEntry.mask;
     htNode.hashShift                   = xmlCCNode.key.hashTableEntry.hashShift;
+    htNode.kgHashShift                 = kgHashShift;
     htNode.matchKeySize                = xmlCCNode.key.hashTableEntry.keySize;
     htNode.port_signature              = port.name;
 
@@ -1753,7 +1755,7 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
                 htNode.nextEngines[i].actionHandleIndex =
                 get_htnode_index( pTaskDef,
                                   xmlCCNode.entries[i].actionName,
-                                  htNode.name, port, false );
+                                  htNode.name, port, false, kgHashShift );
                 ApplyOrder::Entry n2( ApplyOrder::HTNode,
                                       htNode.nextEngines[i].actionHandleIndex );
                 applier.add_edge( n1, n2 );
@@ -1762,7 +1764,7 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
                 htNode.nextEngines[i].actionHandleIndex =
                     get_ccnode_index( pTaskDef,
                                       xmlCCNode.entries[i].actionName,
-                                      htNode.name, port, false );
+                                      htNode.name, port, false, kgHashShift );
                 ApplyOrder::Entry n2( ApplyOrder::CCNode,
                                       htNode.nextEngines[i].actionHandleIndex );
                 applier.add_edge( n1, n2 );
@@ -1855,7 +1857,7 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             htNode.nextEngineOnMiss.actionHandleIndex =
             get_htnode_index( pTaskDef,
                                 xmlCCNode.actionNameOnMiss,
-                                htNode.name, port, false );
+                                htNode.name, port, false, kgHashShift );
             ApplyOrder::Entry n2( ApplyOrder::HTNode,
                                 htNode.nextEngineOnMiss.actionHandleIndex );
             applier.add_edge( n1, n2 );
@@ -1864,7 +1866,7 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             htNode.nextEngineOnMiss.actionHandleIndex =
                 get_ccnode_index( pTaskDef,
                                   xmlCCNode.actionNameOnMiss,
-                                  htNode.name, port, false );
+                                  htNode.name, port, false, kgHashShift );
             ApplyOrder::Entry n2( ApplyOrder::CCNode,
                                   htNode.nextEngineOnMiss.actionHandleIndex );
             applier.add_edge( n1, n2 );
@@ -1873,7 +1875,7 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
     else if ( htNode.nextEngineOnMiss.nextEngine == e_FM_PCD_HASH ) {
         htNode.nextEngineOnMiss.actionHandleIndex =
             get_htnode_index( pTaskDef, xmlCCNode.actionNameOnMiss,
-                              htNode.name, port, true );
+                              htNode.name, port, true, kgHashShift  );
         ApplyOrder::Entry n2( ApplyOrder::HTNode,
                               htNode.nextEngineOnMiss.actionHandleIndex );
         applier.add_edge( n1, n2 );
@@ -1907,7 +1909,7 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             {
             unsigned int index =
                 get_ccnode_index( pTaskDef, actionName, htNode.name, port,
-                                  false );
+                                  false, kgHashShift );
             ApplyOrder::Entry n2( ApplyOrder::CCNode, index );
             applier.add_edge( n1, n2 );
             break;
@@ -1960,7 +1962,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
     applier.add_edge( n1, ApplyOrder::Entry( ApplyOrder::None, 0 ) );
 
     port.replicators.push_back( repl.getIndex() );
-
+    
     repl.name           = port.name + "/replicator/" + xmlRepl.name;
 
     //Pre-allocation
@@ -2062,7 +2064,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
             repl.nextEngines[i].actionHandleIndex =
                 get_ccnode_index( pTaskDef,
                                   xmlRepl.entries[i].actionName,
-                                  repl.name, port, false );
+                                  repl.name, port, false, 0);
             ApplyOrder::Entry n2( ApplyOrder::CCNode,
                                   repl.nextEngines[i].actionHandleIndex );
             applier.add_edge( n1, n2 );
@@ -2106,7 +2108,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
             {
             unsigned int index =
                 get_ccnode_index( pTaskDef, actionName, repl.name, port,
-                                  false );
+                                  false, 0 );
             ApplyOrder::Entry n2( ApplyOrder::CCNode, index );
             applier.add_edge( n1, n2 );
             break;
@@ -2152,7 +2154,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
 ////////////////////////////////////////////////////////////////////////////////
 unsigned int
 CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
-                             std::string from, Port& port, bool isRoot, unsigned int manip )
+                             std::string from, Port& port, bool isRoot, unsigned int kgHashShift, unsigned int manip )
 {
     std::map< std::string, CClassification >::const_iterator nodeIt;
     nodeIt = pTaskDef->classifications.find( name );
@@ -2162,7 +2164,7 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
     }
 
     if ( nodeIt->second.key.hashTable ) {
-        return get_htnode_index(pTaskDef, name, from, port, isRoot, manip);
+        return get_htnode_index(pTaskDef, name, from, port, isRoot, kgHashShift, manip);
     }
 
     // Check whether this node was already created
@@ -2185,7 +2187,7 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
     }
 
     if ( !found ) {
-        CCNode& ccnode = createCCNode( pTaskDef, port, nodeIt->second );
+        CCNode& ccnode = createCCNode( pTaskDef, port, nodeIt->second, kgHashShift );
         index = ccnode.getIndex();
     }
 
@@ -2208,7 +2210,7 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
 ////////////////////////////////////////////////////////////////////////////////
 unsigned int
 CFMCModel::get_htnode_index( const CTaskDef* pTaskDef, std::string name,
-                             std::string from, Port& port, bool isRoot, unsigned int manip )
+                             std::string from, Port& port, bool isRoot, unsigned int kgHashShift, unsigned int manip )
 {
     std::map< std::string, CClassification >::const_iterator nodeIt;
     nodeIt = pTaskDef->classifications.find( name );
@@ -2225,11 +2227,15 @@ CFMCModel::get_htnode_index( const CTaskDef* pTaskDef, std::string name,
              ( all_htnodes[i].port_signature == port.name ) ) {
             found = true;
             index = all_htnodes[i].getIndex();
+            if (all_htnodes[i].kgHashShift != kgHashShift)
+            {
+                throw CGenericError( ERR_HT_SHIFT, all_htnodes[i].name );
+            }
         }
     }
 
     if ( !found ) {
-        HTNode& htnode = createHTNode( pTaskDef, port, nodeIt->second );
+        HTNode& htnode = createHTNode( pTaskDef, port, nodeIt->second, kgHashShift );
         index = htnode.getIndex();
     }
 

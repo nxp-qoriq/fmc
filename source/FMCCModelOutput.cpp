@@ -1599,6 +1599,7 @@ CFMCCModelOutput::output_fmc_htnode( const CFMCModel& model, fmc_model_t* cmodel
     EMIT4( htnode[, index, ].matchKeySize =, node.matchKeySize );
     EMIT4( htnode[, index, ].hashResMask =, node.hashResMask );
     EMIT4( htnode[, index, ].hashShift =, node.hashShift );
+    EMIT4( htnode[, index, ].kgHashShift =, node.kgHashShift );
 
    
     EMIT4STR( htnode[, index, ].ccNextEngineParamsForMiss.nextEngine =, node.nextEngineOnMiss.nextEngine );

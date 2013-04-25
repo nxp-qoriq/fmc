@@ -151,7 +151,7 @@ const std::string ERR_REAS_IPV6FRAGSIZE      = "Minimum fragmentation size for I
 const std::string ERR_REAS_NUMFRAMESHASH     = "The number of frames per hash entry needed for reassembly process must be a numeric value between 1 and 8: '%1'";
 
 const std::string ERR_HDR_INSERTPROTOCOL     = "Unsupported protocol used insert_header in the header manipulation: '%1'";
-
+const std::string ERR_HT_SHIFT               = "The hash is table linked from more distributions with hash shifts setup: '%1'";
 
 /*-------------------------Soft parser errors--------------------------*/
 const std::string ERR_INTERNAL_SP_ERROR      = "Soft parser internal error: %1";
