@@ -474,13 +474,18 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port )
 #else
     if (fmPortParam.portType == e_FM_PORT_TYPE_OH_OFFLINE_PARSING)
         pport->handle = SYS_GetHandle( e_SYS_SUBMODULE_FM_PORT_HO,
-                                       fmPortParam.portId );
+        		(uint32_t)(fmPortParam.portId +
+                (pengine->number * FM_MAX_NUM_OF_OH_PORTS)));
     else if (fmPortParam.portType == e_FM_PORT_TYPE_RX)
         pport->handle = SYS_GetHandle( e_SYS_SUBMODULE_FM_PORT_1GRx,
-                                       fmPortParam.portId );
+        		(uint32_t)(fmPortParam.portId +
+                (pengine->number * FM_MAX_NUM_OF_1G_RX_PORTS)));
     else
+    {
         pport->handle = SYS_GetHandle( e_SYS_SUBMODULE_FM_PORT_10GRx,
-    	                               fmPortParam.portId );
+        		(uint32_t)((fmPortParam.portId - FM_MAX_NUM_OF_1G_RX_PORTS) +
+                (pengine->number * FM_MAX_NUM_OF_10G_RX_PORTS)));
+    }
 #endif
     CHECK_HANDLE( FM_PORT_Open,
                   pport->name, pport->handle );
