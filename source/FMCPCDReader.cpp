@@ -686,6 +686,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
             ce.actionName = "";
             ce.statistics = false;
             ce.vspBase = 0;
+            ce.vspOverride = false;
 
             // Calculate entry index
             if ( !getAttr( cur, "index" ).empty() ) {
@@ -757,7 +758,11 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                     ce.headerManipName = stripBlanks( getAttr( pr, "name" ) );
                 }
                 else if ( !xmlStrcmp( pr->name, (const xmlChar*)"vsp" ) ) {
-                    // Get the 'name' attribute of the fragmentation
+                    // Get the 'name' attribute of the vsp
+                    checkUnknownAttr( cur, 2, "name", "base" );
+
+                    ce.vspOverride = true;
+                    ce.vspBase = std::strtoul( getAttr( pr, "base" ).c_str(), 0, 0 );
                     ce.vspName = stripBlanks( getAttr( pr, "name" ) );
                 }
                 else if ( !xmlStrcmp( pr->name, (const xmlChar*)"action" ) ) {
