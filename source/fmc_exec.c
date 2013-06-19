@@ -483,7 +483,7 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port )
     else
     {
         pport->handle = SYS_GetHandle( e_SYS_SUBMODULE_FM_PORT_10GRx,
-        		(uint32_t)((fmPortParam.portId - FM_MAX_NUM_OF_1G_RX_PORTS) +
+        		(uint32_t)(fmPortParam.portId +
                 (pengine->number * FM_MAX_NUM_OF_10G_RX_PORTS)));
     }
 #endif
