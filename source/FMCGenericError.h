@@ -145,6 +145,7 @@ const std::string ERR_LOOP_DEPENDENCY1       = "Unresolved cycled dependencies a
 const std::string ERR_CLSF_INDX_MASK         = "'ic_index_mask' last nible is not 0 in classification '%1'";
 const std::string ERR_CLSF_FROMFIELD_NO      = "The number of extracts must be 1 when offset or size is not 0 in classification: '%1'";
 const std::string ERR_CLSF_FROMFIELD_HEADER  = "You can only extract VLAN TCI of ETHERNET TYPE when using from field in classification: '%1'";
+const std::string ERR_CLSF_STAT_NONE         = "Statistics enabled but none defined in classification: '%1'";
 
 const std::string ERR_REAS_MAXINPROCESS      = "The number of frames which can be processes by reassembly at the same time must be a power of 2: '%1'";
 const std::string ERR_REAS_IPV6FRAGSIZE      = "Minimum fragmentation size for IPv6 must be higher or equal to 256: '%1'";

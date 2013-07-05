@@ -118,9 +118,18 @@ CTaskDef::checkSemanticsClassification( CClassification& clsf )
     for ( unsigned int i = 0; i < clsf.entries.size(); ++i ) {
         checkActionTarget( clsf.entries[i].action, clsf.entries[i].actionName,
                            "classification", clsf.name );
+
+         if (clsf.entries[i].statistics && (clsf.statistics == "" || clsf.statistics == "none"))
+             throw CGenericError( ERR_CLSF_STAT_NONE, clsf.name );
     }
+    
+    if (clsf.statisticsOnMiss && (clsf.statistics == "" || clsf.statistics == "none"))
+             throw CGenericError( ERR_CLSF_STAT_NONE, clsf.name );
+
     checkActionTarget( clsf.actionOnMiss, clsf.actionNameOnMiss,
                        "classification", clsf.name );
+
+   
 
     if ( !clsf.key.header                                  &&
         clsf.key.nonHeaderEntry.source == ES_FROM_HASH     &&
