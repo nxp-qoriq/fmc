@@ -1052,6 +1052,7 @@ CPCDReader::parsePolicer( CPolicer* policer, xmlNodePtr pNode )
 
     // Set default parameters
     policer->name       = "";
+    policer->shared     = false;
     policer->algorithm  = 0;
     policer->color_mode = 0;
     policer->CIR        = 0;
@@ -1069,6 +1070,10 @@ CPCDReader::parsePolicer( CPolicer* policer, xmlNodePtr pNode )
 
     // Get known attributes
     policer->name = getAttr( pNode, "name" );
+
+    if ( getAttr( pNode, "shared" ) == "true" || getAttr( pNode, "shared" ) == "yes" ) {
+        policer->shared = true;
+    }
 
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;

@@ -518,6 +518,8 @@ class CPolicer
     unsigned int EBS;
     unsigned int unit;
 
+    bool shared;
+
     std::string dfltColor;
 
     std::string actionOnRed;

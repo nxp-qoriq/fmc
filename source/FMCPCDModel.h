@@ -370,6 +370,8 @@ class Policer : public FMBlock
 public:
     std::string name;
 
+    bool shared;
+
     e_FmPcdPlcrAlgorithmSelection algorithm;
     std::string                   algorithmStr;
     e_FmPcdPlcrColorMode          colorMode;

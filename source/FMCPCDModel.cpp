@@ -2401,7 +2401,13 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
     ApplyOrder::Entry n1( ApplyOrder::Policer, policer.getIndex() );
     applier.add_edge( n1, ApplyOrder::Entry( ApplyOrder::None, 0 ) );
 
-    policer.name           = port.name + "/policer/" + xmlPolicer.name;
+    policer.shared = xmlPolicer.shared;
+    if ( policer.shared ) {
+        policer.name = port.name.substr( 0, 3 ) + "/policer/" + xmlPolicer.name;
+    }
+    else {
+        policer.name = port.name + "/policer/" + xmlPolicer.name;
+    }
     policer.port_signature = port.name;
 
     switch( xmlPolicer.algorithm ) {
@@ -2543,11 +2549,19 @@ CFMCModel::get_policer_index( const CTaskDef* pTaskDef, std::string name,
     bool         found = false;
     unsigned int index;
     for ( unsigned int i = 0; i < all_policers.size(); ++i ) {
-        if ( ( all_policers[i].name           == port.name + "/policer/" + name ) &&
-             ( all_policers[i].port_signature == port.name ) ) {
-            found = true;
-            index = all_policers[i].getIndex();
+        if ( all_policers[i].shared ) {
+            if ( ( all_policers[i].name == port.name.substr( 0, 3 ) + "/policer/" + name ) ) {
+                found = true;
+                index = all_policers[i].getIndex();
+            }
         }
+        else {
+            if ( ( all_policers[i].name           == port.name + "/policer/" + name ) &&
+                 ( all_policers[i].port_signature == port.name ) ) {
+                found = true;
+                index = all_policers[i].getIndex();
+            }
+         }
     }
 
     if ( !found ) {
@@ -3121,6 +3135,9 @@ CFMCModel::getStatistic( std::string statistic )
     }
 #endif /* (DPAA_VERSION >= 11) */
 #endif /* P1023 */
+    else if (statistic == "none" || statistic == ""){
+        return e_FM_PCD_CC_STATS_MODE_NONE;
+    }
     
     return e_FM_PCD_CC_STATS_MODE_NONE;
 }
