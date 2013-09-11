@@ -541,6 +541,7 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
             pport->replicators_count != 0 ||
 #endif /* (DPAA_VERSION >= 11) */
             pport->ccnodes_count != 0 || 
+            pport->ccroot_count  != 0 || 
             reasm_index > 0 ) {
         pport->pcdParam.p_CcParams           = &pport->ccParam;
         pport->pcdParam.p_CcParams->h_CcTree = pport->cctree_handle;
