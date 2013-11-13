@@ -1565,6 +1565,17 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
                               ccNode.nextEngineOnMiss.actionHandleIndex );
         applier.add_edge( n1, n2 );
     }
+#if (DPAA_VERSION >= 11)
+	else if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_FR ) {
+		ccNode.nextEngineOnMiss.actionHandleIndex =
+			get_replicator_index( pTaskDef,
+								  xmlCCNode.actionNameOnMiss,
+								  ccNode.name, port, false, kgHashShift );
+		ApplyOrder::Entry n2( ApplyOrder::Replicator,
+							  ccNode.nextEngineOnMiss.actionHandleIndex );
+		applier.add_edge( n1, n2 );
+	}
+#endif /* (DPAA_VERSION >= 11) */
     else if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_DONE ) {
         ccNode.nextEngineOnMiss.newFqid = xmlCCNode.qbase;
     }
