@@ -2782,6 +2782,9 @@ CFMCModel::getNetCommFieldType( std::string fieldname )
     fields["ipv4.hchecksum"]      = NET_HEADER_FIELD_IPv4_CKSUM;
     fields["ipv4.src"]            = NET_HEADER_FIELD_IPv4_SRC_IP;
     fields["ipv4.dst"]            = NET_HEADER_FIELD_IPv4_DST_IP;
+    fields["ipv6.ver"]            = NET_HEADER_FIELD_IPv6_VER;
+    fields["ipv6.tos"]            = NET_HEADER_FIELD_IPv6_TC;
+    fields["ipv6.flabel"]         = NET_HEADER_FIELD_IPv6_FL;
     fields["ipv6.nexthdr"]        = NET_HEADER_FIELD_IPv6_NEXT_HDR;
     fields["ipv6.src"]            = NET_HEADER_FIELD_IPv6_SRC_IP;
     fields["ipv6.dst"]            = NET_HEADER_FIELD_IPv6_DST_IP;
@@ -2860,6 +2863,9 @@ CFMCModel::getNetCommFieldTypeStr( std::string fieldname )
     fields["ipv4.hchecksum"]      = "NET_HEADER_FIELD_IPv4_CKSUM";
     fields["ipv4.src"]            = "NET_HEADER_FIELD_IPv4_SRC_IP";
     fields["ipv4.dst"]            = "NET_HEADER_FIELD_IPv4_DST_IP";
+    fields["ipv6.ver"]            = "NET_HEADER_FIELD_IPv6_VER";
+    fields["ipv6.tos"]            = "NET_HEADER_FIELD_IPv6_TC";
+    fields["ipv6.flabel"]         = "NET_HEADER_FIELD_IPv6_FL";
     fields["ipv6.nexthdr"]        = "NET_HEADER_FIELD_IPv6_NEXT_HDR";
     fields["ipv6.src"]            = "NET_HEADER_FIELD_IPv6_SRC_IP";
     fields["ipv6.dst"]            = "NET_HEADER_FIELD_IPv6_DST_IP";
@@ -2923,6 +2929,9 @@ CFMCModel::isFullFieldForCC( std::string fieldName )
         "ipv4.src",
         // "ipv4.dst" | "ipv4.src"
         "ipv4.ttl",
+		"ipv6.ver",
+		"ipv6.tos",
+		"ipv6.flabel",
         "ipv6.nexthdr",
         "ipv6.dst",
         "ipv6.src",
@@ -3375,3 +3384,4 @@ ApplyOrder::size() const
 {
     return entries.size();
 }
+                  
