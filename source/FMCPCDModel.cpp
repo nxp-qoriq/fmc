@@ -1566,15 +1566,15 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
         applier.add_edge( n1, n2 );
     }
 #if (DPAA_VERSION >= 11)
-	else if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_FR ) {
-		ccNode.nextEngineOnMiss.actionHandleIndex =
-			get_replicator_index( pTaskDef,
-								  xmlCCNode.actionNameOnMiss,
-								  ccNode.name, port, false, kgHashShift );
-		ApplyOrder::Entry n2( ApplyOrder::Replicator,
-							  ccNode.nextEngineOnMiss.actionHandleIndex );
-		applier.add_edge( n1, n2 );
-	}
+    else if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_FR ) {
+        ccNode.nextEngineOnMiss.actionHandleIndex =
+            get_replicator_index( pTaskDef,
+                                  xmlCCNode.actionNameOnMiss,
+                                  ccNode.name, port, false, kgHashShift );
+        ApplyOrder::Entry n2( ApplyOrder::Replicator,
+                              ccNode.nextEngineOnMiss.actionHandleIndex );
+        applier.add_edge( n1, n2 );
+    }
 #endif /* (DPAA_VERSION >= 11) */
     else if ( ccNode.nextEngineOnMiss.nextEngine == e_FM_PCD_DONE ) {
         ccNode.nextEngineOnMiss.newFqid = xmlCCNode.qbase;
@@ -2929,9 +2929,9 @@ CFMCModel::isFullFieldForCC( std::string fieldName )
         "ipv4.src",
         // "ipv4.dst" | "ipv4.src"
         "ipv4.ttl",
-		"ipv6.ver",
-		"ipv6.tos",
-		"ipv6.flabel",
+        "ipv6.ver",
+        "ipv6.tos",
+        "ipv6.flabel",
         "ipv6.nexthdr",
         "ipv6.dst",
         "ipv6.src",
@@ -3384,4 +3384,3 @@ ApplyOrder::size() const
 {
     return entries.size();
 }
-                  

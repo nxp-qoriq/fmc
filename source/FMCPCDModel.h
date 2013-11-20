@@ -491,7 +491,8 @@ public:
 class ApplyOrder
 {
 public:
-    enum Type { None, EngineStart, EngineEnd, PortStart, PortEnd, Scheme, HTNode, CCNode, CCTree, Policer, Replicator, Manipulation };
+    enum Type { None, EngineStart, EngineEnd, PortStart, PortEnd, Scheme, HTNode,
+                CCNode, CCTree, Policer, Replicator, Manipulation };
 
     class Entry {
     public:
