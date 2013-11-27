@@ -1291,19 +1291,19 @@ CPCDReader::parseReassembly( CReassembly* reassembly, xmlNodePtr pNode )
     checkUnknownAttr( pNode, 1, "name" );
 
     // Set default parameters
-    reassembly->name = "";
-    reassembly->sgBpid = 0;
-    reassembly->maxInProcess = 0;
-    reassembly->dataLiodnOffset = 0;
-    reassembly->dataMemId = 0;
-    reassembly->ipv4minFragSize = 0;
-    reassembly->ipv6minFragSize = 256;
-    reassembly->timeOutMode = 0;
-    reassembly->fqidForTimeOutFrames = 0;
+    reassembly->name                       = "";
+    reassembly->sgBpid                     = 0;
+    reassembly->maxInProcess               = 0;
+    reassembly->dataLiodnOffset            = 0;
+    reassembly->dataMemId                  = 0;
+    reassembly->ipv4minFragSize            = 0;
+    reassembly->ipv6minFragSize            = 256;
+    reassembly->timeOutMode                = 0;
+    reassembly->fqidForTimeOutFrames       = 0;
     reassembly->numOfFramesPerHashEntry[0] = 1;
     reassembly->numOfFramesPerHashEntry[1] = 1;
-    reassembly->timeoutThreshold = 0;
-    reassembly->nonConsistentSpFqid = 0;
+    reassembly->timeoutThreshold           = 0;
+    reassembly->nonConsistentSpFqid        = 0;
 
     // Get known attributes
     reassembly->name = getAttr( pNode, "name" );
@@ -1393,12 +1393,12 @@ CPCDReader::parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode 
                 << "' ... " << std::endl;
     
      // Set default parameters
-    fragmentation->name           = "";
-    fragmentation->size           = 0;
-    fragmentation->dontFragAction = 0;
-    fragmentation->scratchBpid    = 0;
-    fragmentation->sgBpidEn       = false;
-    fragmentation->sgBpid         = 0;
+    fragmentation->name             = "";
+    fragmentation->size             = 0;
+    fragmentation->dontFragAction   = 0;
+    fragmentation->scratchBpid      = 0;
+    fragmentation->sgBpidEn         = false;
+    fragmentation->sgBpid           = 0;
     fragmentation->optionsCounterEn = false;
 
     checkUnknownAttr( pNode, 1, "name" );
@@ -1441,9 +1441,9 @@ CPCDReader::parseFragmentation( CFragmentation* fragmentation, xmlNodePtr pNode 
             }
         }
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"sgBpid" ) ) {
-            std::string text           = getXMLElement( cur );
-            fragmentation->sgBpidEn    = true;
-            fragmentation->scratchBpid = std::strtol( text.c_str(), 0, 0 );
+            std::string text        = getXMLElement( cur );
+            fragmentation->sgBpidEn = true;
+            fragmentation->sgBpid   = std::strtol( text.c_str(), 0, 0 );
         }
         // comment
         else if ( !xmlStrcmp( cur->name, (const xmlChar*)"comment" ) ) {
