@@ -2931,7 +2931,7 @@ CFMCModel::isFullFieldForCC( std::string fieldName )
         "ipv4.ttl",
         "ipv6.ver",
         "ipv6.tos",
-        //"ipv6.flabel",
+        "ipv6.flabel",
         "ipv6.nexthdr",
         "ipv6.dst",
         "ipv6.src",
