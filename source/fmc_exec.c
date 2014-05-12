@@ -694,8 +694,10 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
         } else {
             model->ccnode[index].keysParams.keyParams[i].p_Key =
                 model->cckeydata[index][i];
-            model->ccnode[index].keysParams.keyParams[i].p_Mask =
-                model->ccmask[index][i];
+			if (model->ccnode[index].keysParams.maskSupport)
+				model->ccnode[index].keysParams.keyParams[i].p_Mask = model->ccmask[index][i];
+			else
+				model->ccnode[index].keysParams.keyParams[i].p_Mask = NULL;
         }
     }
 
