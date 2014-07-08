@@ -2207,6 +2207,12 @@ CFMCModel::get_ccnode_index( const CTaskDef* pTaskDef, std::string name,
     applier.add_edge( root, node );
 
     if ( isRoot ) {
+		//ENGR00320235 Optimization: check if this CC Root index already exists with the same manipulation and in this case reuse it 
+		for (int i = 0; i < port.cctrees.size(); i++) {
+			if (port.cctrees[i] == index && port.cctrees_type[i] == e_FM_PCD_CC && port.hdrmanips[i] == manip)
+				return i;
+		}
+
         port.cctrees.push_back( index );
         port.cctrees_type.push_back( e_FM_PCD_CC );
         port.hdrmanips.push_back( manip );
@@ -2255,6 +2261,12 @@ CFMCModel::get_htnode_index( const CTaskDef* pTaskDef, std::string name,
     applier.add_edge( root, node );
 
     if ( isRoot ) {
+		//ENGR00320235 Optimization: check if this CC Root index already exists with the same manipulation and in this case reuse it 
+		for (int i = 0; i < port.cctrees.size(); i++) {
+			if (port.cctrees[i] == index && port.cctrees_type[i] == e_FM_PCD_HASH && port.hdrmanips[i] == manip)
+				return i;
+		}
+
         port.cctrees.push_back( index );
         port.cctrees_type.push_back( e_FM_PCD_HASH );
         port.hdrmanips.push_back( manip );
@@ -2300,6 +2312,12 @@ CFMCModel::get_replicator_index( const CTaskDef* pTaskDef, std::string name,
     applier.add_edge( root, node );
 
     if ( isRoot ) {
+		//ENGR00320235 Optimization: check if this CC Root index already exists with the same manipulation and in this case reuse it 
+		for (int i = 0; i < port.cctrees.size(); i++) {
+			if (port.cctrees[i] == index && port.cctrees_type[i] == e_FM_PCD_FR && port.hdrmanips[i] == manip)
+				return i;
+		}
+
         port.cctrees.push_back( index );
         port.cctrees_type.push_back( e_FM_PCD_FR );
         port.hdrmanips.push_back( manip );
