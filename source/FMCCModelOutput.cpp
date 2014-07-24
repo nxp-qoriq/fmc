@@ -1391,9 +1391,9 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
     if (node.maxNumOfKeys > 0)
     {
         EMIT4( ccnode[, index, ].keysParams.maxNumOfKeys =, node.maxNumOfKeys );
-        EMIT4( ccnode[, index, ].keysParams.maskSupport =, node.maskSupport );
     }
 
+    EMIT4( ccnode[, index, ].keysParams.maskSupport =, node.maskSupport );
     EMIT4( ccnode[, index, ].keysParams.statisticsMode =, node.statistics );
 
 #ifndef P1023
