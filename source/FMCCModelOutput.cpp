@@ -1791,10 +1791,15 @@ CFMCCModelOutput::output_fmc_replicator( const CFMCModel& model, fmc_model_t* cm
 
         EMIT6STR( replicator[, index, ].nextEngineParams[, entry_num, ].nextEngine =, repl.nextEngines[i].nextEngine );
         if ( repl.nextEngines[i].nextEngine == e_FM_PCD_PLCR ) {
-            EMIT5( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.overrideParams = 1 );
-            EMIT5( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.sharedProfile = 1 );
-            EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.newRelativeProfileId =, repl.nextEngines[i].actionHandleIndex );
-            EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.newFqid =, repl.nextEngines[i].newFqid );
+            if ( repl.nextEngines[i].newFqid != 0 ) {
+                EMIT5( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.overrideParams = 1 );
+                EMIT5( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.sharedProfile = 1 );
+                EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.newRelativeProfileId =, repl.nextEngines[i].actionHandleIndex );
+                EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.newFqid =, repl.nextEngines[i].newFqid );
+            }
+            else {
+                EMIT5( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.overrideParams = 0 );
+            }
             EMIT6( replicator[, index, ].nextEngineParams[, entry_num, ].params.plcrParams.newRelativeStorageProfileId =, repl.nextEngines[i].newRelativeStorageProfileId );
         }
         else if ( repl.nextEngines[i].nextEngine == e_FM_PCD_KG ) {
