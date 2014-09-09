@@ -55,11 +55,13 @@ CPCDReader::getAttr( xmlNodePtr pNode, const char* attr )
 
     if (pAttr != NULL)
     {
-        while (*pAttr != '\0')
+        char* pTmpAttr = pAttr;
+        while (*pTmpAttr != '\0')
         {
-            retStr.insert(retStr.end(), *pAttr);
-            pAttr++;
+            retStr.insert(retStr.end(), *pTmpAttr);
+            pTmpAttr++;
         }
+        xmlFree(pAttr);
     }
 
     return (retStr.size() != 0) ? retStr : "";
