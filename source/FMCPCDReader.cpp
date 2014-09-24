@@ -423,18 +423,20 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
                 }
             }
 
-            if ( xmlGetProp( cur, (const xmlChar*)"frame" ) ) {    // Does exist?
+            std::string frame = getAttr(cur, "frame");
+            if ( !frame.empty() ) {    // Does exist?
                 combine.kind = CCombineEntry::FRAME;
-                unsigned int offset = std::strtol( getAttr( cur, "frame" ).c_str(), 0, 0 );
+                unsigned int offset = std::strtol( frame.c_str(), 0, 0 );
                 combine.offset = std::max( offset, combine.offset );
                 if ( combine.size == 0 ) {
                     combine.size = 1;
                 }
             }
 
-            if ( xmlGetProp( cur, (const xmlChar*)"parser" ) ) {    // Does exist?
+            std::string parser = getAttr(cur, "parser");
+            if ( !parser.empty() ) {    // Does exist?
                 combine.kind = CCombineEntry::PARSER;
-                unsigned int offset = std::strtol( getAttr( cur, "parser" ).c_str(), 0, 0 );
+                unsigned int offset = std::strtol( parser.c_str(), 0, 0 );
                 combine.offset = std::max( offset, combine.offset );
                 if ( combine.size == 0 ) {
                     combine.size = 1;

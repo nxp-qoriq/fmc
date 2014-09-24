@@ -54,7 +54,21 @@ std::string
 CPDLReader::getAttr( xmlNodePtr pNode, const char* attr )
 {
     char* pAttr = (char*)xmlGetProp( pNode, (const xmlChar*)attr );
-    return (pAttr) ? pAttr : "";
+    std::string retStr;
+    retStr.clear();
+
+    if (pAttr != NULL)
+    {
+        char* pTmpAttr = pAttr;
+        while (*pTmpAttr != '\0')
+        {
+            retStr.insert(retStr.end(), *pTmpAttr);
+            pTmpAttr++;
+        }
+        xmlFree(pAttr);
+    }
+
+    return (retStr.size() != 0) ? retStr : "";
 }
 
 
