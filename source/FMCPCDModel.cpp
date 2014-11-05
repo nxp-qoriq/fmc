@@ -660,16 +660,31 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
 Port&
 CFMCModel::createPort( Engine& engine, const CPort& xmlPort, const CTaskDef* pTaskDef )
 {
+    std::string tmp_xmlPort_type;
+    unsigned int tmp_xmlPort_number;
     Port& port = all_ports[FMBlock::assignIndex( all_ports )];
 
     engine.ports.push_back( port.getIndex() );
 
-    port.type    = getPortType( xmlPort.type );
+    tmp_xmlPort_type = xmlPort.type;
+    tmp_xmlPort_number = xmlPort.number;
+
+    if (xmlPort.type == "MAC")
+    {
+        uint8_t lu_n[11] = {  255, 0,   1,   2,   3,   4,   5,   6,   7,   0,    1};
+        char* lu_t[11] =  { "ERR","1G","1G","1G","1G","1G","1G","1G","1G","10G","10G" };
+
+        if(tmp_xmlPort_number > 10) tmp_xmlPort_number = 0;
+        tmp_xmlPort_type = lu_t[tmp_xmlPort_number];
+        tmp_xmlPort_number = lu_n[tmp_xmlPort_number];
+    }
+
+    port.type    = getPortType( tmp_xmlPort_type );
     port.typeStr = getPortTypeStr( port.type );
     std::ostringstream oss;
     oss << engine.name + "/port/" + xmlPort.type + "/" << xmlPort.number;
     port.name   = oss.str();
-    port.number = xmlPort.number;
+    port.number = tmp_xmlPort_number;
     port.portid = xmlPort.portid;
 
     port.reasm_index = 0;
