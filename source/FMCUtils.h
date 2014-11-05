@@ -35,7 +35,11 @@
 #include <sstream>
 #include <iomanip>
 #include <utility>
+#ifdef WIN32
 #include <stdint.h>
+#else
+#include "types_linux.h"
+#endif
 #include "FMCGenericError.h"
 
 // Public functions

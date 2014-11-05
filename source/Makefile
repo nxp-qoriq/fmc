@@ -67,6 +67,7 @@ LDLIBS   = -lfmc -lfm -lxml2 -lm
 
 ifdef FMCHOSTMODE
   LDFLAGS += -L.
+  LDLIBS  += -lz
 else
   CFLAGS += -fPIC
   LDFLAGS += -L. -L$(FMD_USPACE_LIB_PATH)
