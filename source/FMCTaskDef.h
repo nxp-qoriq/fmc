@@ -477,6 +477,7 @@ class CDistribution
     unsigned int  qbase;
     unsigned int  qcount;
     bool          bypass;
+	bool          shared;
     unsigned int  keyShift;
     bool          symmetricHash;
     unsigned long dflt0;

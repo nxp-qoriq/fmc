@@ -719,9 +719,12 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
     ApplyOrder::Entry n1( ApplyOrder::Scheme, scheme.getIndex() );
     applier.add_edge( n1, ApplyOrder::Entry( ApplyOrder::None, 0 ) );
 
-    port.schemes.push_back( scheme.getIndex() );
-
-    scheme.name = port.name + "/dist/" + xmlDist.name;
+	scheme.shared = xmlDist.shared;
+	if ( scheme.shared ) {
+		scheme.name = port.name.substr( 0, 3 ) + "/dist/" + xmlDist.name;
+	} else {
+		scheme.name = port.name + "/dist/" + xmlDist.name;
+	}
     if ( isDirect ) {
         scheme.name = scheme.name + "/direct";
     }
@@ -2417,18 +2420,29 @@ CFMCModel::get_scheme_index( const CTaskDef* pTaskDef, std::string name,
     bool         found = false;
     unsigned int index;
     for ( unsigned int i = 0; i < all_schemes.size(); ++i ) {
-        if ( ( all_schemes[i].name           == port.name + "/dist/" + name + ((isDirect)?"/direct":"") ) &&
-             ( all_schemes[i].isDirect       == ( isDirect ? 1 : 0 ) ) &&
-             ( all_schemes[i].port_signature == port.name ) ) {
-            found = true;
-            index = all_schemes[i].getIndex();
-        }
+		if ( all_schemes[i].shared ) {
+			if ( ( all_schemes[i].name           == port.name.substr( 0, 3 ) + "/dist/" + name + ((isDirect)?"/direct":"") ) &&
+				 ( all_schemes[i].isDirect       == ( isDirect ? 1 : 0 ) ) ) {
+				found = true;
+				index = all_schemes[i].getIndex();
+				port.schemes.push_back(index);
+			}
+		} else {
+			if ( ( all_schemes[i].name           == port.name + "/dist/" + name + ((isDirect)?"/direct":"") ) &&
+				( all_schemes[i].isDirect       == ( isDirect ? 1 : 0 ) ) &&
+				( all_schemes[i].port_signature == port.name ) ) {
+					found = true;
+					index = all_schemes[i].getIndex();
+			}
+		}
     }
 
     if ( !found ) {
         Scheme& scheme = createScheme( pTaskDef, port, distIt->second, isDirect );
         index = scheme.getIndex();
+		port.schemes.push_back(index);
     }
+
 
     return index;
 }

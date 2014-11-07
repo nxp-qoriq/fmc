@@ -290,6 +290,7 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
     distribution->name          = getAttr( pNode, "name" );
     distribution->comment       = getAttr( pNode, "comment" );
     distribution->description   = getAttr( pNode, "description" );
+	distribution->shared		= false;
     distribution->keyShift      = 0;
     distribution->symmetricHash = false;
     distribution->qcount        = 1;
@@ -303,6 +304,10 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
     distribution->vspoffset     = 0;
     distribution->vspcount      = 0;
     distribution->vspoverride   = false;
+
+	if ( getAttr( pNode, "shared" ) == "true" || getAttr( pNode, "shared" ) == "yes" ) {
+		distribution->shared = true;
+	}
 
     checkUnknownAttr( pNode, 3, "name", "comment", "description" );
 

@@ -165,6 +165,7 @@ class Scheme : public FMBlock
 public:
     std::string name;                   ///< Scheme name
 
+	bool shared;
     std::vector < ExtractData > key;   ///< Extracted fields forming the key
     std::vector < ExtractData > combines; ///<
                                         ///< 'extracted Or' fields
