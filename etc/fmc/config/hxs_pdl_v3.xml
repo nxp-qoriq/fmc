@@ -891,6 +891,7 @@
 			<text value="IPv6: "/>
 			<protofield name="src" showdata="showvalue"/>
 			<text value=" => "/>
+
 			<protofield name="dst" showdata="showvalue"/>
 			<text value=" (Len " expr="buf2int(plen) + 40"/>
 			<text value=")"/>
@@ -904,7 +905,7 @@
 	<format>
 		<fields>
 			<field type="fixed" name="nextp" longname="Next protocol"   size="1" showtemplate="FieldDec"/>
-			<field type="bit"   name="dscp"  longname="Type of service" mask="0x0F000000" size="4" showtemplate="FieldHex"/>
+			<field type="bit"   name="dscp"  longname="Type of service" mask="0x00FC0000" size="4" showtemplate="FieldHex"/>
 		</fields>
 	</format>
 </protocol>
