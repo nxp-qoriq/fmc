@@ -3363,9 +3363,12 @@ ApplyOrder::sort()
         }
     }
 
-    if ( !all.empty() ) {
-        throw CGenericError( ERR_LOOP_DEPENDENCY1 );
-    }
+//    Removed because a false error is reported 
+//	  Correct 'Cycled dependency' are detected in method: CTaskDef::checkLoopDependencies 
+//	  and reported by throwing: ERR_LOOP_DEPENDENCY
+//    if ( !all.empty() ) {
+//        throw CGenericError( ERR_LOOP_DEPENDENCY1 );
+//    }
 
     for ( unsigned int i = result.size(); i != 0; --i ) {
         // As some shared items might be already in the list,
