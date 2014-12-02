@@ -305,11 +305,11 @@ CPCDReader::parseDistribution( CDistribution* distribution, xmlNodePtr pNode )
     distribution->vspcount      = 0;
     distribution->vspoverride   = false;
 
-	if ( getAttr( pNode, "shared" ) == "true" || getAttr( pNode, "shared" ) == "yes" ) {
-		distribution->shared = true;
-	}
+    if ( getAttr( pNode, "shared" ) == "true" || getAttr( pNode, "shared" ) == "yes" ) {
+        distribution->shared = true;
+    }
 
-    checkUnknownAttr( pNode, 3, "name", "comment", "description" );
+    checkUnknownAttr( pNode, 4, "name", "comment", "description", "shared" );
 
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
