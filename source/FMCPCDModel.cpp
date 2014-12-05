@@ -2170,7 +2170,7 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
                 std::map< std::string, CClassification >::const_iterator nodeIt = pTaskDef->classifications.find( actionName );
                 // Does such node exist?
                 if ( nodeIt == pTaskDef->classifications.end() ) {
-                    throw CGenericError( ERR_CC_NOT_FOUND, actionName, replNode.name );
+                    throw CGenericError( ERR_CC_NOT_FOUND, actionName, repl.name );
                 }
 
                 //determine action node type: CC or HT
