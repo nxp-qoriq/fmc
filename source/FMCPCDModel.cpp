@@ -1608,8 +1608,22 @@ CFMCModel::createCCNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             unsigned int index =
                 get_ccnode_index( pTaskDef, actionName, ccNode.name, port,
                                   false, kgHashShift );
-            ApplyOrder::Entry n2( ApplyOrder::CCNode, index );
-            applier.add_edge( n1, n2 );
+
+                std::map< std::string, CClassification >::const_iterator nodeIt = pTaskDef->classifications.find( actionName );
+                // Does such node exist?
+                if ( nodeIt == pTaskDef->classifications.end() ) {
+                    throw CGenericError( ERR_CC_NOT_FOUND, actionName, ccNode.name );
+                }
+
+                //determine action node type: CC or HT
+                if ( nodeIt->second.key.hashTable ) {
+                    ApplyOrder::Entry n2( ApplyOrder::HTNode, index );
+                    applier.add_edge( n1, n2 );
+                } else {
+                    ApplyOrder::Entry n2( ApplyOrder::CCNode, index );
+                    applier.add_edge( n1, n2 );
+                }
+
             break;
             }
         case e_FM_PCD_KG:
@@ -1939,8 +1953,22 @@ CFMCModel::createHTNode( const CTaskDef* pTaskDef, Port& port, const CClassifica
             unsigned int index =
                 get_ccnode_index( pTaskDef, actionName, htNode.name, port,
                                   false, kgHashShift );
-            ApplyOrder::Entry n2( ApplyOrder::CCNode, index );
-            applier.add_edge( n1, n2 );
+
+                std::map< std::string, CClassification >::const_iterator nodeIt = pTaskDef->classifications.find( actionName );
+                // Does such node exist?
+                if ( nodeIt == pTaskDef->classifications.end() ) {
+                    throw CGenericError( ERR_CC_NOT_FOUND, actionName, htNode.name );
+                }
+
+                //determine action node type: CC or HT
+                if ( nodeIt->second.key.hashTable ) {
+                    ApplyOrder::Entry n2( ApplyOrder::HTNode, index );
+                    applier.add_edge( n1, n2 );
+                } else {
+                    ApplyOrder::Entry n2( ApplyOrder::CCNode, index );
+                    applier.add_edge( n1, n2 );
+                }
+
             break;
             }
         case e_FM_PCD_KG:
@@ -2138,8 +2166,22 @@ CFMCModel::createReplicator( const CTaskDef* pTaskDef, Port& port, const CReplic
             unsigned int index =
                 get_ccnode_index( pTaskDef, actionName, repl.name, port,
                                   false, 0 );
-            ApplyOrder::Entry n2( ApplyOrder::CCNode, index );
-            applier.add_edge( n1, n2 );
+
+                std::map< std::string, CClassification >::const_iterator nodeIt = pTaskDef->classifications.find( actionName );
+                // Does such node exist?
+                if ( nodeIt == pTaskDef->classifications.end() ) {
+                    throw CGenericError( ERR_CC_NOT_FOUND, actionName, replNode.name );
+                }
+
+                //determine action node type: CC or HT
+                if ( nodeIt->second.key.hashTable ) {
+                    ApplyOrder::Entry n2( ApplyOrder::HTNode, index );
+                    applier.add_edge( n1, n2 );
+                } else {
+                    ApplyOrder::Entry n2( ApplyOrder::CCNode, index );
+                    applier.add_edge( n1, n2 );
+                }
+
             break;
             }
         case e_FM_PCD_KG:
@@ -3363,12 +3405,9 @@ ApplyOrder::sort()
         }
     }
 
-//    Removed because a false error is reported 
-//	  Correct 'Cycled dependency' are detected in method: CTaskDef::checkLoopDependencies 
-//	  and reported by throwing: ERR_LOOP_DEPENDENCY
-//    if ( !all.empty() ) {
-//        throw CGenericError( ERR_LOOP_DEPENDENCY1 );
-//    }
+    if ( !all.empty() ) {
+        throw CGenericError( ERR_LOOP_DEPENDENCY1 );
+    }
 
     for ( unsigned int i = result.size(); i != 0; --i ) {
         // As some shared items might be already in the list,
