@@ -1421,26 +1421,7 @@ CFMCCModelOutput::output_fmc_ccnode( const CFMCModel& model, fmc_model_t* cmodel
 #endif /* (DPAA_VERSION >= 11) */
 #endif /* P1023 */
 
-    if ( ( cmodel->ccnode[index].extractCcParams.type != e_FM_PCD_EXTRACT_BY_HDR ) &&
-         ( node.extract.nhAction == e_FM_PCD_ACTION_INDEXED_LOOKUP ) ) {
-        // Take the upper bound of amount of keys. The number of entries
-        // should be a power of 2
-        unsigned int upper_bound = node.extract.nhIcIndxMask >> 4;
-
-        // Make upper bound to be a power of 2
-        uint32_t x = upper_bound;
-        {
-            x |= (x >> 1); x |= (x >> 2); x |= (x >> 4);
-            x |= (x >> 8); x |= (x >> 16);
-            x -= (x >> 1);
-        }
-        upper_bound = x << 1;
-
-        EMIT4( ccnode[, index, ].keysParams.numOfKeys =, upper_bound );
-    }
-    else {
-        EMIT4( ccnode[, index, ].keysParams.numOfKeys =, node.keys.size() );
-    }
+    EMIT4( ccnode[, index, ].keysParams.numOfKeys =, node.keys.size() );
     EMIT4( ccnode[, index, ].keysParams.keySize =, node.keySize );
 
     if ( node.extract.nhAction != e_FM_PCD_ACTION_INDEXED_LOOKUP ) {
