@@ -726,6 +726,49 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
         EMIT6( port[, index, ].schemes[, i, ] =, model.all_ports[index].schemes[i] );
     }
 
+#if (DPAA_VERSION >= 11)
+    int numOfProfiles = 0;
+    int dfltRelativeId = 0;
+    std::vector<int> vProfileId;
+    std::vector<int>::iterator itProfileId;
+    bool bProfileIdFound = false;
+
+    for ( unsigned int i = 0; i < cmodel->port[index].schemes_count; ++i ) {	
+        int sch_idx = model.all_ports[index].schemes[i];
+        const Scheme& sch = model.all_schemes[sch_idx];
+        if (sch.overrideStorageProfile) {
+            if (sch.storageProfile.direct) {
+                bProfileIdFound = false;
+                for (itProfileId = vProfileId.begin(); itProfileId != vProfileId.end(); itProfileId++) {
+                    if (*itProfileId == sch.storageProfile.profileSelect.directRelativeProfileId) {
+                        bProfileIdFound = true;
+                        break;
+                    }
+                }
+                if (!bProfileIdFound)
+                    vProfileId.push_back(sch.storageProfile.profileSelect.directRelativeProfileId);
+            } else {
+                for (int profId = sch.storageProfile.profileSelect.indirectProfile.fqidOffsetRelativeProfileIdBase; 
+                         profId < sch.storageProfile.profileSelect.indirectProfile.fqidOffsetRelativeProfileIdBase + sch.storageProfile.profileSelect.indirectProfile.numOfProfiles;
+                         profId++) {
+                    bProfileIdFound = false;
+                    for (itProfileId = vProfileId.begin(); itProfileId != vProfileId.end(); itProfileId++) {
+                        if (*itProfileId == profId) {
+                            bProfileIdFound = true;
+                            break;
+                        }
+                    }
+                    if (!bProfileIdFound)
+                        vProfileId.push_back(profId);
+                }
+            }
+        }
+    }
+    numOfProfiles = vProfileId.size();
+    EMIT4( port[, index, ].vspParam.numOfProfiles =, numOfProfiles );
+    EMIT4( port[, index, ].vspParam.dfltRelativeId =, dfltRelativeId );
+#endif /* (DPAA_VERSION >= 11) */
+
     EMIT4( port[, index, ].ccnodes_count =, model.all_ports[index].ccnodes.size() );
     for ( unsigned int i = 0; i < cmodel->port[index].ccnodes_count; ++i ) {
         EMIT6( port[, index, ].ccnodes[, i, ] =, model.all_ports[index].ccnodes[i] );
@@ -1690,6 +1733,7 @@ CFMCCModelOutput::output_fmc_htnode( const CFMCModel& model, fmc_model_t* cmodel
 #if (DPAA_VERSION >= 11)
                 EMIT6( htentry[, index, ][, node_num, ].ccNextEngineParams.params.enqueueParams.newRelativeStorageProfileId =, node.nextEngines[i].newRelativeStorageProfileId );
 #endif /* (DPAA_VERSION >= 11) */
+
             }
             else {
                 EMIT6( htentry[, index, ][, node_num, ].ccNextEngineParams.params.enqueueParams.overrideFqid =, 0 );

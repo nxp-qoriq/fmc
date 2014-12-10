@@ -121,6 +121,7 @@ typedef struct fmc_port_t {
 #if (DPAA_VERSION >= 11)
     unsigned int         replicators_count;         ///< Number of used Frame Replicators
     unsigned int         replicators[FMC_REPLICATORS_NUM]; ///< Replicators used by this port
+    t_FmPortVSPAllocParams vspParam;
 #endif /* (DPAA_VERSION >= 11) */
 
     unsigned int         ccroot_count;

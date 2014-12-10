@@ -100,6 +100,14 @@ FM_PORT_SetPCD(t_Handle h_FmPort, t_FmPortPcdParams *p_FmPortPcd)
     return E_OK;
 }
 
+#if (DPAA_VERSION >= 11)
+t_Error
+FM_PORT_VSPAlloc(t_Handle h_FmPort, t_FmPortVSPAllocParams *p_Params)
+{
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PORT_VSPAlloc %d", h_FmPort );
+    return E_OK;
+}
+#endif /* (DPAA_VERSION >= 11) */
 
 t_Handle
 FM_PCD_Config( t_FmPcdParams *p_FmPcdParams )

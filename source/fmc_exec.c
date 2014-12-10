@@ -490,6 +490,26 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port )
     CHECK_HANDLE( FM_PORT_Open,
                   pport->name, pport->handle );
 
+#if (DPAA_VERSION >= 11)
+    if (pport->vspParam.numOfProfiles > 0) {
+        //open coupled port
+        if (fmPortParam.portType == e_FM_PORT_TYPE_RX || fmPortParam.portType == e_FM_PORT_TYPE_RX_10G ) {
+            if (fmPortParam.portType == e_FM_PORT_TYPE_RX)
+                fmPortParam.portType = e_FM_PORT_TYPE_TX;
+            else if (fmPortParam.portType == e_FM_PORT_TYPE_RX_10G)
+                fmPortParam.portType = e_FM_PORT_TYPE_TX_10G;
+
+            pport->vspParam.h_FmTxPort = FM_PORT_Open( &fmPortParam );
+            CHECK_HANDLE( FM_PORT_Open,
+                             pport->name, pport->vspParam.h_FmTxPort );
+        } else if (fmPortParam.portType == e_FM_PORT_TYPE_OH_OFFLINE_PARSING) {
+            pport->vspParam.h_FmTxPort = pport->handle;
+        }
+    }
+#endif /* (DPAA_VERSION >= 11) */
+
+
+
     LOG_FMD_CALL( FM_PCD_NetEnvCharacteristicsSet, model->port[port].name );
     pport->env_id_handle = FM_PCD_NetEnvCharacteristicsSet(
                                pengine->pcd_handle,
@@ -602,12 +622,36 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     LOG_FMD_CALL( FM_PORT_Disable, pport->name );
     err = FM_PORT_Disable( pport->handle );
     CHECK_ERR( FM_PORT_Disable, model->port[port].name );
+
+#if (DPAA_VERSION >= 11)
+    if (pport->vspParam.numOfProfiles > 0) {
+        if (pport->type != e_FM_PORT_TYPE_OH_OFFLINE_PARSING) {
+            LOG_FMD_CALL( FM_PORT_Disable, pport->name );
+            err = FM_PORT_Disable( pport->vspParam.h_FmTxPort );
+            CHECK_ERR( FM_PORT_Disable, model->port[port].name );
+        }
+    LOG_FMD_CALL( FM_PORT_VSPAlloc, pport->name );
+    err = FM_PORT_VSPAlloc( pport->handle, &pport->vspParam );
+    CHECK_ERR( FM_PORT_VSPAlloc, model->port[port].name );
+    }
+#endif /* (DPAA_VERSION >= 11) */
+
     LOG_FMD_CALL( FM_PORT_SetPCD, pport->name );
     err = FM_PORT_SetPCD( pport->handle, &pport->pcdParam );
     CHECK_ERR( FM_PORT_SetPCD, model->port[port].name );
     LOG_FMD_CALL( FM_PORT_Enable, pport->name );
     err = FM_PORT_Enable( pport->handle );
     CHECK_ERR( FM_PORT_Enable, model->port[port].name );
+
+#if (DPAA_VERSION >= 11)
+    if (pport->vspParam.numOfProfiles > 0) {
+        if (pport->type != e_FM_PORT_TYPE_OH_OFFLINE_PARSING) {
+            LOG_FMD_CALL( FM_PORT_Enable, pport->name );
+            err = FM_PORT_Enable( pport->vspParam.h_FmTxPort );
+            CHECK_ERR( FM_PORT_Enable, model->port[port].name );
+        }
+    }
+#endif /* (DPAA_VERSION >= 11) */
 
     return 0;
 }
