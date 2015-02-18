@@ -83,6 +83,17 @@ static int fmc_clean_policer     ( fmc_model* model, unsigned int engine,
                                    unsigned int index );
 static int fmc_clean_manip       ( fmc_model* model, unsigned int engine,
                                    unsigned int index );
+
+typedef struct t_DirectSchemeInfo {
+
+	int					index;
+	e_FmPcdEngine		nextEngine;
+} t_DirectSchemeInfo;
+
+static int						g_crtDirectSchemeCount;
+static t_DirectSchemeInfo		g_crtDirectScheme[FMC_SCHEMES_NUM];
+
+
 #if (DPAA_VERSION >= 11)
 static int fmc_clean_replicator  ( fmc_model* model, unsigned int engine,
                                    unsigned int index );
@@ -468,6 +479,8 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port )
     fmPortParam.portId   = pport->number;
     fmPortParam.portType = pport->type;
 
+	g_crtDirectSchemeCount = 0;
+
 #ifndef NETCOMM_SW
     LOG_FMD_CALL( FM_PORT_Open, pport->name );
     pport->handle = FM_PORT_Open( &fmPortParam );
@@ -543,6 +556,27 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
 
     pport->pcdParam.h_NetEnv    = pport->env_id_handle;
     pport->pcdParam.p_PrsParams = &pport->prsParam;
+
+    /* Modify all current direct schemes for this port */
+    for (i = 0; i < g_crtDirectSchemeCount; i++) {
+        index = g_crtDirectScheme[i].index;
+		if (model->scheme[index].alwaysDirect == TRUE && model->scheme[index].nextEngine == e_FM_PCD_DONE) {
+		    model->scheme[index].nextEngine = g_crtDirectScheme[i].nextEngine;
+            if ( model->scheme[index].nextEngine == e_FM_PCD_CC ) {
+                model->scheme[index].kgNextEngineParams.cc.h_CcTree =
+                                                model->port[port].cctree_handle;
+		    }
+		    model->scheme[index].modify = TRUE;
+
+		    LOG_FMD_CALL( FM_PCD_KgSchemeSet, model->scheme_name[index] );
+		    model->scheme_handle[index] = FM_PCD_KgSchemeSet( model->fman[engine].pcd_handle,
+                            &(model->scheme[index]) );
+		    CHECK_HANDLE( FM_PCD_KgSchemeSet, model->scheme_name[index],
+                  model->scheme_handle[index] );
+
+		}
+    }
+	g_crtDirectSchemeCount = 0;
 
     /* Add KeyGen runtime parameters */
     if ( pport->schemes_count != 0 ) {
@@ -666,7 +700,15 @@ fmc_exec_scheme( fmc_model* model,  unsigned int engine,
     model->scheme[index].netEnvParams.h_NetEnv = model->port[port].env_id_handle;
     model->scheme[index].id.relativeSchemeId   = relative_scheme_index;
 
-    /* Fill next engine handles */
+	/* Save direct schemes*/
+	if (model->scheme[index].alwaysDirect == TRUE) {
+		g_crtDirectScheme[g_crtDirectSchemeCount].index = index;
+		g_crtDirectScheme[g_crtDirectSchemeCount].nextEngine = model->scheme[index].nextEngine;
+		g_crtDirectSchemeCount++;
+		model->scheme[index].nextEngine = e_FM_PCD_DONE;
+	}
+
+	/* Fill next engine handles */
     if ( model->scheme[index].nextEngine == e_FM_PCD_CC ) {
         model->scheme[index].kgNextEngineParams.cc.h_CcTree =
                                                 model->port[port].cctree_handle;
