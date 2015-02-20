@@ -88,6 +88,11 @@ typedef struct t_DirectSchemeInfo {
 
 	int					index;
 	e_FmPcdEngine		nextEngine;
+    union {                                                     /**< depends on nextEngine */
+        e_FmPcdDoneAction               doneAction;             /**< Used when next engine is BMI (done) */
+        t_FmPcdKgPlcrProfile            plcrProfile;            /**< Used when next engine is PLCR */
+        t_FmPcdKgCc                     cc;                     /**< Used when next engine is CC */
+    } kgNextEngineParams;
 } t_DirectSchemeInfo;
 
 static int						g_crtDirectSchemeCount;
@@ -563,10 +568,14 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
 		if (model->scheme[index].alwaysDirect == TRUE && model->scheme[index].nextEngine == e_FM_PCD_DONE) {
 		    model->scheme[index].nextEngine = g_crtDirectScheme[i].nextEngine;
             if ( model->scheme[index].nextEngine == e_FM_PCD_CC ) {
-                model->scheme[index].kgNextEngineParams.cc.h_CcTree =
-                                                model->port[port].cctree_handle;
-		    }
+                model->scheme[index].kgNextEngineParams.cc = g_crtDirectScheme[i].kgNextEngineParams.cc;
+                model->scheme[index].kgNextEngineParams.cc.h_CcTree = model->port[port].cctree_handle;
+			} else if (model->scheme[index].nextEngine == e_FM_PCD_PLCR) {
+				model->scheme[index].kgNextEngineParams.plcrProfile = g_crtDirectScheme[i].kgNextEngineParams.plcrProfile;
+			}
+
 		    model->scheme[index].modify = TRUE;
+			model->scheme[index].id.h_Scheme = model->scheme_handle[index];
 
 		    LOG_FMD_CALL( FM_PCD_KgSchemeSet, model->scheme_name[index] );
 		    model->scheme_handle[index] = FM_PCD_KgSchemeSet( model->fman[engine].pcd_handle,
@@ -704,8 +713,14 @@ fmc_exec_scheme( fmc_model* model,  unsigned int engine,
 	if (model->scheme[index].alwaysDirect == TRUE) {
 		g_crtDirectScheme[g_crtDirectSchemeCount].index = index;
 		g_crtDirectScheme[g_crtDirectSchemeCount].nextEngine = model->scheme[index].nextEngine;
+		if (model->scheme[index].nextEngine == e_FM_PCD_CC)
+			g_crtDirectScheme[g_crtDirectSchemeCount].kgNextEngineParams.cc = model->scheme[index].kgNextEngineParams.cc;
+		else if (model->scheme[index].nextEngine == e_FM_PCD_PLCR)
+			g_crtDirectScheme[g_crtDirectSchemeCount].kgNextEngineParams.plcrProfile = model->scheme[index].kgNextEngineParams.plcrProfile;
+		
 		g_crtDirectSchemeCount++;
 		model->scheme[index].nextEngine = e_FM_PCD_DONE;
+		model->scheme[index].kgNextEngineParams.doneAction = e_FM_PCD_ENQ_FRAME;
 	}
 
 	/* Fill next engine handles */
