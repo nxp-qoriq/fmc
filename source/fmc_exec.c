@@ -377,6 +377,8 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
 {
 #ifndef P1023
     unsigned int i;
+	bool bIsIPR_IPv4 = false;
+	bool bIsIPR_IPv6 = false;
 #endif
     t_Error err;
     t_FmPcdParams fmPcdParams = {0};
@@ -428,14 +430,13 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
 #ifndef P1023
     for ( i = 0; i < model->fman[index].reasm_count; i++ ) {
         if ( model->fman[index].reasm[i].u.reassem.hdr == HEADER_TYPE_IPv6 ) {
-            model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[0] =
-                (*p_relative_scheme_index)++;
-            model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[1] =
-                (*p_relative_scheme_index)++;
+			bIsIPR_IPv6 = true;
+            model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[0] = 0;
+            model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[1] = 1;
         }
         else {
-            model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[0] =
-                (*p_relative_scheme_index)++;
+			bIsIPR_IPv4 = true;
+            model->fman[index].reasm[i].u.reassem.u.ipReassem.relativeSchemeId[0] = 0;
         }
 
         LOG_FMD_CALL( FM_PCD_ManipNodeSet, model->fman[index].reasm_name[i] );
@@ -445,6 +446,13 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
         CHECK_HANDLE( FM_PCD_ManipNodeSet,
                       model->fman[index].reasm_name[i], model->fman[index].reasm_handle[i] );
     }
+
+	if (bIsIPR_IPv6)
+		//allocate TWO IPR relativeSchemeId: one for IPv4 and one for IPv6
+		*p_relative_scheme_index = 2;
+	else if (bIsIPR_IPv4)
+		//allocate ONE IPR relativeSchemeId: one for IPv4
+		*p_relative_scheme_index = 1;
 
     for ( i = 0; i < model->fman[index].frag_count; i++ ) {
         LOG_FMD_CALL( FM_PCD_ManipNodeSet, model->fman[index].frag_name[i] );
