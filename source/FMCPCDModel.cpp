@@ -290,6 +290,7 @@ CFMCModel::createEngine( const CEngine& xmlEngine, const CTaskDef* pTaskDef )
     engine.number          = std::strtoul( xmlEngine.name.c_str() + 2, 0, 0 );
     engine.pcd_name        = engine.name + "/pcd";
     engine.offload_support = xmlEngine.offload_support;
+	engine.kg_payload_offset = xmlEngine.kg_payload_offset;
 
 #ifndef P1023
     std::map< std::string, CReassembly >::const_iterator reasmit;

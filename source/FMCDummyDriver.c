@@ -267,6 +267,12 @@ FM_PCD_PrsLoadSw(t_Handle h_FmPcd, t_FmPcdPrsSwParams *p_SwPrs)
     return E_OK;
 }
 
+t_Error
+FM_PCD_KgSetAdditionalDataAfterParsing( t_Handle h_FmPcd, uint8_t payloadOffset )
+{
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_KgSetAdditionalDataAfterParsing %d", h_FmPcd );
+    return E_OK;
+}
 
 #ifndef P1023
 t_Error

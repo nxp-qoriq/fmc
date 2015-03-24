@@ -70,6 +70,7 @@ typedef struct fmc_fman_t {
     t_Handle           handle;
     char               pcd_name[FMC_NAME_LEN];
     t_Handle           pcd_handle;
+	unsigned int       kg_payload_offset;
 
 #ifndef P1023
     unsigned int       offload_support;

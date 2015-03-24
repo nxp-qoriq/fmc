@@ -457,6 +457,7 @@ public:
     unsigned int number;                ///< Engine's number
     std::string  pcd_name;              ///< PCD name == 'policy' name
     unsigned int offload_support;       ///< Advanced offload support number
+	unsigned int kg_payload_offset;		/// FM_PCD_KgSetAdditionalDataAfterParsing
 
     std::vector< unsigned int > ports;  ///< Ports of the engine
 

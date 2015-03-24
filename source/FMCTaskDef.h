@@ -767,6 +767,7 @@ class CEngine
     unsigned int default_queue1;
     unsigned int default_queue2;
     unsigned int offload_support;
+	unsigned int kg_payload_offset;
 };
 
 

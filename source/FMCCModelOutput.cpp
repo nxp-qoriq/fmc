@@ -323,6 +323,11 @@ CFMCCModelOutput::output_fmc_fman( const CFMCModel& model, fmc_model_t* cmodel,
 
     OUT_EMPTY;
 
+    if ( model.all_engines[index].kg_payload_offset != 0 ) {
+        EMIT4( fman[, index, ].kg_payload_offset =, model.all_engines[index].kg_payload_offset );
+        OUT_EMPTY;
+    }
+
 #ifndef P1023
     if ( model.all_engines[index].offload_support != 0 ) {
         EMIT4( fman[, index, ].offload_support =, model.all_engines[index].offload_support );

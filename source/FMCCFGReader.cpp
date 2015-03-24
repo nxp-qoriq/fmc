@@ -181,6 +181,9 @@ CCFGReader::parseEngine( xmlNodePtr pNode )
     std::string offload = stripBlanks( getXMLAttr( pNode, "offload" ) );
     engine.offload_support = std::strtol( offload.c_str(), 0, 0 );
 
+    std::string kg_payload_offset = stripBlanks( getXMLAttr( pNode, "kg_payload" ) );
+    engine.kg_payload_offset = std::strtol( kg_payload_offset.c_str(), 0, 0 );
+
     // Parse children nodes
     xmlNodePtr cur = pNode->xmlChildrenNode;
     while ( 0 != cur ) {

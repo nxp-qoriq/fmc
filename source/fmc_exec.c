@@ -422,6 +422,12 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
         CHECK_ERR( FM_PCD_SetAdvancedOffloadSupport, model->fman[index].pcd_name );
     }
 #endif /* P1023 */
+	if (model->fman[index].kg_payload_offset > 0) {
+        LOG_FMD_CALL( FM_PCD_KgSetAdditionalDataAfterParsing,
+                      model->fman[index].pcd_name );
+        err = FM_PCD_KgSetAdditionalDataAfterParsing( model->fman[index].pcd_handle, model->fman[index].kg_payload_offset );
+        CHECK_ERR( FM_PCD_KgSetAdditionalDataAfterParsing, model->fman[index].pcd_name );
+	}
 
     LOG_FMD_CALL( FM_PCD_Enable, model->fman[index].pcd_name );
     err = FM_PCD_Enable( model->fman[index].pcd_handle );
