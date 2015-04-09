@@ -43,11 +43,15 @@ ifeq ($(MACHINE),p1023rds)
 endif
 
 ifeq ($(MACHINE),b4860qds)
-  PLATFORM_FLAG = -DB4860
+  PLATFORM_FLAG = -DFMAN_V3H
 endif
 
 ifeq ($(MACHINE),t4240qds)
-  PLATFORM_FLAG = -DT4240
+  PLATFORM_FLAG = -DFMAN_V3H
+endif
+
+ifeq ($(MACHINE),t1040qds)
+  PLATFORM_FLAG = -DFMAN_V3L
 endif
 
 CFLAGS += $(PLATFORM_FLAG)
