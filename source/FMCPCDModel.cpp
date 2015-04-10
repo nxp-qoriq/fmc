@@ -2756,6 +2756,8 @@ CFMCModel::getNetCommHeaderType( std::string protoname )
     net_types[ "dccp" ]      = HEADER_TYPE_DCCP;
     net_types[ "ipsec_ah" ]  = HEADER_TYPE_IPSEC_AH;
     net_types[ "ipsec_esp" ] = HEADER_TYPE_IPSEC_ESP;
+	net_types[ "otherl3" ]     = HEADER_TYPE_USER_DEFINED_L3;
+	net_types[ "otherl4" ]     = HEADER_TYPE_USER_DEFINED_L4;
     net_types[ "shim1" ]     = HEADER_TYPE_USER_DEFINED_SHIM1;
     net_types[ "shim2" ]     = HEADER_TYPE_USER_DEFINED_SHIM2;
 #ifdef FM_SHIM3_SUPPORT
@@ -2794,6 +2796,8 @@ CFMCModel::getNetCommHeaderTypeStr( std::string protoname )
     net_types[ "dccp" ]      = "HEADER_TYPE_DCCP";
     net_types[ "ipsec_ah" ]  = "HEADER_TYPE_IPSEC_AH";
     net_types[ "ipsec_esp" ] = "HEADER_TYPE_IPSEC_ESP";
+	net_types[ "otherl3" ]     = "HEADER_TYPE_USER_DEFINED_L3";
+	net_types[ "otherl4" ]     = "HEADER_TYPE_USER_DEFINED_L4";
     net_types[ "shim1" ]     = "HEADER_TYPE_USER_DEFINED_SHIM1";
     net_types[ "shim2" ]     = "HEADER_TYPE_USER_DEFINED_SHIM2";
 #ifdef FM_SHIM3_SUPPORT
@@ -2831,6 +2835,8 @@ CFMCModel::getNetCommHeaderTypeStr( e_NetHeaderType proto )
     net_types[ HEADER_TYPE_DCCP ]               = "HEADER_TYPE_DCCP";
     net_types[ HEADER_TYPE_IPSEC_AH ]           = "HEADER_TYPE_IPSEC_AH";
     net_types[ HEADER_TYPE_IPSEC_ESP ]          = "HEADER_TYPE_IPSEC_ESP";
+	net_types[ HEADER_TYPE_USER_DEFINED_L3 ]          = "HEADER_TYPE_USER_DEFINED_L3";
+	net_types[ HEADER_TYPE_USER_DEFINED_L4 ]          = "HEADER_TYPE_USER_DEFINED_L4";
     net_types[ HEADER_TYPE_USER_DEFINED_SHIM1 ] = "HEADER_TYPE_USER_DEFINED_SHIM1";
     net_types[ HEADER_TYPE_USER_DEFINED_SHIM2 ] = "HEADER_TYPE_USER_DEFINED_SHIM2";
 #ifdef FM_SHIM3_SUPPORT
