@@ -741,7 +741,7 @@ CFMCCModelOutput::output_fmc_port( const CFMCModel& model, fmc_model_t* cmodel,
     for ( unsigned int i = 0; i < cmodel->port[index].schemes_count; ++i ) {	
         int sch_idx = model.all_ports[index].schemes[i];
         const Scheme& sch = model.all_schemes[sch_idx];
-        if (sch.overrideStorageProfile) {
+        if (sch.overrideStorageProfile && sch.vspAlloc) {
             if (sch.storageProfile.direct) {
                 bProfileIdFound = false;
                 for (itProfileId = vProfileId.begin(); itProfileId != vProfileId.end(); itProfileId++) {

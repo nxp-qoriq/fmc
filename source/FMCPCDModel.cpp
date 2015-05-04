@@ -1093,6 +1093,7 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
 
 #if (DPAA_VERSION >= 11)
     //Change the VSP
+	scheme.vspAlloc = false;
     if ( xmlDist.vspoverride ) {
         scheme.overrideStorageProfile = true;
         if ( xmlDist.vspName != "" ) {
@@ -1113,6 +1114,7 @@ CFMCModel::createScheme( const CTaskDef* pTaskDef, Port& port, const CDistributi
                 scheme.storageProfile.profileSelect.indirectProfile.fqidOffsetRelativeProfileIdBase = vspIt->second.vspoffset;
                 scheme.storageProfile.profileSelect.indirectProfile.numOfProfiles = vspIt->second.vspcount;
             }
+			scheme.vspAlloc = vspIt->second.vspAlloc;
         }
         else {
             if ( xmlDist.vspdirect ) {

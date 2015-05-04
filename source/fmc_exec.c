@@ -535,7 +535,7 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port )
             CHECK_HANDLE( FM_PORT_Open,
                              pport->name, pport->vspParam.h_FmTxPort );
         } else if (fmPortParam.portType == e_FM_PORT_TYPE_OH_OFFLINE_PARSING) {
-            pport->vspParam.h_FmTxPort = pport->handle;
+            pport->vspParam.h_FmTxPort = NULL;
         }
     }
 #endif /* (DPAA_VERSION >= 11) */

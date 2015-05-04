@@ -722,6 +722,7 @@ class CVsp
     unsigned int fqshift;
     unsigned int vspoffset;
     unsigned int vspcount;
+	bool         vspAlloc;
 };
 
 class CReplicatorEntry

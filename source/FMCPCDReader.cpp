@@ -1911,7 +1911,7 @@ CPCDReader::parseVsp( CVsp* vsp, xmlNodePtr pNode )
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
     
-    checkUnknownAttr( pNode, 6, "name", "type", "base", "fqshift", "vspoffset", "vspcount" );
+    checkUnknownAttr( pNode, 7, "name", "type", "base", "fqshift", "vspoffset", "vspcount", "alloc" );
 
     vsp->name = getAttr( pNode, "name" );
 
@@ -1929,6 +1929,10 @@ CPCDReader::parseVsp( CVsp* vsp, xmlNodePtr pNode )
     vsp->fqshift   = std::strtoul( getAttr( pNode, "fqshift" ).c_str(),   0, 0 );
     vsp->vspoffset = std::strtoul( getAttr( pNode, "vspoffset" ).c_str(), 0, 0 );
     vsp->vspcount  = std::strtoul( getAttr( pNode, "vspcount" ).c_str(),  0, 0 );
+
+	vsp->vspAlloc = false;
+	if (getAttr( pNode, "alloc" ) == "yes")
+		vsp->vspAlloc = true;
 
     LOG( DBG1 ) << ind(-2) << "Done" << std::endl;
 }

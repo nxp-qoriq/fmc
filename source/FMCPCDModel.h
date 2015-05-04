@@ -198,6 +198,7 @@ public:
 
 #if (DPAA_VERSION >= 11)
     bool                    overrideStorageProfile; 
+	bool                    vspAlloc;
     t_FmPcdKgStorageProfile storageProfile; 
 #endif /* (DPAA_VERSION >= 11) */
 
