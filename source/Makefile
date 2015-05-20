@@ -54,6 +54,10 @@ ifeq ($(MACHINE),t1040qds)
   PLATFORM_FLAG = -DFMAN_V3L
 endif
 
+ifeq ($(MACHINE),ls1043)
+  PLATFORM_FLAG = -DLS1043
+endif
+
 CFLAGS += $(PLATFORM_FLAG)
 
 ifdef M64BIT
