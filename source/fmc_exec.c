@@ -491,6 +491,8 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port )
 {
     t_FmPortParams  fmPortParam      = {0};
 
+	int portShare, p, portSch, pSch;
+
     fmc_fman* pengine = &model->fman[engine];
     fmc_port* pport   = &model->port[port];
 
@@ -540,14 +542,29 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port )
     }
 #endif /* (DPAA_VERSION >= 11) */
 
+	//find if there are schemes shared with any other previous port
+	portShare = -1;
+	for (p = 0; p < port; p++) {
+		for (portSch = 0; portSch < model->port[port].schemes_count; portSch++) {
+			for (pSch = 0; pSch < model->port[p].schemes_count; pSch++) {
+				if (model->port[port].schemes[portSch] == model->port[p].schemes[pSch]) {
+					portShare = p;
+					break;
+				}
+			}
+		}
+	}
 
-
-    LOG_FMD_CALL( FM_PCD_NetEnvCharacteristicsSet, model->port[port].name );
-    pport->env_id_handle = FM_PCD_NetEnvCharacteristicsSet(
-                               pengine->pcd_handle,
-                               &pport->distinctionUnits );
-    CHECK_HANDLE( FM_PCD_NetEnvCharacteristicsSet,
-                  model->port[port].name, pport->env_id_handle );
+	if (portShare > -1) {
+		pport->env_id_handle = model->port[portShare].env_id_handle;
+	} else {
+		LOG_FMD_CALL( FM_PCD_NetEnvCharacteristicsSet, model->port[port].name );
+		pport->env_id_handle = FM_PCD_NetEnvCharacteristicsSet(
+								   pengine->pcd_handle,
+								   &pport->distinctionUnits );
+		CHECK_HANDLE( FM_PCD_NetEnvCharacteristicsSet,
+					  model->port[port].name, pport->env_id_handle );
+	}
 
     return 0;
 }
