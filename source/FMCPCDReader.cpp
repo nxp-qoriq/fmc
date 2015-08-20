@@ -1121,23 +1121,23 @@ CPCDReader::parsePolicer( CPolicer* policer, xmlNodePtr pNode )
                 policer->unit = 0;
             }
         }
-        // PIR is a synonim for CIR
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"CIR" ) ||
-                  !xmlStrcmp( cur->name, (const xmlChar*)"PIR" ) ) {
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"CIR" ) ) {
             std::string text = getXMLElement( cur );
             policer->CIR = std::strtol( text.c_str(), 0, 0 );
         }
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"EIR" ) ) {
+        // PIR is a synonim for EIR
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"EIR" )  ||
+                  !xmlStrcmp( cur->name, (const xmlChar*)"PIR" ) ) {
             std::string text = getXMLElement( cur );
             policer->EIR = std::strtol( text.c_str(), 0, 0 );
         }
-        // PBS is a synonim for CBS
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"CBS" ) ||
-                  !xmlStrcmp( cur->name, (const xmlChar*)"PBS" ) ) {
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"CBS" ) ) {
             std::string text = getXMLElement( cur );
             policer->CBS = std::strtol( text.c_str(), 0, 0 );
         }
-        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"EBS" ) ) {
+        // PBS is a synonim for EBS
+        else if ( !xmlStrcmp( cur->name, (const xmlChar*)"EBS" )  ||
+                  !xmlStrcmp( cur->name, (const xmlChar*)"PBS" ) ) {
             std::string text = getXMLElement( cur );
             policer->EBS = std::strtol( text.c_str(), 0, 0 );
         }
