@@ -254,6 +254,7 @@ public:
 
     bool maskSupport;                   ///< Reservation of memory for key masks
     bool shared;
+    bool aging;                         ///< Aging mode (enabled/disabled)
 
     ExtractData extract;                ///< Extract parameters
 
@@ -316,6 +317,8 @@ public:
     unsigned int matchKeySize;          ///< The key data size in bits
     unsigned int hashShift;             ///< Byte offset from the beginning of the KeyGen hash result to the 2-bytes to be used as hash index.
     unsigned int kgHashShift;           ///< KG-Hash-shift as it was configured in the KG-scheme that leads to this hash-table.
+
+    bool         aging;                 ///< Aging mode (enabled/disabled)
 
     std::vector< CCData >       keys;   ///< The list of data entries
     std::vector< CCData >       masks;  ///< The list of masks corresponding to data entries

@@ -695,6 +695,7 @@ class CClassification
     bool                        shared;
     unsigned int                vspBaseOnMiss;
     unsigned int                qbase;
+    bool                        aging;
     //Pre-allocation
     unsigned int                max;
     bool                        masks;
