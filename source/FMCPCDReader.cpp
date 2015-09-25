@@ -537,7 +537,7 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
                 << getAttr( pNode, "name" )
                 << "' ... " << std::endl;
                 
-    checkUnknownAttr( pNode, 6, "aging", "name", "max", "masks", "statistics", "shared" );
+    checkUnknownAttr( pNode, 5, "name", "max", "masks", "statistics", "shared" );
 
     classification->actionOnMiss            = "";
     classification->actionNameOnMiss        = "";
@@ -554,7 +554,6 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
     classification->vspBaseOnMiss           = 0;
     classification->statisticsOnMiss        = false;
     classification->shared                  = false;
-    classification->aging                   = false;
 
     for (unsigned int i = 0; i < 10; i++)
         classification->frameLength.push_back(i+1);
@@ -568,10 +567,6 @@ CPCDReader::parseClassification( CClassification* classification, xmlNodePtr pNo
     classification->statistics = getAttr( pNode, "statistics" );
     if ( classification->statistics == "" ) {
         classification->statistics = "none";
-    }
-
-    if (getAttr( pNode, "aging" ) == "true" || getAttr( pNode, "aging" ) == "yes" ) {
-        classification->aging = true;
     }
 
     if ( getAttr( pNode, "masks" ) == "true" || getAttr( pNode, "masks" ) == "yes" ) {
