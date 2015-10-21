@@ -2553,10 +2553,10 @@ CFMCModel::createPolicer( const CTaskDef* pTaskDef, Port& port, const CPolicer& 
         policer.rateModeStr = "e_FM_PCD_PLCR_BYTE_MODE";
     }
 
-    policer.comittedInfoRate         = xmlPolicer.CIR;
-    policer.peakOrAccessiveInfoRate  = xmlPolicer.EIR;
-    policer.comittedBurstSize        = xmlPolicer.CBS;
-    policer.peakOrAccessiveBurstSize = xmlPolicer.EBS;
+    policer.committedInfoRate         = xmlPolicer.CIR;
+    policer.peakOrExcessInfoRate  = xmlPolicer.EIR;
+    policer.committedBurstSize        = xmlPolicer.CBS;
+    policer.peakOrExcessBurstSize = xmlPolicer.EBS;
 
     policer.dfltColor    = getPlcrColor( xmlPolicer.dfltColor );
     policer.dfltColorStr = getPlcrColorStr( xmlPolicer.dfltColor );

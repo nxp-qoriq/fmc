@@ -1767,10 +1767,10 @@ CFMCCModelOutput::output_fmc_policer( const CFMCModel& model, fmc_model_t* cmode
     EMIT4STR( policer[, index, ].algSelection = , plc.algorithm );
     EMIT4STR( policer[, index, ].colorMode = , plc.colorMode );
 
-    EMIT4( policer[, index, ].nonPassthroughAlgParams.comittedInfoRate =, plc.comittedInfoRate );
-    EMIT4( policer[, index, ].nonPassthroughAlgParams.comittedBurstSize =, plc.comittedBurstSize );
-    EMIT4( policer[, index, ].nonPassthroughAlgParams.peakOrAccessiveInfoRate =, plc.peakOrAccessiveInfoRate );
-    EMIT4( policer[, index, ].nonPassthroughAlgParams.peakOrAccessiveBurstSize =, plc.peakOrAccessiveBurstSize );
+    EMIT4( policer[, index, ].nonPassthroughAlgParams.committedInfoRate =, plc.committedInfoRate );
+    EMIT4( policer[, index, ].nonPassthroughAlgParams.committedBurstSize =, plc.committedBurstSize );
+    EMIT4( policer[, index, ].nonPassthroughAlgParams.peakOrExcessInfoRate =, plc.peakOrExcessInfoRate );
+    EMIT4( policer[, index, ].nonPassthroughAlgParams.peakOrExcessBurstSize =, plc.peakOrExcessBurstSize );
     EMIT4STR( policer[, index, ].nonPassthroughAlgParams.rateMode =, plc.rateMode );
     EMIT3( policer[, index, ].nonPassthroughAlgParams.byteModeParams.frameLengthSelection = e_FM_PCD_PLCR_L2_FRM_LEN );
     EMIT3( policer[, index, ].nonPassthroughAlgParams.byteModeParams.rollBackFrameSelection = e_FM_PCD_PLCR_ROLLBACK_FULL_FRM_LEN );

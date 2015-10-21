@@ -387,10 +387,10 @@ public:
     e_FmPcdPlcrRateMode rateMode;
     std::string         rateModeStr;
 
-    unsigned int comittedInfoRate;
-    unsigned int comittedBurstSize;
-    unsigned int peakOrAccessiveInfoRate;
-    unsigned int peakOrAccessiveBurstSize;
+    unsigned int committedInfoRate;
+    unsigned int committedBurstSize;
+    unsigned int peakOrExcessInfoRate;
+    unsigned int peakOrExcessBurstSize;
 
     e_FmPcdEngine     nextEngineOnGreen;
     std::string       nextEngineOnGreenStr;
