@@ -46,6 +46,8 @@
 #define DEFINE_LOGGER_INSTANCE
 #include "logger.hpp"
 
+const char* TMPFILENAME = "/tmp/fmc.bin";
+
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4996)
@@ -216,6 +218,244 @@ fmc_log_write( int32_t level, const char* format, ... )
     }
 
     va_end( args );
+}
+
+
+void createDevices( fmc_model* pmodel )
+{
+	int i, j;
+	unsigned int index;
+	unsigned int current_engine = 0;
+	unsigned int current_port = 0;
+	t_FmPcdParams fmPcdParams = {0};
+	t_FmPortParams  fmPortParam = {0};
+
+	for (i = 0; i < pmodel->apply_order_count; i++)
+	{
+		index = pmodel->apply_order[i].index;
+
+		switch (pmodel->apply_order[i].type)
+		{
+        case FMCEngineStart:
+            current_engine = pmodel->apply_order[i].index;
+
+    		if (pmodel->fman[index].handle)
+    			pmodel->fman[index].handle = FM_Open(pmodel->fman[current_engine].number);
+
+    		fmPcdParams.h_Fm = pmodel->fman[current_engine].handle;
+    		if (pmodel->fman[index].pcd_handle)
+    			pmodel->fman[index].pcd_handle = FM_PCD_Open(&fmPcdParams);
+
+    		for (j = 0; j < pmodel->fman[index].reasm_count; j++)
+    		{
+    			if (pmodel->fman[index].reasm_handle[j])
+    				pmodel->fman[index].reasm_handle[j] = CreateDevice(pmodel->fman[current_engine].pcd_handle, pmodel->fman[index].reasm_devId[j]);
+    		}
+
+    		for (j = 0; j < pmodel->fman[index].frag_count; j++)
+    		{
+    			if (pmodel->fman[index].frag_handle[j])
+    				pmodel->fman[index].frag_handle[j] = CreateDevice(pmodel->fman[current_engine].pcd_handle, pmodel->fman[index].frag_devId[j]);
+    		}
+            break;
+
+        case FMCEngineEnd:
+        	break;
+
+        case FMCPortStart:
+        	current_port = pmodel->apply_order[i].index;
+
+    	    fmPortParam.h_Fm     = pmodel->fman[current_engine].handle;
+    	    fmPortParam.portId   = pmodel->port[index].number;
+    	    fmPortParam.portType = pmodel->port[index].type;
+
+    	    if (pmodel->port[index].handle)
+    			pmodel->port[index].handle = FM_PORT_Open(&fmPortParam);
+
+    	    if (pmodel->port[index].env_id_handle)
+    			pmodel->port[index].env_id_handle = CreateDevice(pmodel->fman[current_engine].pcd_handle, pmodel->port[index].env_id_devId);
+        	break;
+
+        case FMCPortEnd:
+        	break;
+
+        case FMCScheme:
+    		if (pmodel->scheme_handle[index])
+    			pmodel->scheme_handle[index] = CreateDevice(pmodel->fman[current_engine].pcd_handle, pmodel->scheme_devId[index]);
+        	break;
+
+        case FMCCCNode:
+    		if (pmodel->ccnode_handle[index])
+    			pmodel->ccnode_handle[index] = CreateDevice(pmodel->fman[current_engine].pcd_handle, pmodel->ccnode_devId[index]);
+        	break;
+
+        case FMCHTNode:
+    		if (pmodel->htnode_handle[index])
+    			pmodel->htnode_handle[index] = CreateDevice(pmodel->fman[current_engine].pcd_handle, pmodel->htnode_devId[index]);
+        	break;
+
+#if (DPAA_VERSION >= 11)
+		case FMCReplicator:
+			if (pmodel->replicator_handle[index])
+				pmodel->replicator_handle[index] = CreateDevice(pmodel->fman[current_engine].pcd_handle, pmodel->replicator_devId[index]);
+			break;
+#endif /* (DPAA_VERSION >= 11) */
+
+		case FMCCCTree:
+			if (pmodel->port[index].cctree_handle)
+				pmodel->port[index].cctree_handle = CreateDevice(pmodel->fman[current_engine].pcd_handle, pmodel->port[index].cctree_devId);
+			break;
+
+		case FMCPolicer:
+			if (pmodel->policer_handle[index])
+				pmodel->policer_handle[index] = CreateDevice(pmodel->fman[current_engine].pcd_handle, pmodel->policer_devId[index]);
+			break;
+
+		case FMCManipulation:
+			if (pmodel->fman[current_engine].hdr_handle[index])
+				pmodel->fman[current_engine].hdr_handle[index] = CreateDevice(pmodel->fman[current_engine].pcd_handle, pmodel->fman[current_engine].hdr_devId[index]);
+			break;
+
+		default:
+			break;
+		}
+	}
+}
+
+void fmc_release( fmc_model* pmodel )
+{
+	int i, j, k;
+	unsigned int index;
+	unsigned int current_engine = 0;
+	unsigned int current_port = 0;
+
+	for (k = 0; k < pmodel->apply_order_count; k++) {
+
+		/* Clean entities in reverse order of applying */
+        i = pmodel->apply_order_count - k - 1;
+		index = pmodel->apply_order[i].index;
+
+		switch (pmodel->apply_order[i].type)
+		{
+		case FMCEngineStart:
+			current_engine = pmodel->apply_order[i].index;
+
+			for (j = 0; j < pmodel->fman[index].reasm_count; j++)
+			{
+				if (pmodel->fman[index].reasm_handle[j])
+					ReleaseDevice(pmodel->fman[index].reasm_handle[j]);
+			}
+
+			for (j = 0; j < pmodel->fman[index].frag_count; j++)
+			{
+				if (pmodel->fman[index].frag_handle[j])
+					ReleaseDevice(pmodel->fman[index].frag_handle[j]);
+			}
+
+			if (pmodel->fman[index].pcd_handle)
+				FM_PCD_Close(pmodel->fman[index].pcd_handle);
+
+			if (pmodel->fman[index].handle)
+				FM_Close(pmodel->fman[index].handle);
+			break;
+
+		case FMCEngineEnd:
+			break;
+
+		case FMCPortStart:
+			current_port = pmodel->apply_order[i].index;
+
+			if (pmodel->port[index].env_id_handle)
+				ReleaseDevice(pmodel->port[index].env_id_handle);
+
+			if (pmodel->port[index].handle)
+				FM_PORT_Close(pmodel->port[index].handle);
+			break;
+
+		case FMCPortEnd:
+			break;
+
+		case FMCScheme:
+			if (pmodel->scheme_handle[index])
+				ReleaseDevice(pmodel->scheme_handle[index]);
+			break;
+
+		case FMCCCNode:
+			if (pmodel->ccnode_handle[index])
+				ReleaseDevice(pmodel->ccnode_handle[index]);
+			break;
+
+		case FMCHTNode:
+			if (pmodel->htnode_handle[index])
+				ReleaseDevice(pmodel->htnode_handle[index]);
+			break;
+
+#if (DPAA_VERSION >= 11)
+		case FMCReplicator:
+			if (pmodel->replicator_handle[index])
+				ReleaseDevice(pmodel->replicator_handle[index]);
+			break;
+#endif /* (DPAA_VERSION >= 11) */
+
+		case FMCCCTree:
+			if (pmodel->port[index].cctree_handle)
+				ReleaseDevice(pmodel->port[index].cctree_handle);
+			break;
+
+		case FMCPolicer:
+			if (pmodel->policer_handle[index])
+				ReleaseDevice(pmodel->policer_handle[index]);
+			break;
+
+		case FMCManipulation:
+			if (pmodel->fman[current_engine].hdr_handle[index])
+				ReleaseDevice(pmodel->fman[current_engine].hdr_handle[index]);
+			break;
+
+		default:
+			break;
+        }
+    }
+}
+
+bool fmc_load( fmc_model* pmodel )
+{
+    bool ret = false;
+
+    std::ifstream ifs( TMPFILENAME,
+        std::ios::in | std::ios::binary );
+
+    if ( !ifs ) {
+        return false;
+    }
+
+    ifs.read( (char*)pmodel, sizeof( *pmodel ) );
+    ifs.close();
+    ret = true;
+
+	//Recreate old Linux device handles in the context of the current process:
+	createDevices( pmodel );
+
+    return ret;
+}
+
+bool fmc_save( fmc_model* pmodel )
+{
+    bool ret = false;
+
+    std::ofstream ofs( TMPFILENAME,
+        std::ios::out | std::ios::binary | std::ios::trunc );
+
+    if ( !ofs ) {
+        fmc_log_write( LOG_ERR, "Can't open file %s", TMPFILENAME );
+        return false;
+    }
+
+    ofs.write( (char*)pmodel, sizeof( *pmodel ) );
+    ofs.close();
+    ret = true;
+
+    return ret;
 }
 
 

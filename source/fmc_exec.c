@@ -451,6 +451,8 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
                                  &model->fman[index].reasm[i] );
         CHECK_HANDLE( FM_PCD_ManipNodeSet,
                       model->fman[index].reasm_name[i], model->fman[index].reasm_handle[i] );
+
+        model->fman[index].reasm_devId[i] = GetDeviceId(model->fman[index].reasm_handle[i]);
     }
 
 	if (bIsIPR_IPv6)
@@ -467,6 +469,8 @@ fmc_exec_engine_start( fmc_model* model, unsigned int index,
                                  &model->fman[index].frag[i] );
         CHECK_HANDLE( FM_PCD_ManipNodeSet,
                       model->fman[index].frag_name[i], model->fman[index].frag_handle[i] );
+
+        model->fman[index].frag_devId[i] = GetDeviceId(model->fman[index].frag_handle[i]);
     }
 
 #endif /* P1023 */
@@ -564,6 +568,8 @@ fmc_exec_port_start( fmc_model* model, unsigned int engine, unsigned int port )
 								   &pport->distinctionUnits );
 		CHECK_HANDLE( FM_PCD_NetEnvCharacteristicsSet,
 					  model->port[port].name, pport->env_id_handle );
+
+		pport->env_id_devId = GetDeviceId(pport->env_id_handle);
 	}
 
     return 0;
@@ -613,6 +619,8 @@ fmc_exec_port_end( fmc_model* model, unsigned int engine, unsigned int port )
                             &(model->scheme[index]) );
 		    CHECK_HANDLE( FM_PCD_KgSchemeSet, model->scheme_name[index],
                   model->scheme_handle[index] );
+
+		    model->scheme_devId[index] = GetDeviceId(model->scheme_handle[index]);
 
 		}
     }
@@ -767,6 +775,8 @@ fmc_exec_scheme( fmc_model* model,  unsigned int engine,
     CHECK_HANDLE( FM_PCD_KgSchemeSet, model->scheme_name[index],
                   model->scheme_handle[index] );
 
+    model->scheme_devId[index] = GetDeviceId(model->scheme_handle[index]);
+
     return 0;
 }
 
@@ -861,6 +871,8 @@ fmc_exec_ccnode( fmc_model* model, unsigned int engine,
     CHECK_HANDLE( FM_PCD_MatchTableSet, model->ccnode_name[index],
                   model->ccnode_handle[index] );
 
+    model->ccnode_devId[index] = GetDeviceId(model->ccnode_handle[index]);
+
     return 0;
 }
 
@@ -904,6 +916,8 @@ fmc_exec_htnode( fmc_model* model, unsigned int engine,
                           &(model->htnode[index]) );
     CHECK_HANDLE( FM_PCD_HashTableSet, model->htnode_name[index],
                   model->htnode_handle[index] );
+
+    model->htnode_devId[index] = GetDeviceId(model->htnode_handle[index]);
 
     return 0;
 }
@@ -952,6 +966,8 @@ fmc_exec_replicator( fmc_model* model, unsigned int engine,
                           &(model->replicator[index]) );
     CHECK_HANDLE( FM_PCD_FrmReplicSetGroup, model->replicator_name[index],
                   model->replicator_handle[index] );
+
+    model->replicator_devId[index] = GetDeviceId(model->replicator_handle[index]);
 
     if ( model->replicator_handle[index] == 0 ) {
         return 6;
@@ -1016,6 +1032,8 @@ fmc_exec_cctree( fmc_model* model, unsigned int engine,
     CHECK_HANDLE( FM_PCD_CcRootBuild, model->port[port].name,
                   model->port[port].cctree_handle );
 
+    model->port[port].cctree_devId = GetDeviceId(model->port[port].cctree_handle);
+
     return 0;
 }
 
@@ -1075,6 +1093,8 @@ fmc_exec_policer( fmc_model* model, unsigned int engine,
     CHECK_HANDLE( FM_PCD_PlcrProfileSet, model->policer_name[index],
                   model->policer_handle[index] );
 
+    model->policer_devId[index] = GetDeviceId(model->policer_handle[index]);
+
     return 0;
 }
 
@@ -1105,6 +1125,8 @@ fmc_exec_manip( fmc_model* model, unsigned int engine,
                              &model->fman[engine].hdr[index] );
     CHECK_HANDLE( FM_PCD_ManipNodeSet, model->fman[engine].hdr_name[index],
                   model->fman[engine].hdr_handle[index] );
+
+    model->fman[engine].hdr_devId[index] = GetDeviceId(model->fman[engine].hdr_handle[index]);
 #endif /* P1023 */
     
     return 0;

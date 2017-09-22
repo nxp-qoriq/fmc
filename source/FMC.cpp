@@ -48,10 +48,6 @@
 #endif
 
 #define FMC_VERSION "0.9.34"
-const char* TMPFILENAME = "/tmp/fmc.bin";
-
-bool load( fmc_model_t* pmodel );
-bool save( fmc_model_t* pmodel );
 
 #include <cstdlib>
 
@@ -196,7 +192,7 @@ int main( int argc, char* argv[] )
         }
 
         if ( !compOnly.getValue() && ( apply.getValue() || force.getValue() ) ) {
-            if ( !force.getValue() && load( &prev_model ) ) {
+            if ( !force.getValue() && fmc_load( &prev_model ) ) {
                 fmc_clean( &prev_model );
             }
 
@@ -207,7 +203,10 @@ int main( int argc, char* argv[] )
                 std::memset( &model, 0, sizeof( model ) );
             }
 
-            save( &model );
+		    fmc_save( &model );
+
+		    //Release all Linux devices handles
+		    fmc_release( &model );
         }
         else {
             std::ofstream os( "./fmc_config_data.c" );
@@ -242,45 +241,3 @@ int main( int argc, char* argv[] )
     return 0;
 }
 
-
-bool load( fmc_model_t* pmodel )
-{
-    bool ret = false;
-
-#ifdef __PPC__
-    std::ifstream ifs( TMPFILENAME,
-        std::ios::in | std::ios::binary );
-
-    if ( !ifs ) {
-        return false;
-    }
-
-    ifs.read( (char*)pmodel, sizeof( *pmodel ) );
-    ifs.close();
-    ret = true;
-#endif
-
-    return ret;
-}
-
-
-bool save( fmc_model_t* pmodel )
-{
-    bool ret = false;
-
-#ifdef __PPC__
-    std::ofstream ofs( TMPFILENAME,
-        std::ios::out | std::ios::binary | std::ios::trunc );
-
-    if ( !ofs ) {
-        fmc_log_write( LOG_ERR, "Can't open file %s", TMPFILENAME );
-        return false;
-    }
-
-    ofs.write( (char*)pmodel, sizeof( *pmodel ) );
-    ofs.close();
-    ret = true;
-#endif
-
-    return ret;
-}

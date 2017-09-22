@@ -79,17 +79,20 @@ typedef struct fmc_fman_t {
     t_FmPcdManipParams reasm[FMC_MANIP_MAX];
     char               reasm_name[FMC_MANIP_MAX][FMC_NAME_LEN];
     t_Handle           reasm_handle[FMC_MANIP_MAX];
+    t_Handle           reasm_devId[FMC_MANIP_MAX];
 
     unsigned int       frag_count;
     t_FmPcdManipParams frag[FMC_MANIP_MAX];
     char               frag_name[FMC_MANIP_MAX][FMC_NAME_LEN];
     t_Handle           frag_handle[FMC_MANIP_MAX];
+    t_Handle           frag_devId[FMC_MANIP_MAX];
 
     unsigned int       hdr_count;
     t_FmPcdManipParams hdr[FMC_HMANIP_MAX];
     uint8_t            insertData[FMC_HMANIP_MAX][FMC_INSERT_MAX];
     char               hdr_name[FMC_HMANIP_MAX][FMC_NAME_LEN];
     t_Handle           hdr_handle[FMC_HMANIP_MAX];
+    t_Handle           hdr_devId[FMC_HMANIP_MAX];
     unsigned int       hdr_hasNext[FMC_HMANIP_MAX];
     unsigned int       hdr_next[FMC_HMANIP_MAX];
 #endif /* P1023 */
@@ -108,7 +111,9 @@ typedef struct fmc_port_t {
     char                 cctree_name[FMC_NAME_LEN];
     t_Handle             handle;
     t_Handle             env_id_handle;
+    t_Handle             env_id_devId; 				///< handle to net environment allocated by the driver in kernel
     t_Handle             cctree_handle;
+    t_Handle             cctree_devId;
 
     unsigned int         schemes_count;             ///< Number of used schemes
     unsigned int         schemes[FMC_SCHEMES_NUM];  ///< Schemes used by this port
@@ -172,11 +177,13 @@ typedef struct fmc_model_t {
     unsigned int             scheme_count;     ///< Number of used KeyGen schemes
     char                     scheme_name  [FMC_SCHEMES_NUM][FMC_NAME_LEN];
     t_Handle                 scheme_handle[FMC_SCHEMES_NUM];
+    t_Handle                 scheme_devId[FMC_SCHEMES_NUM];
     t_FmPcdKgSchemeParams    scheme       [FMC_SCHEMES_NUM];
 
     unsigned int             ccnode_count;       ///< Number of used CC nodes
     char                     ccnode_name         [FMC_CC_NODES_NUM][FMC_NAME_LEN];
     t_Handle                 ccnode_handle       [FMC_CC_NODES_NUM];
+    t_Handle                 ccnode_devId        [FMC_CC_NODES_NUM];
     t_FmPcdCcNodeParams      ccnode              [FMC_CC_NODES_NUM];
     uint8_t                  cckeydata           [FMC_CC_NODES_NUM][FM_PCD_MAX_NUM_OF_KEYS]
                                                  [FM_PCD_MAX_SIZE_OF_KEY];
@@ -194,6 +201,7 @@ typedef struct fmc_model_t {
     unsigned int             htnode_count;       ///< Number of used HT nodes
     char                     htnode_name         [FMC_CC_NODES_NUM][FMC_NAME_LEN];
     t_Handle                 htnode_handle       [FMC_CC_NODES_NUM];
+    t_Handle                 htnode_devId        [FMC_CC_NODES_NUM];
     t_FmPcdHashTableParams   htnode              [FMC_CC_NODES_NUM];
     //-- ht table prefilled entries
     unsigned int             htentry_count       [FMC_CC_NODES_NUM];
@@ -215,6 +223,7 @@ typedef struct fmc_model_t {
     unsigned int             replicator_count;     ///< Number of used Frame Replicators
     char                     replicator_name       [FMC_REPLICATORS_NUM][FMC_NAME_LEN];
     t_Handle                 replicator_handle     [FMC_REPLICATORS_NUM];
+    t_Handle                 replicator_devId      [FMC_REPLICATORS_NUM];
     t_FmPcdFrmReplicGroupParams      replicator    [FMC_REPLICATORS_NUM];
     unsigned int             repentry_action_index [FMC_REPLICATORS_NUM][FM_PCD_MAX_NUM_OF_REPS];
     unsigned char            repentry_frag         [FMC_REPLICATORS_NUM][FM_PCD_MAX_NUM_OF_REPS];
@@ -225,6 +234,7 @@ typedef struct fmc_model_t {
     char                     policer_name        [FMC_PLC_NUM][FMC_NAME_LEN];
     t_FmPcdPlcrProfileParams policer             [FMC_PLC_NUM];
     t_Handle                 policer_handle      [FMC_PLC_NUM];
+    t_Handle                 policer_devId       [FMC_PLC_NUM];
     unsigned int             policer_action_index[FMC_PLC_NUM][3];
 
     unsigned int             apply_order_count;               ///< Number of 'apply order' elements
@@ -246,6 +256,12 @@ int fmc_compile(
 int fmc_execute( fmc_model* model );
 
 int fmc_clean( fmc_model* model );
+
+bool fmc_load( fmc_model* pmodel );
+
+bool fmc_save( fmc_model* pmodel );
+
+void fmc_release( fmc_model* pmodel );
 
 const char* fmc_get_error( void );
 
