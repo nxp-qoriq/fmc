@@ -161,57 +161,78 @@ int main( int argc, char* argv[] )
             "nodefault", "pcd_file" );
         cmd.add( namePCD );
 
+		TCLAP::SwitchArg cleanup( "x", "clean",
+            "Cleanup configuration (target only)");
+        cmd.add( cleanup );
+
         cmd.parse( argc, argv );
 
         set_log_level( log_level.getValue() );
 
         // Check args
-        if (compOnly.getValue() && !nameSP.isSet())
-            throw CGenericError(ERR_SP_REQUIRED);
-        if (!compOnly.getValue() && !namePCD.isSet())
-            throw CGenericError(ERR_PCD_REQUIRED);
-        if (!compOnly.getValue() && !nameCfg.isSet())
-            throw CGenericError(ERR_CONFIG_REQUIRED);
+		if (!cleanup.getValue()) {
+			if (compOnly.getValue() && !nameSP.isSet())
+				throw CGenericError(ERR_SP_REQUIRED);
+			if (!compOnly.getValue() && !namePCD.isSet())
+				throw CGenericError(ERR_PCD_REQUIRED);
+			if (!compOnly.getValue() && !nameCfg.isSet())
+				throw CGenericError(ERR_CONFIG_REQUIRED);
+		} else {
+			if (compOnly.getValue() || nameSP.isSet() || namePCD.isSet() || nameCfg.isSet() ||
+				apply.getValue() || force.getValue())
+				throw CGenericError(ERR_CLEANUP);
+		}
         CGenericError::dontWarn = ( LOG_GET_LEVEL() < LOG_WARN );
 
         const char* dump = 0;
+		int ret = 0;
 
-        int ret = fmc_compile(
-                    &model,
-                    nameCfg.getValue().c_str(),
-                    namePCD.getValue().c_str(),
-                    namePDL.getValue().c_str(),
-                    nameSP.getValue().c_str(),
-                    strtoul( swOffset.getValue().c_str(), 0, 0 ),
-                    ( LOG_GET_LEVEL() < LOG_WARN ),
-                    &dump
-            );
+		if (!cleanup.getValue()) {
+			ret = fmc_compile(
+						&model,
+						nameCfg.getValue().c_str(),
+						namePCD.getValue().c_str(),
+						namePDL.getValue().c_str(),
+						nameSP.getValue().c_str(),
+						strtoul( swOffset.getValue().c_str(), 0, 0 ),
+						( LOG_GET_LEVEL() < LOG_WARN ),
+						&dump
+				);
 
-        if ( ret != 0 ) {
-            return ret;
-        }
+			if ( ret != 0 ) {
+				return ret;
+			}
 
-        if ( !compOnly.getValue() && ( apply.getValue() || force.getValue() ) ) {
-            if ( !force.getValue() && fmc_load( &prev_model ) ) {
-                fmc_clean( &prev_model );
-            }
+			if ( !compOnly.getValue() && ( apply.getValue() || force.getValue() ) ) {
+				if ( !force.getValue() && fmc_load( &prev_model ) ) {
+					fmc_clean( &prev_model );
+				}
 
-            ret = fmc_execute( &model );
+				ret = fmc_execute( &model );
 
-            if ( ret != 0 ) {
-                fmc_clean( &model );
-                std::memset( &model, 0, sizeof( model ) );
-            }
+				if ( ret != 0 ) {
+					fmc_clean( &model );
+					std::memset( &model, 0, sizeof( model ) );
+				}
 
-		    fmc_save( &model );
+				fmc_save( &model );
 
-		    //Release all Linux devices handles
-		    fmc_release( &model );
-        }
-        else {
-            std::ofstream os( "./fmc_config_data.c" );
-            os << dump;
-        }
+				//Release all Linux devices handles
+				fmc_release( &model );
+			}
+			else {
+				std::ofstream os( "./fmc_config_data.c" );
+				os << dump;
+			}
+		} else {
+
+			if (fmc_load( &prev_model )) {
+				fmc_clean( &prev_model );
+				std::memset( &model, 0, sizeof( model ) );
+
+				fmc_save( &model );
+			}
+		}
 
         return ret;
     }

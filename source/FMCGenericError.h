@@ -107,6 +107,8 @@ const std::string ERR_CONFIG_REQUIRED        = "Config file required %1";
 const std::string ERR_SP_REQUIRED            = "Custom protocol file required when working in compile only mode %1";
 const std::string ERR_NO_INPUT_FILE          = "Usage: fmc <pdl_input_file> <pcd_input_file> %1";
 const std::string ERR_CANT_OPEN_FILE         = "The input file can't be found or opened: %1";
+const std::string ERR_CLEANUP				 = "Cleanup option must be used alone %1";
+
 const std::string ERR_XML_PARSE_ERROR        = "%1(%2): %3";
 const std::string ERR_XML_PARSE_ERROR1       = "%1";
 const std::string ERR_EMPTY_DOCUMENT         = "The document is empty: %1";

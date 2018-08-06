@@ -49,6 +49,23 @@ extern "C" {
 
 static unsigned int handle_no = 0;
 
+t_Handle CreateDevice(t_Handle h_UserPriv, t_Handle h_DevId)
+{
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::CreateDevice %d", handle_no + 1 );
+    return (t_Handle)++handle_no;
+}
+
+t_Error ReleaseDevice(t_Handle h_Dev)
+{
+	fmc_log_write( LOG_DBG2, "Calling IOCTL::ReleaseDevice %d", h_Dev );
+	return E_OK;
+}
+
+t_Handle GetDeviceId(t_Handle h_Dev)
+{
+	fmc_log_write( LOG_DBG2, "Calling IOCTL::GetDeviceId %d", h_Dev );
+	return h_Dev;
+}
 
 t_Handle
 FM_Open(uint8_t id)
