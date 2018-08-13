@@ -443,6 +443,16 @@ bool fmc_save( fmc_model* pmodel )
 {
     bool ret = false;
 
+	// Remove FMC data file entirely if model was passed as NULL
+	if (pmodel == NULL) {
+		int err = std::remove(TMPFILENAME);
+		if (err) {
+			fmc_log_write( LOG_ERR, "Cannot remove file %s", TMPFILENAME );
+			return false;
+		}
+		return true;
+	}
+
     std::ofstream ofs( TMPFILENAME,
         std::ios::out | std::ios::binary | std::ios::trunc );
 

@@ -225,12 +225,12 @@ int main( int argc, char* argv[] )
 				os << dump;
 			}
 		} else {
-
+			// Cleanup command
 			if (fmc_load( &prev_model )) {
 				fmc_clean( &prev_model );
-				std::memset( &model, 0, sizeof( model ) );
 
-				fmc_save( &model );
+				//Remove fmc data file on cleanup
+				fmc_save( NULL );
 			}
 		}
 
