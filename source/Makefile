@@ -68,6 +68,8 @@ endif
 
 CFLAGS += $(PLATFORM_FLAG)
 
+ARFLAGS = -rvU
+
 ifdef M64BIT
   CFLAGS += -m64
 endif
