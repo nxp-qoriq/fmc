@@ -221,7 +221,7 @@ fmc_log_write( int32_t level, const char* format, ... )
 }
 
 
-void createDevices( fmc_model* pmodel )
+int createDevices( fmc_model* pmodel )
 {
 	int i, j;
 	unsigned int index;
@@ -239,12 +239,22 @@ void createDevices( fmc_model* pmodel )
         case FMCEngineStart:
             current_engine = pmodel->apply_order[i].index;
 
-    		if (pmodel->fman[index].handle)
+    		if (pmodel->fman[index].handle) {
     			pmodel->fman[index].handle = FM_Open(pmodel->fman[current_engine].number);
+    			if (pmodel->fman[index].handle == NULL) {
+    				fmc_log_write( LOG_ERR, "Invocation of 'FM_Open' for %s failed", pmodel->fman[index].name );
+    				return 1;
+    			}
+    		}
 
     		fmPcdParams.h_Fm = pmodel->fman[current_engine].handle;
-    		if (pmodel->fman[index].pcd_handle)
+    		if (pmodel->fman[index].pcd_handle) {
     			pmodel->fman[index].pcd_handle = FM_PCD_Open(&fmPcdParams);
+    			if (pmodel->fman[index].pcd_handle == NULL) {
+    				fmc_log_write( LOG_ERR, "Invocation of 'FM_PCD_Open' for %s failed", pmodel->fman[index].pcd_name );
+    				return 1;
+    			}
+    		}
 
     		for (j = 0; j < pmodel->fman[index].reasm_count; j++)
     		{
@@ -269,8 +279,13 @@ void createDevices( fmc_model* pmodel )
     	    fmPortParam.portId   = pmodel->port[index].number;
     	    fmPortParam.portType = pmodel->port[index].type;
 
-    	    if (pmodel->port[index].handle)
+    	    if (pmodel->port[index].handle) {
     			pmodel->port[index].handle = FM_PORT_Open(&fmPortParam);
+    			if (pmodel->port[index].handle == NULL) {
+    				fmc_log_write( LOG_ERR, "Invocation of 'FM_PORT_Open' for %s failed", pmodel->port[index].name );
+    				return 1;
+    			}
+    	    }
 
     	    if (pmodel->port[index].env_id_handle)
     			pmodel->port[index].env_id_handle = CreateDevice(pmodel->fman[current_engine].pcd_handle, pmodel->port[index].env_id_devId);
@@ -320,6 +335,8 @@ void createDevices( fmc_model* pmodel )
 			break;
 		}
 	}
+
+	return 0;
 }
 
 void fmc_release( fmc_model* pmodel )
@@ -420,7 +437,7 @@ void fmc_release( fmc_model* pmodel )
 
 bool fmc_load( fmc_model* pmodel )
 {
-    bool ret = false;
+    int res = 0;
 
     std::ifstream ifs( TMPFILENAME,
         std::ios::in | std::ios::binary );
@@ -431,18 +448,17 @@ bool fmc_load( fmc_model* pmodel )
 
     ifs.read( (char*)pmodel, sizeof( *pmodel ) );
     ifs.close();
-    ret = true;
 
 	//Recreate old Linux device handles in the context of the current process:
-	createDevices( pmodel );
+	res = createDevices( pmodel );
+	if (res != 0)
+		return false;
 
-    return ret;
+    return true;
 }
 
 bool fmc_save( fmc_model* pmodel )
 {
-    bool ret = false;
-
 	// Remove FMC data file entirely if model was passed as NULL
 	if (pmodel == NULL) {
 		int err = std::remove(TMPFILENAME);
@@ -463,9 +479,8 @@ bool fmc_save( fmc_model* pmodel )
 
     ofs.write( (char*)pmodel, sizeof( *pmodel ) );
     ofs.close();
-    ret = true;
 
-    return ret;
+    return true;
 }
 
 
