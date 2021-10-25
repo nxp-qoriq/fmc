@@ -2,6 +2,7 @@
  *
  * The MIT License (MIT)
  * Copyright 2009, 2010, Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -209,6 +210,13 @@ t_Error
 FM_PCD_Enable( t_Handle h_FmPcd )
 {
     fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_Enable %d", h_FmPcd );
+    return E_OK;
+}
+
+t_Error
+FM_PCD_AllowHcUsage( t_Handle h_FmPcd, bool allow )
+{
+    fmc_log_write( LOG_DBG2, "Calling IOCTL::FM_PCD_AllowHcUsage %d", h_FmPcd );
     return E_OK;
 }
 

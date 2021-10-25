@@ -2,6 +2,7 @@
  *
  * The MIT License (MIT)
  * Copyright (c) 2009-2012, Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -1158,6 +1159,12 @@ fmc_clean_engine_start( fmc_model* model, unsigned int index )
 
 #endif /* P1023 */
 
+    /* fmc_clean_engine_start is called last:
+    * Restore HC usage to be allowed */
+    LOG_FMD_CALL( FM_PCD_AllowHcUsage, model->fman[index].pcd_name );
+    err = FM_PCD_AllowHcUsage( model->fman[index].pcd_handle, TRUE );
+    CHECK_ERR( FM_PCD_AllowHcUsage, model->fman[index].pcd_name );
+
     if ( model->fman[index].pcd_handle != 0 ) {
 #ifndef NETCOMM_SW
         FM_PCD_Close( model->fman[index].pcd_handle );
@@ -1178,6 +1185,14 @@ static int
 fmc_clean_engine_end( fmc_model* model, unsigned int index )
 {
     t_Error err;
+
+    /* fmc_clean_engine_end is called first:
+     * Temporary Deny HC usage
+     * to avoid crash of certain HC operations performed under heavy traffic */
+    LOG_FMD_CALL( FM_PCD_AllowHcUsage, model->fman[index].pcd_name );
+    err = FM_PCD_AllowHcUsage( model->fman[index].pcd_handle, FALSE );
+    CHECK_ERR( FM_PCD_AllowHcUsage, model->fman[index].pcd_name );
+
     LOG_FMD_CALL( FM_PCD_Disable, model->fman[index].pcd_name );
     err = FM_PCD_Disable( model->fman[index].pcd_handle );
     CHECK_ERR( FM_PCD_Disable, model->fman[index].pcd_name );
@@ -1219,6 +1234,10 @@ fmc_clean_port_end( fmc_model* model, unsigned int engine, unsigned int port )
     if ( pport->handle == 0 ) {
         return 0;
     }
+
+    LOG_FMD_CALL( FM_PORT_Disable, pport->name );
+    err = FM_PORT_Disable( pport->handle );
+    CHECK_ERR( FM_PORT_Disable, pport->name );
 
     LOG_FMD_CALL( FM_PORT_DeletePCD, pport->name );
     err = FM_PORT_DeletePCD( pport->handle );
