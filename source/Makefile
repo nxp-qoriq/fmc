@@ -10,10 +10,10 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included
 # in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -118,7 +118,7 @@ objects = ./libfmc.o ./fmc_exec.o                                       \
 headers = fmc.h FMCCFGReader.h FMCCModelOutput.h FMCGenericError.h \
           FMCPCDModel.h FMCPCDReader.h FMCPDLReader.h FMCSP.h      \
           FMCSPCreateCode.h FMCSPIR.h FMCTaskDef.h FMCUtils.h      \
-          FMCSPExpr.hpp logger.hpp 
+          FMCSPExpr.hpp logger.hpp
 
 other_files = ./fmc ./fmc_config ./fmc_config.c ./fmc_config.o ./softparse.h \
 	          ./libfm.a ./libfmc.a ./FMCDummyDriver.o ./FMC.o
@@ -147,7 +147,7 @@ dist: clean
 	cp *.c *.cpp *.h *.hpp Makefile    $(PKG_NAME)/source
 	cp spa/*.c spa/*.h                 $(PKG_NAME)/source/spa
 	cp -r ../etc/*                     $(PKG_NAME)/etc
-	cp ../INSTALL ../COPYING ../README $(PKG_NAME)
+	cp ../INSTALL ../LICENSE ../README $(PKG_NAME)
 	find $(PKG_NAME) -name  CVS   -print0 | xargs -0 /bin/rm -R -f
 	find $(PKG_NAME) -name .svn   -print0 | xargs -0 /bin/rm -R -f
 	find $(PKG_NAME) -name \*.o   -print0 | xargs -0 /bin/rm -R -f
