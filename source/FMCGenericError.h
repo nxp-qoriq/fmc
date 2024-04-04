@@ -35,7 +35,7 @@
 
 const int NO_LINE = -1;
 
-void errorFuncHandler( void * ctx, xmlErrorPtr error );
+void errorFuncHandler( void * ctx, const xmlError * error );
 
 
 class CGenericError {
