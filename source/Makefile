@@ -128,11 +128,13 @@ fmc : ./FMC.o ./FMCUtils.o ./FMCGenericError.o libfmc.a
 
 $(objects) : $(headers)
 
-libfmc.a : libfmc.a($(objects))
+libfmc.a : $(objects)
+	$(AR) $(ARFLAGS) $@ $^
 
 fmc_config : fmc_config.o libfmc.a libfm.a
 
-libfm.a : libfm.a(FMCDummyDriver.o)
+libfm.a : FMCDummyDriver.o
+	$(AR) $(ARFLAGS) $@ $^
 
 .PHONY: clean
 clean:
