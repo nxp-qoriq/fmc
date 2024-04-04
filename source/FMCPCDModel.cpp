@@ -673,7 +673,7 @@ CFMCModel::createPort( Engine& engine, const CPort& xmlPort, const CTaskDef* pTa
     if (xmlPort.type == "MAC")
     {
         uint8_t lu_n[11] = {  255, 0,   1,   2,   3,   4,   5,   6,   7,   0,    1};
-        char* lu_t[11] =  { "ERR","1G","1G","1G","1G","1G","1G","1G","1G","10G","10G" };
+        const char* lu_t[11] =  { "ERR","1G","1G","1G","1G","1G","1G","1G","1G","10G","10G" };
 
         if(tmp_xmlPort_number > 10) tmp_xmlPort_number = 0;
         tmp_xmlPort_type = lu_t[tmp_xmlPort_number];
